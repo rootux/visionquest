@@ -1,6 +1,7 @@
 #include "ofMain.h"
 #include "ofApp.h"
-
+#include "testApp.h"
+//#define USE_PROGRAMMABLE_GL
 //========================================================================
 int main() {
 

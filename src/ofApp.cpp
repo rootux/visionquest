@@ -37,7 +37,7 @@ void ofApp::setup() {
 	mouseForces.setup(flowWidth, flowHeight, drawWidth, drawHeight);
 
 	// CAMERA
-	//simpleCam.setup(640, 480, true);
+	simpleCam.setup(640, 480, true);
 	//kinect.setup(1280, 720);
 
 
@@ -47,8 +47,6 @@ void ofApp::setup() {
 	kinect.initInfraredSource();
 	kinect.initBodySource();
 	kinect.initBodyIndexSource();
-
-
 
 	didCamUpdate = false;
 	cameraFbo.allocate(1280, 720);
@@ -163,36 +161,57 @@ void ofApp::update() {
 
 	
 
-	if (kinect.isFrameNew()) {
+    if (kinect.getColorSource()->isFrameNew()) {
+		//simpleCam.isFrameNew();
 		ofPushStyle();
 		ofEnableBlendMode(OF_BLENDMODE_DISABLED);
 		cameraFbo.begin();
 
 		if (doFlipCamera) {
-			kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());  // Flip Horizontal
-																									//kinect.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());  // Flip Horizontal
+			//simpleCam.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());  // Flip Horizontal																			//kinect.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());  // Flip Horizontal
+			//kinect.getDepthSource()->drawFrustum();
+			kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());  // Flip Horizontal																			//kinect.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());  // Flip Horizontal
 		}
 		else {
-			//kinect.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
+			//simpleCam.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
+			
 			kinect.getColorSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
 		}
 		cameraFbo.end();
 		ofPopStyle();
-
+		
 		opticalFlow.setSource(cameraFbo.getTexture());
 
-		// opticalFlow.update(deltaTime);
+		//opticalFlow.update(deltaTime);
 		// use internal deltatime instead
 		opticalFlow.update();
 
 		velocityMask.setDensity(cameraFbo.getTexture());
 		velocityMask.setVelocity(opticalFlow.getOpticalFlow());
 		velocityMask.update();
+
+
+
+		//THIS ALLOWS MOUSE WITH IMAGE
+
+
+		//opticalFlow.setSource(cameraFbo.getTexture());
+
+		// opticalFlow.update(deltaTime);
+		// use internal deltatime instead
+		//opticalFlow.update();
+
+		//velocityMask.setDensity(cameraFbo.getTexture());
+		//velocityMask.setVelocity(opticalFlow.getOpticalFlow());
+		//velocityMask.update();
 	}
 
 
 	fluidSimulation.addVelocity(opticalFlow.getOpticalFlowDecay());
+	//fluidSimulation.addVelocity(velocityMask.getColorMask());
+	//fluidSimulation.addVelocity(cameraFbo.getTexture());
 	fluidSimulation.addDensity(velocityMask.getColorMask());
+	//fluidSimulation.addDensity(cameraFbo.getTexture());
 	fluidSimulation.addTemperature(velocityMask.getLuminanceMask());
 
 	mouseForces.update(deltaTime);

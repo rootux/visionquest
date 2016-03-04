@@ -5,6 +5,7 @@
 #include "ofxFlowTools.h"
 #include "ofxKinectForWindows2.h"
 
+
 #define USE_PROGRAMMABLE_GL					// Maybe there is a reason you would want to
 
 using namespace flowTools;
@@ -40,6 +41,7 @@ public:
 	bool				didCamUpdate;
 	ftFbo				cameraFbo;
 	ofParameter<bool>	doFlipCamera;
+
 
 	// Time
 	float				lastTime;
