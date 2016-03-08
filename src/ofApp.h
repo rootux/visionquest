@@ -4,7 +4,7 @@
 #include "ofxGui.h"
 #include "ofxFlowTools.h"
 #include "ofxKinectForWindows2.h"
-
+#include "ps3eye.h"
 
 #define USE_PROGRAMMABLE_GL					// Maybe there is a reason you would want to
 
@@ -38,6 +38,11 @@ public:
 	// Camera
 	ofVideoGrabber		simpleCam;
 	ofxKFW2::Device		kinect;
+	
+	ps3eye::PS3EYECam::PS3EYERef eye;
+	unsigned char *		videoFrame;
+	ofTexture			videoTexture;
+
 	bool				didCamUpdate;
 	ftFbo				cameraFbo;
 	ofParameter<bool>	doFlipCamera;
