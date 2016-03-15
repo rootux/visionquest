@@ -222,7 +222,7 @@ void ofApp::update() {
 	lastTime = ofGetElapsedTimef();
 
 	//simpleCam.update();
-	//kinect.update();
+	kinect.update();
 
 
 	if (eye)
@@ -235,9 +235,9 @@ void ofApp::update() {
 
 
 
-    //if (kinect.getColorSource()->isFrameNew()) {
+    if (kinect.getColorSource()->isFrameNew()) {
 	//simpleCam.isFrameNew();
-	if (eye) {
+	//if (eye) {
 		ofPushStyle();
 		ofEnableBlendMode(OF_BLENDMODE_DISABLED);
 		cameraFbo.begin();
@@ -245,14 +245,14 @@ void ofApp::update() {
 		if (doFlipCamera) {
 			//simpleCam.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());  // Flip Horizontal
 			//kinect.getDepthSource()->drawFrustum();
-			//kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());  // Flip Horizontal
-			videoTexture.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());  // Flip Horizontal	
+			kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());  // Flip Horizontal
+			//videoTexture.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());  // Flip Horizontal	
 		}
 		else {
 			//simpleCam.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
 			
-			//kinect.getColorSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-			videoTexture.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
+			kinect.getColorSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
+			//videoTexture.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
 		}
 		cameraFbo.end();
 		ofPopStyle();
@@ -284,9 +284,9 @@ void ofApp::update() {
 	}
 
 
-	fluidSimulation.addVelocity(opticalFlow.getOpticalFlowDecay());  //!
+	//fluidSimulation.addVelocity(opticalFlow.getOpticalFlowDecay());  //!
 	//fluidSimulation.addVelocity(velocityMask.getColorMask());
-	//fluidSimulation.addVelocity(cameraFbo.getTexture()); //!
+	fluidSimulation.addVelocity(cameraFbo.getTexture()); //!
 	fluidSimulation.addDensity(velocityMask.getColorMask());
 	//fluidSimulation.addDensity(cameraFbo.getTexture());
 	fluidSimulation.addTemperature(velocityMask.getLuminanceMask());
@@ -389,9 +389,9 @@ void ofApp::draw() {
 	if (doDrawCamBackground.get())
 		drawSource();
 
-	if (eye) {
-		videoTexture.draw(0, 0, eye->getWidth(), eye->getHeight());
-	}
+	//if (eye) {
+	//	videoTexture.draw(0, 0, eye->getWidth(), eye->getHeight());
+	//}
 
 
 	switch (drawMode.get()) {
