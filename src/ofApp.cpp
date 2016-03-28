@@ -73,6 +73,7 @@ void ofApp::setup() {
 		eye = devices.at(0);
 		bool res = eye->init(640, 480, 60);
 		eye->start();
+		eye->setExposure(255);
 
 		videoFrame = new unsigned char[eye->getWidth()*eye->getHeight() * 4];
 		videoTexture.allocate(eye->getWidth(), eye->getHeight(), GL_RGBA);
@@ -244,7 +245,6 @@ void ofApp::update() {
 
 		if (doFlipCamera) {
 			//simpleCam.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());  // Flip Horizontal
-			//kinect.getDepthSource()->drawFrustum();
 			kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());  // Flip Horizontal
 			//videoTexture.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());  // Flip Horizontal	
 		}
@@ -284,9 +284,9 @@ void ofApp::update() {
 	}
 
 
-	//fluidSimulation.addVelocity(opticalFlow.getOpticalFlowDecay());  //!
+	fluidSimulation.addVelocity(opticalFlow.getOpticalFlowDecay());  //!
 	//fluidSimulation.addVelocity(velocityMask.getColorMask());
-	fluidSimulation.addVelocity(cameraFbo.getTexture()); //!
+	//fluidSimulation.addVelocity(cameraFbo.getTexture()); //!
 	fluidSimulation.addDensity(velocityMask.getColorMask());
 	//fluidSimulation.addDensity(cameraFbo.getTexture());
 	fluidSimulation.addTemperature(velocityMask.getLuminanceMask());
