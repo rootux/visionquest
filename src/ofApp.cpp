@@ -44,10 +44,9 @@ void ofApp::setup() {
 	mouseForces.setup(flowWidth, flowHeight, drawWidth, drawHeight);
 
 	// CAMERA
-	simpleCam.setup(640, 480, true);
-	//kinect.setup(1280, 720);
+	//simpleCam.setup(640, 480, true);
 
-
+	// KINECT
 	kinect.open();
 	kinect.initDepthSource();
 	kinect.initColorSource();
@@ -99,6 +98,7 @@ void ofApp::setupGui() {
 	gui.add(drawMode.set("draw mode", DRAW_COMPOSITE, DRAW_COMPOSITE, DRAW_MOUSE));
 	drawMode.addListener(this, &ofApp::drawModeSetName);
 	gui.add(drawName.set("MODE", "draw name"));
+	gui.add(sourceMode.set("Source mode (`)", SOURCE_KINECT_PS3EYE, SOURCE_KINECT, SOURCE_PS3EYE));
 
 
 	int guiColorSwitch = 0;
@@ -216,6 +216,18 @@ static void yuv422_to_rgba(const uint8_t *yuv_src, const int stride, uint8_t *ds
 	}
 }
 
+bool ofApp::isKinectSource() {
+	return (sourceMode.get() == SOURCE_KINECT_PS3EYE || sourceMode.get() == SOURCE_KINECT);
+}
+
+bool ofApp::isPsEyeSource() {
+	return (sourceMode.get() == SOURCE_KINECT_PS3EYE || sourceMode.get() == SOURCE_PS3EYE);
+}
+
+bool ofApp::isKinectAndPsEyeSource() {
+	return sourceMode.get() == SOURCE_KINECT_PS3EYE;
+}
+
 //--------------------------------------------------------------
 void ofApp::update() {
 
@@ -223,10 +235,11 @@ void ofApp::update() {
 	lastTime = ofGetElapsedTimef();
 
 	//simpleCam.update();
-	kinect.update();
+	if (isKinectSource()) {
+		kinect.update();
+	}
 
-
-	if (eye)
+	if (isPsEyeSource() && eye)
 	{
 		uint8_t* new_pixels = eye->getFrame();
 		yuv422_to_rgba(new_pixels, eye->getRowBytes(), videoFrame, eye->getWidth(), eye->getHeight());
@@ -234,25 +247,40 @@ void ofApp::update() {
 		free(new_pixels);
 	}
 
-
-
-    if (kinect.getColorSource()->isFrameNew()) {
-	//simpleCam.isFrameNew();
-	//if (eye) {
+	if ((isKinectSource() && (kinect.getColorSource()->isFrameNew()) ||
+		(isPsEyeSource() && eye))) {
+		//simpleCam.isFrameNew();
 		ofPushStyle();
 		ofEnableBlendMode(OF_BLENDMODE_DISABLED);
 		cameraFbo.begin();
 
 		if (doFlipCamera) {
-			//simpleCam.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());  // Flip Horizontal
-			kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());  // Flip Horizontal
-			//videoTexture.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());  // Flip Horizontal	
+			switch (sourceMode) {
+			case SOURCE_KINECT:
+				kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
+				break;
+			case SOURCE_PS3EYE:
+				videoTexture.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
+				break;
+			case SOURCE_KINECT_PS3EYE:
+				kinect.getColorSource()->draw(cameraFbo.getWidth() / 2, 0, -cameraFbo.getWidth() / 2, cameraFbo.getHeight());
+				videoTexture.draw(cameraFbo.getWidth() / 4, 0, -cameraFbo.getWidth() / 4, cameraFbo.getHeight());
+				break;
+			};
 		}
 		else {
-			//simpleCam.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-			
-			kinect.getColorSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-			//videoTexture.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
+			switch (sourceMode) {
+			case SOURCE_KINECT:
+				kinect.getColorSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
+				break;
+			case SOURCE_PS3EYE:
+				videoTexture.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
+				break;
+			case SOURCE_KINECT_PS3EYE:
+				kinect.getColorSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
+				videoTexture.draw((cameraFbo.getWidth() / 3 * 2) - 20, 20, cameraFbo.getWidth() /3, cameraFbo.getHeight() / 3);
+				break;
+			};
 		}
 		cameraFbo.end();
 		ofPopStyle();
@@ -355,6 +383,9 @@ void ofApp::keyPressed(int key) {
 		fluidSimulation.reset();
 		fluidSimulation.addObstacle(flowToolsLogoImage.getTexture());
 		mouseForces.reset();
+		break;
+	
+	case '`': sourceMode.set((sourceMode.get() + 1) % SOURCE_COUNT);
 		break;
 
 	default: break;

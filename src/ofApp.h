@@ -16,7 +16,7 @@ enum drawModeEnum {
 	DRAW_PARTICLES,
 	DRAW_VELDOTS,
 	DRAW_FLUID_FIELDS,
-	DRAW_FLUID_VELOCITY,
+	DRAW_FLUID_VELOCITY,        
 	DRAW_FLUID_PRESSURE,
 	DRAW_FLUID_TEMPERATURE,
 	DRAW_FLUID_DIVERGENCE,
@@ -29,6 +29,14 @@ enum drawModeEnum {
 	DRAW_MOUSE
 };
 
+enum sourceModeEnum {
+	SOURCE_KINECT_PS3EYE = 0,
+	SOURCE_KINECT,
+	SOURCE_PS3EYE,
+
+	SOURCE_COUNT
+};
+
 class ofApp : public ofBaseApp {
 public:
 	void	setup();
@@ -38,10 +46,14 @@ public:
 	// Camera
 	ofVideoGrabber		simpleCam;
 	ofxKFW2::Device		kinect;
-	
 	ps3eye::PS3EYECam::PS3EYERef eye;
 	unsigned char *		videoFrame;
 	ofTexture			videoTexture;
+
+	bool				isKinectSource();
+	bool				isPsEyeSource();
+	bool				isKinectAndPsEyeSource();
+
 
 	bool				didCamUpdate;
 	ftFbo				cameraFbo;
@@ -78,6 +90,9 @@ public:
 	ftTemperatureField	temperatureField;
 	ftPressureField		pressureField;
 	ftVTField			velocityTemperatureField;
+
+	// Source - Kinect, Ps3
+	ofParameter<int>	sourceMode;
 
 	ofParameter<bool>	showScalar;
 	ofParameter<bool>	showField;
