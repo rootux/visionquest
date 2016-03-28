@@ -263,8 +263,9 @@ void ofApp::update() {
 				videoTexture.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
 				break;
 			case SOURCE_KINECT_PS3EYE:
-				kinect.getColorSource()->draw(cameraFbo.getWidth() / 2, 0, -cameraFbo.getWidth() / 2, cameraFbo.getHeight());
-				videoTexture.draw(cameraFbo.getWidth() / 4, 0, -cameraFbo.getWidth() / 4, cameraFbo.getHeight());
+				kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
+				float psEyeXPosition = (cameraFbo.getWidth() / 3 ) + 20;
+				videoTexture.draw(psEyeXPosition, 20, -cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
 				break;
 			};
 		}
@@ -278,7 +279,8 @@ void ofApp::update() {
 				break;
 			case SOURCE_KINECT_PS3EYE:
 				kinect.getColorSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-				videoTexture.draw((cameraFbo.getWidth() / 3 * 2) - 20, 20, cameraFbo.getWidth() /3, cameraFbo.getHeight() / 3);
+				float psEyeXPosition = (cameraFbo.getWidth() / 3 * 2) - 20;
+				videoTexture.draw(psEyeXPosition, 20, cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
 				break;
 			};
 		}
