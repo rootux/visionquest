@@ -98,7 +98,7 @@ void ofApp::setupGui() {
 	gui.add(drawMode.set("draw mode", DRAW_COMPOSITE, DRAW_COMPOSITE, DRAW_MOUSE));
 	drawMode.addListener(this, &ofApp::drawModeSetName);
 	gui.add(drawName.set("MODE", "draw name"));
-	gui.add(sourceMode.set("Source mode (`)", SOURCE_KINECT_PS3EYE, SOURCE_KINECT, SOURCE_PS3EYE));
+	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT_PS3EYE, SOURCE_KINECT, SOURCE_PS3EYE));
 
 
 	int guiColorSwitch = 0;
@@ -387,7 +387,9 @@ void ofApp::keyPressed(int key) {
 		mouseForces.reset();
 		break;
 	
-	case '`': sourceMode.set((sourceMode.get() + 1) % SOURCE_COUNT);
+	case 'z':
+	case 'Z':
+		sourceMode.set((sourceMode.get() + 1) % SOURCE_COUNT);
 		break;
 
 	default: break;
