@@ -1,15 +1,15 @@
 <settings>
-	<average_FPS>45</average_FPS>
-	<minimum_FPS>32.0783</minimum_FPS>
+	<average_FPS>63</average_FPS>
+	<minimum_FPS>34.9386</minimum_FPS>
 	<fullscreen__F_>0</fullscreen__F_>
 	<show_gui__G_>1</show_gui__G_>
 	<flip_camera>0</flip_camera>
-	<draw_camera__C_>1</draw_camera__C_>
-	<draw_mode>0</draw_mode>
-	<MODE>draw name</MODE>
+	<draw_camera__C_>0</draw_camera__C_>
+	<draw_mode>1</draw_mode>
+	<MODE>Fluid Density  </MODE>
 	<Source_mode__z_>1</Source_mode__z_>
 	<optical_flow>
-		<strength>2.29592</strength>
+		<strength>15.3061</strength>
 		<offset>3</offset>
 		<lambda>0.01</lambda>
 		<threshold>0.02</threshold>
@@ -29,12 +29,12 @@
 	</velocity_mask>
 	<fluid_solver>
 		<reset>0</reset>
-		<speed>81.6327</speed>
+		<speed>44.3878</speed>
 		<cell_size>0.77551</cell_size>
 		<iterations>37</iterations>
 		<viscosity>0.1</viscosity>
-		<vorticity>0.6</vorticity>
-		<dissipation>0.002</dissipation>
+		<vorticity>0.112245</vorticity>
+		<dissipation>0.00709184</dissipation>
 		<advanced_dissipation>
 			<velocity_offset>-0.001</velocity_offset>
 			<density_offset>0</density_offset>
@@ -57,7 +57,7 @@
 	</fluid_solver>
 	<particle_flow>
 		<active>1</active>
-		<speed>81.6327</speed>
+		<speed>44.3878</speed>
 		<cell_size>0.77551</cell_size>
 		<birth_chance>0.5</birth_chance>
 		<birth_velocity_chance>0.5</birth_velocity_chance>
@@ -84,7 +84,7 @@
 		<draw_flow_res_1>
 			<non_den_vel_tem_prs_ob>2</non_den_vel_tem_prs_ob>
 			<is_temporary>1</is_temporary>
-			<force>-0.000781249, 0, 0, 1</force>
+			<force>0.00156741, 0.0291666, 0, 1</force>
 			<strength>1</strength>
 			<radius>0.035</radius>
 			<edge>1</edge>
@@ -146,4 +146,17 @@
 		<max_dot_size>10</max_dot_size>
 	</velocity_dots>
 <settings/>
+<Recolor>
+		<Active>1</Active>
+		<Noise_Dimension>1</Noise_Dimension>
+		<Use_Noise>0</Use_Noise>
+		<Cutoff>0.15</Cutoff>
+		<Offset>0</Offset>
+		<Scale>5.20408</Scale>
+		<Animate_Scale>1</Animate_Scale>
+		<Animate_Offset>0</Animate_Offset>
+		<Animate_Rotation__2D_>0</Animate_Rotation__2D_>
+		<Depth_Scale>1</Depth_Scale>
+		<Depth_Smoothing>0.85</Depth_Smoothing>
+	</Recolor>
 </settings>
