@@ -1,9 +1,16 @@
 #pragma once
 
+#ifdef _WIN32
+#define _KINECT
+#endif
+
 #include "ofMain.h"
 #include "ofxGui.h"
 #include "ofxFlowTools.h"
+#ifdef _KINECT
 #include "ofxKinectForWindows2.h"
+#endif
+
 #include "ps3eye.h"
 
 #define USE_PROGRAMMABLE_GL					// Maybe there is a reason you would want to
@@ -45,7 +52,9 @@ public:
 
 	// Camera
 	ofVideoGrabber		simpleCam;
+#ifdef _KINECT
 	ofxKFW2::Device		kinect;
+#endif
 	ps3eye::PS3EYECam::PS3EYERef eye;
 	unsigned char *		videoFrame;
 	ofTexture			videoTexture;

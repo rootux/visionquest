@@ -457,7 +457,12 @@ void USBMgr::transferThreadFunc()
 
 	while (!exit_signaled)
 	{
+#ifdef _WIN32
 		libusb_handle_events_timeout_completed(usb_context, &tv, NULL);
+#else
+        //TODO:shenberg update libusb version on mac?
+        libusb_handle_events(usb_context);
+#endif
 	}
 }
 
