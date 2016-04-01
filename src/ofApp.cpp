@@ -59,6 +59,8 @@ void ofApp::setup() {
 	didCamUpdate = false;
 	cameraFbo.allocate(1280, 720);
 	cameraFbo.black();
+    
+    recolor.setup();
 
 	// GUI
 	setupGui();
@@ -115,6 +117,11 @@ void ofApp::setupGui() {
 	gui.setDefaultFillColor(guiFillColor[guiColorSwitch]);
 	guiColorSwitch = 1 - guiColorSwitch;
 	gui.add(opticalFlow.parameters);
+
+    gui.setDefaultHeaderBackgroundColor(guiHeaderColor[guiColorSwitch]);
+    gui.setDefaultFillColor(guiFillColor[guiColorSwitch]);
+    guiColorSwitch = 1 - guiColorSwitch;
+    gui.add(recolor.parameters);
 
 	gui.setDefaultHeaderBackgroundColor(guiHeaderColor[guiColorSwitch]);
 	gui.setDefaultFillColor(guiFillColor[guiColorSwitch]);
@@ -308,6 +315,14 @@ void ofApp::update() {
 		//opticalFlow.update(deltaTime);
 		// use internal deltatime instead
 		opticalFlow.update();
+        
+        ofPushStyle();
+        ofEnableBlendMode(OF_BLENDMODE_DISABLED);
+
+        // TODO: read and write from the same buffer is a bit dangerous
+        recolor.update(cameraFbo, cameraFbo.getTexture(), doFlipCamera);
+        
+        ofPopStyle();
 
 		velocityMask.setDensity(cameraFbo.getTexture());
 		velocityMask.setVelocity(opticalFlow.getOpticalFlow());

@@ -13,6 +13,8 @@
 
 #include "ps3eye.h"
 
+#include "ofxRecolor.h"
+
 #define USE_PROGRAMMABLE_GL					// Maybe there is a reason you would want to
 
 using namespace flowTools;
@@ -102,6 +104,8 @@ public:
 
 	// Source - Kinect, Ps3
 	ofParameter<int>	sourceMode;
+    
+    ofxRecolor          recolor;
 
 	ofParameter<bool>	showScalar;
 	ofParameter<bool>	showField;
