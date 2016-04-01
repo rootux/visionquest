@@ -69,6 +69,8 @@
 		084B49371CAEA67300C27AAF /* ofxColorize2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxColorize2d.h; sourceTree = "<group>"; };
 		084B49381CAEA67300C27AAF /* ofxColorize3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxColorize3d.h; sourceTree = "<group>"; };
 		084B49391CAEA67300C27AAF /* ofxRecolor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxRecolor.h; sourceTree = "<group>"; };
+		084B493C1CAEB0C300C27AAF /* ftVelocityOffset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftVelocityOffset.h; sourceTree = "<group>"; };
+		084B493D1CAEB0C300C27AAF /* ftVelocityOffsetShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftVelocityOffsetShader.h; sourceTree = "<group>"; };
 		088F26C71CAC78E90028DD20 /* libusb-1.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libusb-1.0.dylib"; path = "bin/data/libusb/libusb-1.0.dylib"; sourceTree = SOURCE_ROOT; };
 		0A1DAC09F322AE313A40706D /* ofxToggle.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxToggle.h; path = ../../../addons/ofxGui/src/ofxToggle.h; sourceTree = SOURCE_ROOT; };
 		0D418D07961710BA2605389F /* ftVelocityField.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ftVelocityField.h; path = ../../../addons/ofxFlowTools/src/visualisation/ftVelocityField.h; sourceTree = SOURCE_ROOT; };
@@ -406,6 +408,8 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				084B493C1CAEB0C300C27AAF /* ftVelocityOffset.h */,
+				084B493D1CAEB0C300C27AAF /* ftVelocityOffsetShader.h */,
 				084B49361CAEA67300C27AAF /* ofxColorize.h */,
 				084B49371CAEA67300C27AAF /* ofxColorize2d.h */,
 				084B49381CAEA67300C27AAF /* ofxColorize3d.h */,

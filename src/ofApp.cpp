@@ -39,6 +39,7 @@ void ofApp::setup() {
 	temperatureField.setup(flowWidth / 4, flowHeight / 4);
 	pressureField.setup(flowWidth / 4, flowHeight / 4);
 	velocityTemperatureField.setup(flowWidth / 4, flowHeight / 4);
+    velocityOffset.allocate(flowWidth / 2, flowHeight / 2);
 
 	// MOUSE DRAW
 	mouseForces.setup(flowWidth, flowHeight, drawWidth, drawHeight);
@@ -99,10 +100,10 @@ void ofApp::setupGui() {
 	gui.add(toggleGuiDraw.set("show gui (G)", false));
 	gui.add(doFlipCamera.set("flip camera", true));
 	gui.add(doDrawCamBackground.set("draw camera (C)", true));
-	gui.add(drawMode.set("draw mode", DRAW_COMPOSITE, DRAW_COMPOSITE, DRAW_MOUSE));
+	gui.add(drawMode.set("draw mode", DRAW_COMPOSITE, DRAW_COMPOSITE, DRAW_COUNT - 1));
 	drawMode.addListener(this, &ofApp::drawModeSetName);
 	gui.add(drawName.set("MODE", "draw name"));
-	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT_PS3EYE, SOURCE_KINECT, SOURCE_PS3EYE));
+	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT_PS3EYE, SOURCE_KINECT, SOURCE_COUNT - 1));
 
 
 	int guiColorSwitch = 0;
@@ -446,6 +447,7 @@ void ofApp::drawModeSetName(int &_value) {
 	case DRAW_SOURCE:			drawName.set("Source         "); break;
 	case DRAW_MOUSE:			drawName.set("Left Mouse     (8)"); break;
 	case DRAW_VELDOTS:			drawName.set("VelDots        (0)"); break;
+    case DRAW_DISPLACEMENT:		drawName.set("Displacement   "); break;
 	}
 }
 
@@ -477,6 +479,7 @@ void ofApp::draw() {
 	case DRAW_SOURCE: drawSource(); break;
 	case DRAW_MOUSE: drawMouseForces(); break;
 	case DRAW_VELDOTS: drawVelocityDots(); break;
+    case DRAW_DISPLACEMENT: drawVelocityDisplacement(); break;
 	}
 	if (toggleGuiDraw)
 	{
@@ -726,6 +729,15 @@ void ofApp::drawVelocityDots(int _x, int _y, int _width, int _height) {
 	velocityDots.setVelocity(fluidSimulation.getVelocity());
 	velocityDots.draw(_x, _y, _width, _height);
 	ofPopStyle();
+}
+    
+void ofApp::drawVelocityDisplacement(int _x, int _y, int _width, int _height) {
+    ofPushStyle();
+    ofEnableBlendMode(OF_BLENDMODE_ADD);
+    velocityOffset.setColorMap(cameraFbo.getTextureReference());
+    velocityOffset.setSource(fluidSimulation.getVelocity());
+    velocityOffset.draw(_x, _y, _width, _height);
+    ofPopStyle();
 }
 
 //--------------------------------------------------------------

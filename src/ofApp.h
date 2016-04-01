@@ -14,6 +14,7 @@
 #include "ps3eye.h"
 
 #include "ofxRecolor.h"
+#include "ftVelocityOffset.h"
 
 #define USE_PROGRAMMABLE_GL					// Maybe there is a reason you would want to
 
@@ -35,7 +36,9 @@ enum drawModeEnum {
 	DRAW_FLOW_MASK,
 	DRAW_OPTICAL_FLOW,
 	DRAW_SOURCE,
-	DRAW_MOUSE
+	DRAW_MOUSE,
+    DRAW_DISPLACEMENT,
+    DRAW_COUNT,
 };
 
 enum sourceModeEnum {
@@ -87,6 +90,8 @@ public:
 	ftParticleFlow		particleFlow;
 
 	ftVelocitySpheres	velocityDots;
+    
+    ftVelocityOffset    velocityOffset;
 
 	ofImage				flowToolsLogoImage;
 	bool				showLogo;
@@ -172,4 +177,7 @@ public:
 
 	void				drawVelocityDots() { drawVelocityDots(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
 	void				drawVelocityDots(int _x, int _y, int _width, int _height);
+    
+    void				drawVelocityDisplacement() { drawVelocityDisplacement(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
+    void                drawVelocityDisplacement(int _x, int _y, int _width, int _height);
 };
