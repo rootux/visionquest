@@ -77,11 +77,15 @@ void ofApp::setup() {
 	{
 		eye = devices.at(0);
 		bool res = eye->init(640, 480, 60);
-		eye->start();
-		eye->setExposure(255);
-
-		videoFrame = new unsigned char[eye->getWidth()*eye->getHeight() * 4];
-		videoTexture.allocate(eye->getWidth(), eye->getHeight(), GL_RGBA);
+		if (res) {
+			eye->start();
+			eye->setExposure(255);
+			videoFrame = new unsigned char[eye->getWidth()*eye->getHeight() * 4];
+			videoTexture.allocate(eye->getWidth(), eye->getHeight(), GL_RGBA);
+		}
+		else { 
+			eye = NULL;
+		}
 	}
 	else {
 		ofLogError() << "Failed to open PS eye!";
@@ -104,7 +108,7 @@ void ofApp::setupGui() {
 	gui.add(drawMode.set("draw mode", DRAW_COMPOSITE, DRAW_COMPOSITE, DRAW_COUNT - 1));
 	drawMode.addListener(this, &ofApp::drawModeSetName);
 	gui.add(drawName.set("MODE", "draw name"));
-	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT_PS3EYE, SOURCE_KINECT, SOURCE_COUNT - 1));
+	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT_PS3EYE, SOURCE_KINECT_PS3EYE, SOURCE_COUNT - 1));
 
 
 	int guiColorSwitch = 0;
@@ -228,11 +232,15 @@ static void yuv422_to_rgba(const uint8_t *yuv_src, const int stride, uint8_t *ds
 }
 
 bool ofApp::isKinectSource() {
-	return (sourceMode.get() == SOURCE_KINECT_PS3EYE || sourceMode.get() == SOURCE_KINECT);
+	return (sourceMode.get() == SOURCE_KINECT_PS3EYE || 
+		sourceMode.get() == SOURCE_KINECT_DEPTH_PS3EYE || 
+		sourceMode.get() == SOURCE_KINECT);
 }
 
 bool ofApp::isPsEyeSource() {
-	return (sourceMode.get() == SOURCE_KINECT_PS3EYE || sourceMode.get() == SOURCE_PS3EYE);
+	return (sourceMode.get() == SOURCE_KINECT_PS3EYE ||
+		sourceMode.get() == SOURCE_KINECT_DEPTH_PS3EYE ||
+		sourceMode.get() == SOURCE_PS3EYE);
 }
 
 bool ofApp::isKinectAndPsEyeSource() {
@@ -283,6 +291,11 @@ void ofApp::update() {
 				psEyeXPosition = (cameraFbo.getWidth() / 3 ) + 20;
 				videoTexture.draw(psEyeXPosition, 20, -cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
 				break;
+			case SOURCE_KINECT_DEPTH_PS3EYE:
+				kinect.getDepthSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
+				psEyeXPosition = (cameraFbo.getWidth() / 3) + 20;
+				videoTexture.draw(psEyeXPosition, 20, -cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
+				break;
 #endif
             case SOURCE_PS3EYE:
                 videoTexture.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
@@ -304,6 +317,11 @@ void ofApp::update() {
                 psEyeXPosition = (cameraFbo.getWidth() / 3 * 2) - 20;
                 videoTexture.draw(psEyeXPosition, 20, cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
                 break;
+			case SOURCE_KINECT_DEPTH_PS3EYE:
+				kinect.getDepthSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
+				psEyeXPosition = (cameraFbo.getWidth() / 3 * 2) - 20;
+				videoTexture.draw(psEyeXPosition, 20, cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
+				break;
 #endif
 			case SOURCE_PS3EYE:
 				videoTexture.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());

@@ -43,6 +43,7 @@ enum drawModeEnum {
 
 enum sourceModeEnum {
 	SOURCE_KINECT_PS3EYE = 0,
+	SOURCE_KINECT_DEPTH_PS3EYE,
 	SOURCE_KINECT,
 	SOURCE_PS3EYE,
 
