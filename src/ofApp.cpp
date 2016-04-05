@@ -90,12 +90,13 @@ void ofApp::setup() {
 	else {
 		ofLogError() << "Failed to open PS eye!";
 	}
+
 }
 
 //--------------------------------------------------------------
 void ofApp::setupGui() {
-
 	gui.setup("settings");
+	gui.add(multiSaveButton.setup("Multiple Save Settings"));
 	gui.setDefaultBackgroundColor(ofColor(0, 0, 0, 127));
 	gui.setDefaultFillColor(ofColor(160, 160, 160, 160));
 	gui.add(guiFPS.set("average FPS", 0, 0, 60));
@@ -110,6 +111,8 @@ void ofApp::setupGui() {
 	gui.add(drawName.set("MODE", "draw name"));
 	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT_PS3EYE, SOURCE_KINECT_PS3EYE, SOURCE_COUNT - 1));
 
+
+	multiSaveButton.addListener(this, &ofApp::MultiSavePressed);
 
 	int guiColorSwitch = 0;
 	ofColor guiHeaderColor[2];
@@ -797,3 +800,29 @@ void ofApp::drawGui() {
 	ofPopStyle();
 }
 
+void	ofApp::MultiSavePressed(const void * sender) {
+	ofxButton * button = (ofxButton*)sender;
+	ofLogWarning("Saving to a new settings.xml file");
+	while (isFileExist(relateiveDataPath + "settings" + std::to_string(lastSaveFileCounter) + ".xml")) {
+		lastSaveFileCounter++;
+	}
+	gui.saveToFile(relateiveDataPath + "settings" + std::to_string(lastSaveFileCounter) + ".xml");
+}
+
+void ofApp::setRelativePath(const char *filename) {
+	relateiveDataPath = dirnameOf(filename) + "\\data\\";
+}
+
+bool ofApp::isFileExist(std::string fileName)
+{
+	std::ifstream infile(fileName);
+	return infile.good();
+}
+
+std::string ofApp::dirnameOf(const std::string& fname)
+{
+	size_t pos = fname.find_last_of("\\/");
+	return (std::string::npos == pos)
+		? ""
+		: fname.substr(0, pos);
+}

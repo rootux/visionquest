@@ -137,6 +137,9 @@ public:
 	deque<float>		deltaTimeDeque;
 	ofParameter<bool>	doFullScreen;
 	void				setFullScreen(bool& _value) { ofSetFullscreen(_value); }
+	ofxButton			multiSaveButton;
+
+	void				MultiSavePressed(const void * sender);
 
 	// DRAW
 	ofParameter<bool>	doDrawCamBackground;
@@ -181,4 +184,10 @@ public:
     
     void				drawVelocityDisplacement() { drawVelocityDisplacement(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
     void                drawVelocityDisplacement(int _x, int _y, int _width, int _height);
+
+	bool				isFileExist(std::string fileName);
+	std::string			dirnameOf(const std::string& fname);
+	void				setRelativePath(const char *filename);
+	std::string			relateiveDataPath;
+	int					lastSaveFileCounter = 1;
 };

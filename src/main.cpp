@@ -3,7 +3,7 @@
 #include "testApp.h"
 //#define USE_PROGRAMMABLE_GL
 //========================================================================
-int main() {
+int main(int argc, char** argv) {
 
 	ofGLFWWindowSettings windowSettings;
 #ifdef USE_PROGRAMMABLE_GL
@@ -15,5 +15,11 @@ int main() {
 
 	ofCreateWindow(windowSettings);
 
-	ofRunApp(new ofApp());
+	ofApp* app = new ofApp();
+	if (argv != NULL && argv[0] != NULL) {
+		app->setRelativePath(argv[0]);
+	}
+	
+	ofRunApp(app);
+	
 }
