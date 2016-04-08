@@ -196,7 +196,6 @@
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxToggle.cpp" />
     <ClCompile Include="src\ps3eye.cpp" />
     <ClCompile Include="src\ps3eye_capi.cpp" />
-    <ClCompile Include="src\testApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\libusb\libusb.h" />
@@ -265,7 +264,6 @@
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxToggle.h" />
     <ClInclude Include="src\ps3eye.h" />
     <ClInclude Include="src\ps3eye_capi.h" />
-    <ClInclude Include="src\testApp.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(OF_ROOT)\libs\openFrameworksCompiled\project\vs\openframeworksLib.vcxproj">

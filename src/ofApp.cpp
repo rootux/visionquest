@@ -103,15 +103,15 @@ void ofApp::setupGui() {
 
 	gui.add(multiSaveButton.setup("Multiple Save Settings"));
 	loadSettingsFileNumber = getNumberOfSettingsFile();
+	
 	settingsGroup.setName("Settings");
-    //settingsGroup.add(multiSaveButton.setup("Save to a new Settings file"));
-	//settingsGroup.add(loadSettingsFileIndex.set("Settings file: settings") + std::to_string(loadSettingsFileNumber),1, 1, loadSettingsFileNumber));
+	settingsGroup.add(loadSettingsFileIndex.set("Settings file:",1, 1, loadSettingsFileNumber));
 	loadSettingsFileIndex.addListener(this, &ofApp::setLoadSettingsName);
 	
 	settingsGroup.add(transitionMode.set("Transition mode", TRANSITION_NONE, TRANSITION_NONE, TRANSITION_COUNT - 1));
 	settingsGroup.add(transitionTime.set("Transition time",0,0,360));
 	settingsGroup.add(doJumpBetweenStates.set("Jump between states"));
-	settingsGroup.add(transitionStatesInterval.set("Jump between two states interval",0,0,360));
+	settingsGroup.add(transitionStatesInterval.set("Jump between interval",0,0,360));
 
 	gui.add(settingsGroup);
 
@@ -556,9 +556,8 @@ void ofApp::drawModeSetName(int &_value) {
 	}
 }
 
-void ofApp::setLoadSettingsName(int &_value) {
-	loadSettingsFileIndex.setName("Settings file: settings" +
-		std::to_string(loadSettingsFileNumber));
+void ofApp::setLoadSettingsName(int &fileIndex) {
+	gui.loadFromFile(relateiveDataPath + "settings" + std::to_string(fileIndex) + ".xml");
 }
 
 //--------------------------------------------------------------

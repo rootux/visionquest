@@ -64,7 +64,6 @@
     <ClCompile Include="src\ps3eye_capi.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\testApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -310,7 +309,6 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\libusb\libusb.h" />
-    <ClInclude Include="src\testApp.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />

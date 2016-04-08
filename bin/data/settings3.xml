@@ -1,7 +1,7 @@
 <settings>
 	<average_FPS>39</average_FPS>
 	<minimum_FPS>29.205</minimum_FPS>
-	<fullscreen__F_>0</fullscreen__F_>
+	<fullscreen__F_>1</fullscreen__F_>
 	<show_gui__G_>1</show_gui__G_>
 	<flip_camera>0</flip_camera>
 	<draw_camera__C_>0</draw_camera__C_>
