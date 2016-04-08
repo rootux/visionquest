@@ -55,6 +55,8 @@ void ofApp::setup() {
 	kinect.initInfraredSource();
 	kinect.initBodySource();
 	kinect.initBodyIndexSource();
+	kinectFbo.allocate(1280, 720, GL_R16);
+	kinectFbo.getTexture().setRGToRGBASwizzles(true);
 	ofLogError("kinect inited");
 #endif
     
@@ -279,8 +281,15 @@ void ofApp::update() {
 		//simpleCam.isFrameNew();
 		ofPushStyle();
 		ofEnableBlendMode(OF_BLENDMODE_DISABLED);
-		cameraFbo.begin();
-
+#ifdef _KINECT
+		if (sourceMode == SOURCE_KINECT) {
+			kinectFbo.begin();
+		}
+		else
+#endif
+		{
+			cameraFbo.begin();
+		}
 		if (doFlipCamera) {
 			float psEyeXPosition;
 			switch (sourceMode) {
@@ -289,16 +298,16 @@ void ofApp::update() {
 				//kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
 				kinect.getDepthSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
                     break;
-			case SOURCE_KINECT_PS3EYE:
-				kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				psEyeXPosition = (cameraFbo.getWidth() / 3 ) + 20;
-				videoTexture.draw(psEyeXPosition, 20, -cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-				break;
-			case SOURCE_KINECT_DEPTH_PS3EYE:
-				kinect.getDepthSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				psEyeXPosition = (cameraFbo.getWidth() / 3) + 20;
-				videoTexture.draw(psEyeXPosition, 20, -cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-				break;
+			//case SOURCE_KINECT_PS3EYE:
+			//	kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
+			//	psEyeXPosition = (cameraFbo.getWidth() / 3 ) + 20;
+			//	videoTexture.draw(psEyeXPosition, 20, -cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
+			//	break;
+			//case SOURCE_KINECT_DEPTH_PS3EYE:
+			//	kinect.getDepthSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
+			//	psEyeXPosition = (cameraFbo.getWidth() / 3) + 20;
+			//	videoTexture.draw(psEyeXPosition, 20, -cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
+			//	break;
 #endif
             case SOURCE_PS3EYE:
                 videoTexture.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
@@ -315,16 +324,16 @@ void ofApp::update() {
 			case SOURCE_KINECT:
 				kinect.getDepthSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
 				break;
-            case SOURCE_KINECT_PS3EYE:
-                kinect.getColorSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-                psEyeXPosition = (cameraFbo.getWidth() / 3 * 2) - 20;
-                videoTexture.draw(psEyeXPosition, 20, cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-                break;
-			case SOURCE_KINECT_DEPTH_PS3EYE:
-				kinect.getDepthSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-				psEyeXPosition = (cameraFbo.getWidth() / 3 * 2) - 20;
-				videoTexture.draw(psEyeXPosition, 20, cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-				break;
+   //         case SOURCE_KINECT_PS3EYE:
+   //             kinect.getColorSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
+   //             psEyeXPosition = (cameraFbo.getWidth() / 3 * 2) - 20;
+   //             videoTexture.draw(psEyeXPosition, 20, cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
+   //             break;
+			//case SOURCE_KINECT_DEPTH_PS3EYE:
+			//	kinect.getDepthSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
+			//	psEyeXPosition = (cameraFbo.getWidth() / 3 * 2) - 20;
+			//	videoTexture.draw(psEyeXPosition, 20, cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
+			//	break;
 #endif
 			case SOURCE_PS3EYE:
 				videoTexture.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
@@ -334,19 +343,33 @@ void ofApp::update() {
                 break;
 			};
 		}
-		cameraFbo.end();
-		ofPopStyle();
+#ifdef _KINECT
+		if (sourceMode == SOURCE_KINECT) {
+			kinectFbo.end();
 
-		ofPushStyle();
-		ofEnableBlendMode(OF_BLENDMODE_DISABLED);
+			ofPopStyle();
 
-		// TODO: read and write from the same buffer is a bit dangerous
-		recolor.update(cameraFbo, cameraFbo.getTexture(), doFlipCamera);
+			ofPushStyle();
+			ofEnableBlendMode(OF_BLENDMODE_DISABLED);
 
-		ofPopStyle();
+			recolor.update(cameraFbo, kinectFbo.getTexture(), doFlipCamera);
+
+			ofPopStyle();
+
+			//TODO: debug kinect raw depth source
+			//opticalFlow.setSource(kinectFbo.getTexture());
+			opticalFlow.setSource(cameraFbo.getTexture());
+		}
+		else
+#endif
+		{
+			cameraFbo.end();
+			opticalFlow.setSource(cameraFbo.getTexture());
+		}
 
 
-		opticalFlow.setSource(cameraFbo.getTexture());
+
+		
 
 
 		//opticalFlow.update(deltaTime);
@@ -451,6 +474,21 @@ void ofApp::keyPressed(int key) {
 	case 'z':
 	case 'Z':
 		sourceMode.set((sourceMode.get() + 1) % SOURCE_COUNT);
+		break;
+
+	case 's':
+		{
+			ofTexture resultTex = opticalFlow.getOpticalFlow();
+
+			ofPixels pix;
+			resultTex.readToPixels(pix);
+
+			
+			ofFile output;
+			output.open("opticalflow.bin", ofFile::WriteOnly, true);
+			output.write((const char *)pix.getData(), pix.getTotalBytes());
+			output.close(); 
+		}
 		break;
 
 	default: break;
