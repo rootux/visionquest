@@ -96,9 +96,23 @@ void ofApp::setup() {
 //--------------------------------------------------------------
 void ofApp::setupGui() {
 	gui.setup("settings");
-	gui.add(multiSaveButton.setup("Multiple Save Settings"));
 	gui.setDefaultBackgroundColor(ofColor(0, 0, 0, 127));
 	gui.setDefaultFillColor(ofColor(160, 160, 160, 160));
+
+	gui.add(multiSaveButton.setup("Multiple Save Settings"));
+	loadSettingsFileNumber = getNumberOfSettingsFile();
+	settingsGroup.setName("Settings");
+    //settingsGroup.add(multiSaveButton.setup("Save to a new Settings file"));
+	//settingsGroup.add(loadSettingsFileIndex.set("Settings file: settings") + std::to_string(loadSettingsFileNumber),1, 1, loadSettingsFileNumber));
+	loadSettingsFileIndex.addListener(this, &ofApp::setLoadSettingsName);
+	
+	settingsGroup.add(transitionMode.set("Transition mode", TRANSITION_NONE, TRANSITION_NONE, TRANSITION_COUNT - 1));
+	settingsGroup.add(transitionTime.set("Transition time",0,0,360));
+	settingsGroup.add(doJumpBetweenStates.set("Jump between states"));
+	settingsGroup.add(transitionStatesInterval.set("Jump between two states interval",0,0,360));
+
+	gui.add(settingsGroup);
+
 	gui.add(guiFPS.set("average FPS", 0, 0, 60));
 	gui.add(guiMinFPS.set("minimum FPS", 0, 0, 60));
 	gui.add(doFullScreen.set("fullscreen (F)", false));
@@ -110,7 +124,6 @@ void ofApp::setupGui() {
 	drawMode.addListener(this, &ofApp::drawModeSetName);
 	gui.add(drawName.set("MODE", "draw name"));
 	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT_PS3EYE, SOURCE_KINECT_PS3EYE, SOURCE_COUNT - 1));
-
 
 	multiSaveButton.addListener(this, &ofApp::MultiSavePressed);
 
@@ -181,6 +194,11 @@ void ofApp::setupGui() {
 	guiColorSwitch = 1 - guiColorSwitch;
 	gui.add(velocityDots.parameters);
 
+	gui.setDefaultHeaderBackgroundColor(guiHeaderColor[guiColorSwitch]);
+	gui.setDefaultFillColor(guiFillColor[guiColorSwitch]);
+	guiColorSwitch = 1 - guiColorSwitch;
+	gui.add(visualizeParameters);
+
 	// if the settings file is not present the parameters will not be set during this setup
 	if (!ofFile("settings.xml"))
 		gui.saveToFile("settings.xml");
@@ -190,6 +208,14 @@ void ofApp::setupGui() {
 	gui.minimizeAll();
 	toggleGuiDraw = true;
 
+}
+
+int ofApp::getNumberOfSettingsFile() {
+	int counter = 1;
+	while (isFileExist(relateiveDataPath + "settings" + std::to_string(counter) + ".xml")) {
+		counter++;
+	}
+	return counter;
 }
 
 
@@ -422,6 +448,14 @@ void ofApp::update() {
 
 }
 
+void ofApp::loadNextSettingsFile() {
+	if (!isFileExist(relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex.get()) + ".xml")) {
+		loadSettingsFileIndex.set(1);
+	}
+	gui.loadFromFile(relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex.get()) + ".xml");
+	loadSettingsFileIndex++;
+}
+
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 	switch (key) {
@@ -452,6 +486,10 @@ void ofApp::keyPressed(int key) {
 	case 'Z':
 		sourceMode.set((sourceMode.get() + 1) % SOURCE_COUNT);
 		break;
+	case 'l':
+	case 'L':
+		loadNextSettingsFile();
+		break;
 
 	default: break;
 	}
@@ -478,6 +516,11 @@ void ofApp::drawModeSetName(int &_value) {
 	case DRAW_VELDOTS:			drawName.set("VelDots        (0)"); break;
     case DRAW_DISPLACEMENT:		drawName.set("Displacement   "); break;
 	}
+}
+
+void ofApp::setLoadSettingsName(int &_value) {
+	loadSettingsFileIndex.setName("Settings file: settings" +
+		std::to_string(loadSettingsFileNumber));
 }
 
 //--------------------------------------------------------------
@@ -807,6 +850,7 @@ void	ofApp::MultiSavePressed(const void * sender) {
 		lastSaveFileCounter++;
 	}
 	gui.saveToFile(relateiveDataPath + "settings" + std::to_string(lastSaveFileCounter) + ".xml");
+	loadSettingsFileNumber = lastSaveFileCounter;
 }
 
 void ofApp::setRelativePath(const char *filename) {

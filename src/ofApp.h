@@ -50,6 +50,13 @@ enum sourceModeEnum {
 	SOURCE_COUNT
 };
 
+enum transitionModeEnum {
+	TRANSITION_NONE = 0,
+	TRANSITION_LINEAR,
+
+	TRANSITION_COUNT
+};
+
 class ofApp : public ofBaseApp {
 public:
 	void	setup();
@@ -137,6 +144,8 @@ public:
 	deque<float>		deltaTimeDeque;
 	ofParameter<bool>	doFullScreen;
 	void				setFullScreen(bool& _value) { ofSetFullscreen(_value); }
+
+	ofParameterGroup	settingsGroup;
 	ofxButton			multiSaveButton;
 
 	void				MultiSavePressed(const void * sender);
@@ -185,9 +194,20 @@ public:
     void				drawVelocityDisplacement() { drawVelocityDisplacement(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
     void                drawVelocityDisplacement(int _x, int _y, int _width, int _height);
 
+    // Settings group
 	bool				isFileExist(std::string fileName);
 	std::string			dirnameOf(const std::string& fname);
 	void				setRelativePath(const char *filename);
 	std::string			relateiveDataPath;
 	int					lastSaveFileCounter = 1;
+	ofParameter<int>	loadSettingsFileIndex;
+	int					loadSettingsFileNumber;
+	int                 getNumberOfSettingsFile();
+	void				setLoadSettingsName(int& _value);
+	void 				loadNextSettingsFile();
+	ofParameter<int>	transitionMode;
+	ofParameter<float>	transitionTime;
+	ofParameter<bool>	doJumpBetweenStates;
+	ofParameter<float>	transitionStatesInterval;
+
 };
