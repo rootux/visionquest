@@ -67,6 +67,7 @@ public:
 	ofVideoGrabber		simpleCam;
 #ifdef _KINECT
 	ofxKFW2::Device		kinect;
+	ftFbo				kinectFbo;
 #endif
 	ps3eye::PS3EYECam::PS3EYERef eye;
 	unsigned char *		videoFrame;
