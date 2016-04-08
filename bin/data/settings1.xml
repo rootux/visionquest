@@ -1,18 +1,18 @@
 <settings>
-	<average_FPS>44</average_FPS>
-	<minimum_FPS>32.9409</minimum_FPS>
-	<fullscreen__F_>0</fullscreen__F_>
+	<average_FPS>61</average_FPS>
+	<minimum_FPS>49.0539</minimum_FPS>
+	<fullscreen__F_>1</fullscreen__F_>
 	<show_gui__G_>1</show_gui__G_>
 	<flip_camera>0</flip_camera>
 	<draw_camera__C_>0</draw_camera__C_>
-	<draw_mode>0</draw_mode>
-	<MODE>Composite      (1)</MODE>
+	<draw_mode>1</draw_mode>
+	<MODE>Fluid Density  </MODE>
 	<Source_mode__z_>2</Source_mode__z_>
 	<optical_flow>
-		<strength>8.16327</strength>
+		<strength>9.69388</strength>
 		<offset>3</offset>
 		<lambda>0.01</lambda>
-		<threshold>0.02</threshold>
+		<threshold>0.00918367</threshold>
 		<inverse_x>0</inverse_x>
 		<inverse_y>0</inverse_y>
 		<time_decay_blur>
@@ -22,14 +22,14 @@
 		</time_decay_blur>
 	</optical_flow>
 	<velocity_mask>
-		<strength>3.87755</strength>
+		<strength>1.9898</strength>
 		<saturation>3</saturation>
 		<blur_passes>3</blur_passes>
 		<blur_radius>5</blur_radius>
 	</velocity_mask>
 	<fluid_solver>
 		<reset>0</reset>
-		<speed>44.3878</speed>
+		<speed>0</speed>
 		<cell_size>0.77551</cell_size>
 		<iterations>37</iterations>
 		<viscosity>0.1</viscosity>
@@ -57,7 +57,7 @@
 	</fluid_solver>
 	<particle_flow>
 		<active>1</active>
-		<speed>44.3878</speed>
+		<speed>0</speed>
 		<cell_size>0.77551</cell_size>
 		<birth_chance>0.5</birth_chance>
 		<birth_velocity_chance>0.5</birth_velocity_chance>
@@ -84,7 +84,7 @@
 		<draw_flow_res_1>
 			<non_den_vel_tem_prs_ob>2</non_den_vel_tem_prs_ob>
 			<is_temporary>1</is_temporary>
-			<force>-0.0047022, 0, 0, 1</force>
+			<force>0.00156251, 0, 0, 1</force>
 			<strength>1</strength>
 			<radius>0.035</radius>
 			<edge>1</edge>
@@ -150,11 +150,11 @@
 		<Active>1</Active>
 		<Noise_Dimension>1</Noise_Dimension>
 		<Use_Noise>0</Use_Noise>
-		<Cutoff>0.0612245</Cutoff>
+		<Cutoff>0.0867347</Cutoff>
 		<Offset>0</Offset>
 		<Scale>5.20408</Scale>
 		<Animate_Scale>1</Animate_Scale>
-		<Animate_Offset>0</Animate_Offset>
+		<Animate_Offset>1</Animate_Offset>
 		<Animate_Rotation__2D_>0</Animate_Rotation__2D_>
 		<Depth_Scale>1</Depth_Scale>
 		<Depth_Smoothing>0.85</Depth_Smoothing>
