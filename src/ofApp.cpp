@@ -390,6 +390,7 @@ void ofApp::update() {
 #endif
 		{
 			cameraFbo.end();
+            ofPopStyle();
 			opticalFlow.setSource(cameraFbo.getTexture());
 		}
 
