@@ -10,7 +10,6 @@
 		088F26C81CAC78E90028DD20 /* libusb-1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 088F26C71CAC78E90028DD20 /* libusb-1.0.dylib */; };
 		1CD33E884D9E3358252E82A1 /* ofxToggle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 907C5B5E104864A2D3A25745 /* ofxToggle.cpp */; };
 		1E51E73394C784DC0AD640E6 /* ps3eye_capi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4224F4CE8B12BB9B2BA4CE91 /* ps3eye_capi.cpp */; };
-		29D734F0DDECC8C5978185D7 /* testApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A1BFCBB38848AD0E0C8539 /* testApp.cpp */; };
 		4166D6A6757F613CED499577 /* ftDrawForce.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6A092AB6F7172A3547F3C6E4 /* ftDrawForce.cpp */; };
 		483908258D00B98B4BE69F07 /* ofxLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78D67A00EB899FAC09430597 /* ofxLabel.cpp */; };
 		54FAC54E7E1116A49955101E /* ftOpticalFlow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD4BAB412F2EAE29DEEF7D5E /* ftOpticalFlow.cpp */; };
@@ -62,7 +61,6 @@
 
 /* Begin PBXFileReference section */
 		00449FC76510999AD951333B /* hotplug.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = hotplug.h; path = src/libusb/hotplug.h; sourceTree = SOURCE_ROOT; };
-		00A1BFCBB38848AD0E0C8539 /* testApp.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = testApp.cpp; path = src/testApp.cpp; sourceTree = SOURCE_ROOT; };
 		04CE6A84FA111F88EB08CDAA /* ftOpticalFlowShader.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ftOpticalFlowShader.h; path = ../../../addons/ofxFlowTools/src/opticalflow/ftOpticalFlowShader.h; sourceTree = SOURCE_ROOT; };
 		07818DEA3E42B969F242F634 /* ftTemperatureField.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ftTemperatureField.h; path = ../../../addons/ofxFlowTools/src/visualisation/ftTemperatureField.h; sourceTree = SOURCE_ROOT; };
 		084B49361CAEA67300C27AAF /* ofxColorize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxColorize.h; sourceTree = "<group>"; };
@@ -88,7 +86,6 @@
 		28ACBF0B88C18B573D06F071 /* ftInitPositionShader.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ftInitPositionShader.h; path = ../../../addons/ofxFlowTools/src/particles/ftInitPositionShader.h; sourceTree = SOURCE_ROOT; };
 		2BBCAAB5F0183A520E795182 /* ftAddForceShader.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ftAddForceShader.h; path = ../../../addons/ofxFlowTools/src/tools/ftAddForceShader.h; sourceTree = SOURCE_ROOT; };
 		2C1243DDA5B8A101F939F79C /* version.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = version.h; path = src/libusb/version.h; sourceTree = SOURCE_ROOT; };
-		2D129AB0F7D46B8DFCEADEDB /* testApp.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = testApp.h; path = src/testApp.h; sourceTree = SOURCE_ROOT; };
 		2D7D041E38F86C524CE48081 /* ps3eye.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ps3eye.cpp; path = src/ps3eye.cpp; sourceTree = SOURCE_ROOT; };
 		30A7D289BFD058F2CF626BC0 /* ftDrawMouseForces.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ftDrawMouseForces.cpp; path = ../../../addons/ofxFlowTools/src/drawforces/ftDrawMouseForces.cpp; sourceTree = SOURCE_ROOT; };
 		370832EA91F18DBADF08ACFD /* ftJacobiShader.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ftJacobiShader.h; path = ../../../addons/ofxFlowTools/src/fluid/ftJacobiShader.h; sourceTree = SOURCE_ROOT; };
@@ -423,8 +420,6 @@
 				D2D494489A72543FFEA458E2 /* ps3eye.h */,
 				4224F4CE8B12BB9B2BA4CE91 /* ps3eye_capi.cpp */,
 				B654064D177DF314DD55C59C /* ps3eye_capi.h */,
-				00A1BFCBB38848AD0E0C8539 /* testApp.cpp */,
-				2D129AB0F7D46B8DFCEADEDB /* testApp.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -569,7 +564,6 @@
 				E4B69E210A3A1BDC003C02F2 /* ofApp.cpp in Sources */,
 				A52A5125D43D38A191D9F0B9 /* ps3eye.cpp in Sources */,
 				1E51E73394C784DC0AD640E6 /* ps3eye_capi.cpp in Sources */,
-				29D734F0DDECC8C5978185D7 /* testApp.cpp in Sources */,
 				4166D6A6757F613CED499577 /* ftDrawForce.cpp in Sources */,
 				F75A96FFB5CA3A70D0903987 /* ftDrawMouseForces.cpp in Sources */,
 				AFBC335CC80DC27DCC9E70D7 /* ftFluidSimulation.cpp in Sources */,
