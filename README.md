@@ -3,11 +3,11 @@ Midburn 2016 Kinect Art Installation
 
 Info
 ---
-Uses the kinect sensor into openframeworks
+Based on openframeworks. Using the kinect sensor we create a depth image into openframeworks
+then we use the work based on ofxFlowTools to create the visuals.
 
-Uses ofxKinectForWindows2Lib
-Uses ofxFlowTools
-Uses ofxGui
+Based on the following libs:
+ofxKinectForWindows2Lib, ofxFlowTools
 
 Installation
 ---
@@ -24,3 +24,12 @@ To install the PS3 Driver use the following instructions:
 https://github.com/cboulay/psmove-ue4/wiki/Windows-PSEye-Setup
 
 5.Open visionquest.sln on windows OR visionquest.xcodeproj on mac
+
+Troubleshoots
+---
+If you're graphic card is having issues. you can try the following fix. replace in main.cpp to GL Version 3.3
+```
+#ifdef USE_PROGRAMMABLE_GL
+	windowSettings.setGLVersion(3, 3);
+#endif
+```
