@@ -489,19 +489,18 @@ void ofApp::keyPressed(int key) {
 	case 'c':
 	case 'C': doDrawCamBackground.set(!doDrawCamBackground.get()); break;
 
-	case '1': drawMode.set(DRAW_COMPOSITE); break;
-	case '2': drawMode.set(DRAW_FLUID_FIELDS); break;
-	case '3': drawMode.set(DRAW_FLUID_VELOCITY); break;
-	case '4': drawMode.set(DRAW_FLUID_PRESSURE); break;
-	case '5': drawMode.set(DRAW_FLUID_TEMPERATURE); break;
-	case '6': drawMode.set(DRAW_OPTICAL_FLOW); break;
-	case '7': drawMode.set(DRAW_FLOW_MASK); break;
-	case '8': drawMode.set(DRAW_MOUSE); break;
+	case '0': drawMode.set(DRAW_COMPOSITE); break;
+    case '1': drawMode.set(DRAW_COMPOSITE); break;
+	case '2': drawMode.set(DRAW_FLUID_DENSITY); break;
+	case '3': drawMode.set(DRAW_PARTICLES); break;
+	case '4': drawMode.set(DRAW_VELDOTS); break;
+	case '5': drawMode.set(DRAW_FLUID_VELOCITY); break;
+	case '6': drawMode.set(DRAW_DISPLACEMENT); break;
 
 	case 'r':
 	case 'R':
 		fluidSimulation.reset();
-		fluidSimulation.addObstacle(flowToolsLogoImage.getTexture());
+		//fluidSimulation.addObstacle(flowToolsLogoImage.getTexture());
 		mouseForces.reset();
 		break;
 	
