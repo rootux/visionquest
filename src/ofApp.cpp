@@ -513,20 +513,70 @@ void ofApp::keyPressed(int key) {
 		loadNextSettingsFile();
 		break;
 
-	case 's':
-		{
-			ofTexture resultTex = opticalFlow.getOpticalFlow();
-
-			ofPixels pix;
-			resultTex.readToPixels(pix);
-
-			
-			ofFile output;
-			output.open("opticalflow.bin", ofFile::WriteOnly, true);
-			output.write((const char *)pix.getData(), pix.getTotalBytes());
-			output.close(); 
-		}
+//	case 'y':
+//        {
+//        ofTexture resultTex = opticalFlow.getOpticalFlow();
+//
+//		ofPixels pix;
+//		resultTex.readToPixels(pix);
+//
+//			
+//		ofFile output;
+//		output.open("opticalflow.bin", ofFile::WriteOnly, true);
+//		output.write((const char *)pix.getData(), pix.getTotalBytes());
+//		output.close();
+//        }
 		break;
+    case OF_KEY_UP:
+        {
+            float speed = fluidSimulation.getSpeed();
+            if(speed < 99)
+                fluidSimulation.setSpeed(fluidSimulation.getSpeed()+1);
+        }
+        break;
+    case OF_KEY_DOWN:
+        {
+            float speed = fluidSimulation.getSpeed();
+            if(speed > 1)
+                fluidSimulation.setSpeed(fluidSimulation.getSpeed()-1);
+            else
+                fluidSimulation.setSpeed(0);
+        }
+        break;
+    case OF_KEY_RIGHT:
+        {
+            float strength = opticalFlow.getStrength();
+            if(strength < 99)
+                opticalFlow.setStrength(opticalFlow.getStrength()+1);
+        }
+        break;
+    case OF_KEY_LEFT:
+        {
+            float strength = opticalFlow.getStrength();
+            if(strength > 1)
+                opticalFlow.setStrength(opticalFlow.getStrength()-1);
+            else
+                opticalFlow.setStrength(0);
+        }
+        break;
+    case 's':
+    case 'S':
+        {
+            if (recolor.cutoff < 0.99)
+                recolor.cutoff+=0.01;
+            else
+                recolor.cutoff=1;
+        }
+        break;
+    case 'a':
+    case 'A':
+        {
+            if (recolor.cutoff > 0.01)
+                recolor.cutoff-=0.01;
+            else
+                recolor.cutoff=0;
+        }
+        break;
 
 	default: break;
 	}
