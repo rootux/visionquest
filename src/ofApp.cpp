@@ -407,28 +407,13 @@ void ofApp::update() {
 		velocityMask.setVelocity(opticalFlow.getOpticalFlow());
 		velocityMask.update();
 
-
-
-		//THIS ALLOWS MOUSE WITH IMAGE
-
-
-		//opticalFlow.setSource(cameraFbo.getTexture());
-
-		// opticalFlow.update(deltaTime);
-		// use internal deltatime instead
-		//opticalFlow.update();
-
-		//velocityMask.setDensity(cameraFbo.getTexture());
-		//velocityMask.setVelocity(opticalFlow.getOpticalFlow());
-		//velocityMask.update();
+		
 	}
 
 
 	fluidSimulation.addVelocity(opticalFlow.getOpticalFlowDecay());  //!
-	//fluidSimulation.addVelocity(velocityMask.getColorMask());
 	//fluidSimulation.addVelocity(cameraFbo.getTexture()); //!
 	fluidSimulation.addDensity(velocityMask.getColorMask());
-	//fluidSimulation.addDensity(cameraFbo.getTexture());
 	fluidSimulation.addTemperature(velocityMask.getLuminanceMask());
 
 	mouseForces.update(deltaTime);
@@ -469,6 +454,16 @@ void ofApp::update() {
 	}
 	particleFlow.update();
 
+	updateTransition();
+}
+
+void ofApp::startTransition(std::string settings1Path, std::string settings2Path) {
+	ofxXmlSettings ofx;
+	gui.loadFromFile(relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex.get()) + ".xml");
+}
+void ofApp::updateTransition() {
+	transitionStartTime = ofGetElapsedTimef() - lastTime;
+	lastTime = ofGetElapsedTimef();
 }
 
 void ofApp::loadNextSettingsFile() {

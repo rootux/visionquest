@@ -101,7 +101,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\addons\ofxFlowTools\src;..\..\..\addons\ofxFlowTools\src\drawforces;..\..\..\addons\ofxFlowTools\src\filters;..\..\..\addons\ofxFlowTools\src\fluid;..\..\..\addons\ofxFlowTools\src\mask;..\..\..\addons\ofxFlowTools\src\opticalflow;..\..\..\addons\ofxFlowTools\src\particles;..\..\..\addons\ofxFlowTools\src\tools;..\..\..\addons\ofxFlowTools\src\visualisation;..\..\..\addons\ofxGui\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\addons\ofxFlowTools\src;..\..\..\addons\ofxFlowTools\src\drawforces;..\..\..\addons\ofxFlowTools\src\filters;..\..\..\addons\ofxFlowTools\src\fluid;..\..\..\addons\ofxFlowTools\src\mask;..\..\..\addons\ofxFlowTools\src\opticalflow;..\..\..\addons\ofxFlowTools\src\particles;..\..\..\addons\ofxFlowTools\src\tools;..\..\..\addons\ofxFlowTools\src\visualisation;..\..\..\addons\ofxGui\src;..\..\..\addons\ofxXmlSettings\src</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
@@ -120,7 +120,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\addons\ofxFlowTools\src;..\..\..\addons\ofxFlowTools\src\drawforces;..\..\..\addons\ofxFlowTools\src\filters;..\..\..\addons\ofxFlowTools\src\fluid;..\..\..\addons\ofxFlowTools\src\mask;..\..\..\addons\ofxFlowTools\src\opticalflow;..\..\..\addons\ofxFlowTools\src\particles;..\..\..\addons\ofxFlowTools\src\tools;..\..\..\addons\ofxFlowTools\src\visualisation;..\..\..\addons\ofxGui\src;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\addons\ofxFlowTools\src;..\..\..\addons\ofxFlowTools\src\drawforces;..\..\..\addons\ofxFlowTools\src\filters;..\..\..\addons\ofxFlowTools\src\fluid;..\..\..\addons\ofxFlowTools\src\mask;..\..\..\addons\ofxFlowTools\src\opticalflow;..\..\..\addons\ofxFlowTools\src\particles;..\..\..\addons\ofxFlowTools\src\tools;..\..\..\addons\ofxFlowTools\src\visualisation;..\..\..\addons\ofxGui\src;..\..\..\addons\ofxXmlSettings\src</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -161,7 +161,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\addons\ofxFlowTools\src;..\..\..\addons\ofxFlowTools\src\drawforces;..\..\..\addons\ofxFlowTools\src\filters;..\..\..\addons\ofxFlowTools\src\fluid;..\..\..\addons\ofxFlowTools\src\mask;..\..\..\addons\ofxFlowTools\src\opticalflow;..\..\..\addons\ofxFlowTools\src\particles;..\..\..\addons\ofxFlowTools\src\tools;..\..\..\addons\ofxFlowTools\src\visualisation;..\..\..\addons\ofxGui\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\addons\ofxFlowTools\src;..\..\..\addons\ofxFlowTools\src\drawforces;..\..\..\addons\ofxFlowTools\src\filters;..\..\..\addons\ofxFlowTools\src\fluid;..\..\..\addons\ofxFlowTools\src\mask;..\..\..\addons\ofxFlowTools\src\opticalflow;..\..\..\addons\ofxFlowTools\src\particles;..\..\..\addons\ofxFlowTools\src\tools;..\..\..\addons\ofxFlowTools\src\visualisation;..\..\..\addons\ofxGui\src;..\..\..\addons\ofxXmlSettings\src</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
@@ -194,6 +194,10 @@
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxSlider.cpp" />
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxSliderGroup.cpp" />
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxToggle.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxXmlSettings\src\ofxXmlSettings.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxml.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlerror.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlparser.cpp" />
     <ClCompile Include="src\ps3eye.cpp" />
     <ClCompile Include="src\ps3eye_capi.cpp" />
   </ItemGroup>
@@ -262,6 +266,8 @@
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxSlider.h" />
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxSliderGroup.h" />
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxToggle.h" />
+    <ClInclude Include="..\..\..\addons\ofxXmlSettings\src\ofxXmlSettings.h" />
+    <ClInclude Include="..\..\..\addons\ofxXmlSettings\libs\tinyxml.h" />
     <ClInclude Include="src\ps3eye.h" />
     <ClInclude Include="src\ps3eye_capi.h" />
   </ItemGroup>

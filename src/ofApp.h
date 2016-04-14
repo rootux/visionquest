@@ -7,6 +7,7 @@
 #include "ofMain.h"
 #include "ofxGui.h"
 #include "ofxFlowTools.h"
+#include "ofxXmlSettings.h"
 #ifdef _KINECT
 #include "ofxKinectForWindows2.h"
 #endif
@@ -208,9 +209,13 @@ public:
 	int                 getNumberOfSettingsFile();
 	void				setLoadSettingsName(int& _value);
 	void 				loadNextSettingsFile();
+
+	// Settings Transitions
 	ofParameter<int>	transitionMode;
 	ofParameter<float>	transitionTime;
 	ofParameter<bool>	doJumpBetweenStates;
 	ofParameter<float>	transitionStatesInterval;
-
+	void				startTransition(std::string settings1Path, std::string settings2Path);
+	void				updateTransition();
+	float				transitionStartTime;
 };
