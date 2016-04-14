@@ -218,4 +218,7 @@ public:
 	void				startTransition(std::string settings1Path, std::string settings2Path);
 	void				updateTransition();
 	float				transitionStartTime;
+	ofxXmlSettings		*settingsFrom;
+	ofxXmlSettings		*settingsTo;
+	float				getValueTransitionStep(std::string tagName, float amount);
 };

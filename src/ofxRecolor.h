@@ -189,7 +189,7 @@ public:
         
         initTexture3d();
         
-        parameters.setName("Recolor");
+        parameters.setName("recolor");
         parameters.add(active.set("Active", true));
         //parameters.add(use2d.set("2D recoloring", false));
         parameters.add(noiseDimension.set("Noise Dimension", 1, 1, 3));

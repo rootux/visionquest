@@ -268,6 +268,10 @@
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxToggle.h" />
     <ClInclude Include="..\..\..\addons\ofxXmlSettings\src\ofxXmlSettings.h" />
     <ClInclude Include="..\..\..\addons\ofxXmlSettings\libs\tinyxml.h" />
+    <ClInclude Include="src\ofxColorize.h" />
+    <ClInclude Include="src\ofxColorize2d.h" />
+    <ClInclude Include="src\ofxColorize3d.h" />
+    <ClInclude Include="src\ofxRecolor.h" />
     <ClInclude Include="src\ps3eye.h" />
     <ClInclude Include="src\ps3eye_capi.h" />
   </ItemGroup>

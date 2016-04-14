@@ -21,6 +21,19 @@
 			<blur_radius>3</blur_radius>
 		</time_decay_blur>
 	</optical_flow>
+	<recolor>
+		<Active>1</Active>
+		<Noise_Dimension>1</Noise_Dimension>
+		<Use_Noise>0</Use_Noise>
+		<Cutoff>0.102041</Cutoff>
+		<Offset>0</Offset>
+		<Scale>3.41837</Scale>
+		<Animate_Scale>1</Animate_Scale>
+		<Animate_Offset>0</Animate_Offset>
+		<Animate_Rotation__2D_>0</Animate_Rotation__2D_>
+		<Depth_Scale>0.826531</Depth_Scale>
+		<Depth_Smoothing>0.85</Depth_Smoothing>
+	</recolor>
 	<velocity_mask>
 		<strength>4.38775</strength>
 		<saturation>3</saturation>
@@ -145,18 +158,4 @@
 		<min_dot_size>2</min_dot_size>
 		<max_dot_size>10</max_dot_size>
 	</velocity_dots>
-<settings/>
-<Recolor>
-		<Active>1</Active>
-		<Noise_Dimension>1</Noise_Dimension>
-		<Use_Noise>0</Use_Noise>
-		<Cutoff>0.102041</Cutoff>
-		<Offset>0</Offset>
-		<Scale>3.41837</Scale>
-		<Animate_Scale>1</Animate_Scale>
-		<Animate_Offset>0</Animate_Offset>
-		<Animate_Rotation__2D_>0</Animate_Rotation__2D_>
-		<Depth_Scale>0.826531</Depth_Scale>
-		<Depth_Smoothing>0.85</Depth_Smoothing>
-	</Recolor>
 </settings>

@@ -20,7 +20,7 @@
       <Filter>addons\ofxFlowTools\src\drawforces</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\addons\ofxFlowTools\src\fluid\ftFluidSimulation.cpp">
-      <Filter>addons\ofxFlowTools\src\fluid</Filter>
+      <Filter>addons\ofxFlowTools\src\mask\fluid</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\addons\ofxFlowTools\src\mask\ftVelocityMask.cpp">
       <Filter>addons\ofxFlowTools\src\mask</Filter>
@@ -58,24 +58,16 @@
     <ClCompile Include="..\..\..\addons\ofxGui\src\ofxToggle.cpp">
       <Filter>addons\ofxGui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\addons\ofxXmlSettings\src\ofxXmlSettings.cpp">
-      <Filter>addons\ofxXmlSettings\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxml.cpp">
-      <Filter>addons\ofxXmlSettings\libs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlerror.cpp">
-      <Filter>addons\ofxXmlSettings\libs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlparser.cpp">
-      <Filter>addons\ofxXmlSettings\libs</Filter>
-    </ClCompile>
     <ClCompile Include="src\ps3eye.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\ps3eye_capi.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxXmlSettings\src\ofxXmlSettings.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxml.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlerror.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlparser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -95,9 +87,6 @@
     </Filter>
     <Filter Include="addons\ofxFlowTools\src\filters">
       <UniqueIdentifier>{7E0B95AA-0AB0-1490-354E-E46D}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="addons\ofxFlowTools\src\fluid">
-      <UniqueIdentifier>{B7637F85-B538-3DFF-B6D7-216D}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxFlowTools\src\mask">
       <UniqueIdentifier>{BD54CFF1-46CA-C597-CBF3-3A78}</UniqueIdentifier>
@@ -119,6 +108,9 @@
     </Filter>
     <Filter Include="addons\ofxGui\src">
       <UniqueIdentifier>{645E9533-4DCD-6179-1CDF-CB65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxFlowTools\src\mask\fluid">
+      <UniqueIdentifier>{B7637F85-B538-3DFF-B6D7-216D}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -159,31 +151,31 @@
       <Filter>addons\ofxFlowTools\src\filters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\addons\ofxFlowTools\src\fluid\ftAdvectShader.h">
-      <Filter>addons\ofxFlowTools\src\fluid</Filter>
+      <Filter>addons\ofxFlowTools\src\mask\fluid</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\addons\ofxFlowTools\src\fluid\ftDiffuseShader.h">
-      <Filter>addons\ofxFlowTools\src\fluid</Filter>
+      <Filter>addons\ofxFlowTools\src\mask\fluid</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\addons\ofxFlowTools\src\fluid\ftDivergenceShader.h">
-      <Filter>addons\ofxFlowTools\src\fluid</Filter>
+      <Filter>addons\ofxFlowTools\src\mask\fluid</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\addons\ofxFlowTools\src\fluid\ftFluidSimulation.h">
-      <Filter>addons\ofxFlowTools\src\fluid</Filter>
+      <Filter>addons\ofxFlowTools\src\mask\fluid</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\addons\ofxFlowTools\src\fluid\ftJacobiShader.h">
-      <Filter>addons\ofxFlowTools\src\fluid</Filter>
+      <Filter>addons\ofxFlowTools\src\mask\fluid</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\addons\ofxFlowTools\src\fluid\ftSmokeBuoyancyShader.h">
-      <Filter>addons\ofxFlowTools\src\fluid</Filter>
+      <Filter>addons\ofxFlowTools\src\mask\fluid</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\addons\ofxFlowTools\src\fluid\ftSubstractGradientShader.h">
-      <Filter>addons\ofxFlowTools\src\fluid</Filter>
+      <Filter>addons\ofxFlowTools\src\mask\fluid</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\addons\ofxFlowTools\src\fluid\ftVorticityFirstPassShader.h">
-      <Filter>addons\ofxFlowTools\src\fluid</Filter>
+      <Filter>addons\ofxFlowTools\src\mask\fluid</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\addons\ofxFlowTools\src\fluid\ftVorticitySecondPassShader.h">
-      <Filter>addons\ofxFlowTools\src\fluid</Filter>
+      <Filter>addons\ofxFlowTools\src\mask\fluid</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\addons\ofxFlowTools\src\ftFbo.h">
       <Filter>addons\ofxFlowTools\src</Filter>
@@ -314,12 +306,6 @@
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxToggle.h">
       <Filter>addons\ofxGui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\addons\ofxXmlSettings\src\ofxXmlSettings.h">
-      <Filter>addons\ofxXmlSettings\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\addons\ofxXmlSettings\libs\tinyxml.h">
-      <Filter>addons\ofxXmlSettings\libs</Filter>
-    </ClInclude>
     <ClInclude Include="src\ps3eye.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -327,6 +313,12 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\libusb\libusb.h" />
+    <ClInclude Include="..\..\..\addons\ofxXmlSettings\src\ofxXmlSettings.h" />
+    <ClInclude Include="..\..\..\addons\ofxXmlSettings\libs\tinyxml.h" />
+    <ClInclude Include="src\ofxRecolor.h" />
+    <ClInclude Include="src\ofxColorize3d.h" />
+    <ClInclude Include="src\ofxColorize.h" />
+    <ClInclude Include="src\ofxColorize2d.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />

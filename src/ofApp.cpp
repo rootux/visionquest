@@ -39,7 +39,7 @@ void ofApp::setup() {
 	temperatureField.setup(flowWidth / 4, flowHeight / 4);
 	pressureField.setup(flowWidth / 4, flowHeight / 4);
 	velocityTemperatureField.setup(flowWidth / 4, flowHeight / 4);
-    velocityOffset.allocate(flowWidth / 2, flowHeight / 2);
+	velocityOffset.allocate(flowWidth / 2, flowHeight / 2);
 
 	// MOUSE DRAW
 	mouseForces.setup(flowWidth, flowHeight, drawWidth, drawHeight);
@@ -59,12 +59,12 @@ void ofApp::setup() {
 	kinectFbo.getTexture().setRGToRGBASwizzles(true);
 	ofLogError("kinect inited");
 #endif
-    
+
 	didCamUpdate = false;
 	cameraFbo.allocate(1280, 720);
 	cameraFbo.black();
-    
-    recolor.setup();
+
+	recolor.setup();
 
 	// GUI
 	setupGui();
@@ -85,7 +85,7 @@ void ofApp::setup() {
 			videoFrame = new unsigned char[eye->getWidth()*eye->getHeight() * 4];
 			videoTexture.allocate(eye->getWidth(), eye->getHeight(), GL_RGBA);
 		}
-		else { 
+		else {
 			eye = NULL;
 		}
 	}
@@ -103,15 +103,15 @@ void ofApp::setupGui() {
 
 	gui.add(multiSaveButton.setup("Multiple Save Settings"));
 	loadSettingsFileNumber = getNumberOfSettingsFile();
-	
-	settingsGroup.setName("Settings");
-	settingsGroup.add(loadSettingsFileIndex.set("Settings file:",1, 1, loadSettingsFileNumber));
+
+	settingsGroup.setName("settings transition");
+	settingsGroup.add(loadSettingsFileIndex.set("Settings file", 1, 1, loadSettingsFileNumber));
 	loadSettingsFileIndex.addListener(this, &ofApp::setLoadSettingsName);
-	
+
 	settingsGroup.add(transitionMode.set("Transition mode", TRANSITION_NONE, TRANSITION_NONE, TRANSITION_COUNT - 1));
-	settingsGroup.add(transitionTime.set("Transition time",0,0,360));
+	settingsGroup.add(transitionTime.set("Transition time", 0, 0, 360));
 	settingsGroup.add(doJumpBetweenStates.set("Jump between states"));
-	settingsGroup.add(transitionStatesInterval.set("Jump between interval",0,0,360));
+	settingsGroup.add(transitionStatesInterval.set("Jump between interval", 0, 0, 360));
 
 	gui.add(settingsGroup);
 
@@ -142,10 +142,10 @@ void ofApp::setupGui() {
 	guiColorSwitch = 1 - guiColorSwitch;
 	gui.add(opticalFlow.parameters);
 
-    gui.setDefaultHeaderBackgroundColor(guiHeaderColor[guiColorSwitch]);
-    gui.setDefaultFillColor(guiFillColor[guiColorSwitch]);
-    guiColorSwitch = 1 - guiColorSwitch;
-    gui.add(recolor.parameters);
+	gui.setDefaultHeaderBackgroundColor(guiHeaderColor[guiColorSwitch]);
+	gui.setDefaultFillColor(guiFillColor[guiColorSwitch]);
+	guiColorSwitch = 1 - guiColorSwitch;
+	gui.add(recolor.parameters);
 
 	gui.setDefaultHeaderBackgroundColor(guiHeaderColor[guiColorSwitch]);
 	gui.setDefaultFillColor(guiFillColor[guiColorSwitch]);
@@ -263,8 +263,8 @@ static void yuv422_to_rgba(const uint8_t *yuv_src, const int stride, uint8_t *ds
 }
 
 bool ofApp::isKinectSource() {
-	return (sourceMode.get() == SOURCE_KINECT_PS3EYE || 
-		sourceMode.get() == SOURCE_KINECT_DEPTH_PS3EYE || 
+	return (sourceMode.get() == SOURCE_KINECT_PS3EYE ||
+		sourceMode.get() == SOURCE_KINECT_DEPTH_PS3EYE ||
 		sourceMode.get() == SOURCE_KINECT);
 }
 
@@ -302,7 +302,7 @@ void ofApp::update() {
 	if ((isKinectSource() && (kinect.getDepthSource()->isFrameNew())) ||
 		(isPsEyeSource() && eye)) {
 #else
-    if ((isPsEyeSource() && eye) || simpleCam.isFrameNew()) {
+	if ((isPsEyeSource() && eye) || simpleCam.isFrameNew()) {
 #endif
 		//simpleCam.isFrameNew();
 		ofPushStyle();
@@ -323,24 +323,24 @@ void ofApp::update() {
 			case SOURCE_KINECT:
 				//kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
 				kinect.getDepthSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-                    break;
-			//case SOURCE_KINECT_PS3EYE:
-			//	kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-			//	psEyeXPosition = (cameraFbo.getWidth() / 3 ) + 20;
-			//	videoTexture.draw(psEyeXPosition, 20, -cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-			//	break;
-			//case SOURCE_KINECT_DEPTH_PS3EYE:
-			//	kinect.getDepthSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-			//	psEyeXPosition = (cameraFbo.getWidth() / 3) + 20;
-			//	videoTexture.draw(psEyeXPosition, 20, -cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-			//	break;
+				break;
+				//case SOURCE_KINECT_PS3EYE:
+				//	kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
+				//	psEyeXPosition = (cameraFbo.getWidth() / 3 ) + 20;
+				//	videoTexture.draw(psEyeXPosition, 20, -cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
+				//	break;
+				//case SOURCE_KINECT_DEPTH_PS3EYE:
+				//	kinect.getDepthSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
+				//	psEyeXPosition = (cameraFbo.getWidth() / 3) + 20;
+				//	videoTexture.draw(psEyeXPosition, 20, -cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
+				//	break;
 #endif
-            case SOURCE_PS3EYE:
-                videoTexture.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-                break;
-            default:
-                simpleCam.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-                break;
+			case SOURCE_PS3EYE:
+				videoTexture.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
+				break;
+			default:
+				simpleCam.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
+				break;
 			};
 		}
 		else {
@@ -350,23 +350,23 @@ void ofApp::update() {
 			case SOURCE_KINECT:
 				kinect.getDepthSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
 				break;
-   //         case SOURCE_KINECT_PS3EYE:
-   //             kinect.getColorSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-   //             psEyeXPosition = (cameraFbo.getWidth() / 3 * 2) - 20;
-   //             videoTexture.draw(psEyeXPosition, 20, cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-   //             break;
-			//case SOURCE_KINECT_DEPTH_PS3EYE:
-			//	kinect.getDepthSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-			//	psEyeXPosition = (cameraFbo.getWidth() / 3 * 2) - 20;
-			//	videoTexture.draw(psEyeXPosition, 20, cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-			//	break;
+				//         case SOURCE_KINECT_PS3EYE:
+				//             kinect.getColorSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
+				//             psEyeXPosition = (cameraFbo.getWidth() / 3 * 2) - 20;
+				//             videoTexture.draw(psEyeXPosition, 20, cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
+				//             break;
+				//case SOURCE_KINECT_DEPTH_PS3EYE:
+				//	kinect.getDepthSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
+				//	psEyeXPosition = (cameraFbo.getWidth() / 3 * 2) - 20;
+				//	videoTexture.draw(psEyeXPosition, 20, cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
+				//	break;
 #endif
 			case SOURCE_PS3EYE:
 				videoTexture.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
 				break;
-            default:
-                simpleCam.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-                break;
+			default:
+				simpleCam.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
+				break;
 			};
 		}
 #ifdef _KINECT
@@ -395,24 +395,24 @@ void ofApp::update() {
 
 
 
-		
+
 
 
 		//opticalFlow.update(deltaTime);
 		// use internal deltatime instead
 		opticalFlow.update();
-        
+
 
 		velocityMask.setDensity(cameraFbo.getTexture());
 		velocityMask.setVelocity(opticalFlow.getOpticalFlow());
 		velocityMask.update();
 
-		
+
 	}
 
 
 	fluidSimulation.addVelocity(opticalFlow.getOpticalFlowDecay());  //!
-	//fluidSimulation.addVelocity(cameraFbo.getTexture()); //!
+																	 //fluidSimulation.addVelocity(cameraFbo.getTexture()); //!
 	fluidSimulation.addDensity(velocityMask.getColorMask());
 	fluidSimulation.addTemperature(velocityMask.getLuminanceMask());
 
@@ -455,18 +455,72 @@ void ofApp::update() {
 	particleFlow.update();
 
 	updateTransition();
-}
+	}
 
 void ofApp::startTransition(std::string settings1Path, std::string settings2Path) {
-	ofxXmlSettings ofx;
-	gui.loadFromFile(relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex.get()) + ".xml");
+	transitionStartTime = ofGetElapsedTimef();
+	//settingsFrom = ofxXmlSettings(settings1Path); //TODO this can be the current loaded settings
+	settingsFrom = new ofxXmlSettings(settings1Path);
+	settingsTo = new ofxXmlSettings(settings2Path);
+
+	//TODO - Traverse manually in a more generic way
+	//For each value in first xml check if exist in 2nd xml and then transition between values
+
+	//std::vector <std::string> tagNames;
+	//settings1.getAttributeNames("settings", tagNames);
+	//settings1.pushTag("settings");
+	//int draw_mode2 = settings1.getValue("draw_mode", 0);
+	//std::string draw_name = settings1.getValue("MODE", "");
+	//int draw_mode_a = settings1.getAttribute("draw_mode", 0);
+	//std::string of = settings1.getValue("optical_flow", "");
+
+	//settings1.pushTag("optical_flow");
+	//float strength = settings1.getValue("strength", 0.0, 0);
+	//settings1.popTag();
+
+	//settings1.pushTag("fluid_solver");
+	//std::string speed = settings1.getValue("speed", "");
+	//settings1.popTag();
+	//settings1.popTag();
 }
+
+
 void ofApp::updateTransition() {
-	transitionStartTime = ofGetElapsedTimef() - lastTime;
-	lastTime = ofGetElapsedTimef();
+	float timeSinceAnimationStart = ofGetElapsedTimef() - transitionStartTime;
+
+	// Check if animation completed
+	if (timeSinceAnimationStart >= transitionTime) {
+		return;
+	}
+
+	if (settingsFrom == NULL || !settingsFrom->bDocLoaded) //TODO better way to validate that transition started
+		return;
+
+	float amount = ofMap(timeSinceAnimationStart, 0, transitionTime, 0, 1);
+
+	float currentSpeed = getValueTransitionStep("settings:fluid_solver:speed", amount);
+	fluidSimulation.setSpeed(currentSpeed);
+
+	float currentStrength = getValueTransitionStep("settings:optical_flow:strength", amount);
+	opticalFlow.setStrength(currentStrength);
+
+	//float currentSpeed = getValueTransitionStep("settings:Recolor:speed", amount);
+	//fluidSimulation.setSpeed(currentSpeed);
+
+	//The following is more generic but cost loading time and other loaded settings which kills the transition
+	//This could work if we already set all the to parameters on the other settings - this prevents us
+	// from live dj during a transition
+	//gui.loadFrom(*settingsFrom);
+}
+
+float ofApp::getValueTransitionStep(std::string tagName, float amount) {
+	float val1 = settingsFrom->getValue(tagName, 0.0, 0);
+	float val2 = settingsTo->getValue(tagName, 0.0, 0);
+	return ofLerp(val1, val2, amount);
 }
 
 void ofApp::loadNextSettingsFile() {
+	ofLogWarning("Loaded a file");
 	if (!isFileExist(relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex.get()) + ".xml")) {
 		loadSettingsFileIndex.set(1);
 	}
@@ -485,7 +539,7 @@ void ofApp::keyPressed(int key) {
 	case 'C': doDrawCamBackground.set(!doDrawCamBackground.get()); break;
 
 	case '0': drawMode.set(DRAW_COMPOSITE); break;
-    case '1': drawMode.set(DRAW_COMPOSITE); break;
+	case '1': drawMode.set(DRAW_COMPOSITE); break;
 	case '2': drawMode.set(DRAW_FLUID_DENSITY); break;
 	case '3': drawMode.set(DRAW_PARTICLES); break;
 	case '4': drawMode.set(DRAW_VELDOTS); break;
@@ -498,7 +552,7 @@ void ofApp::keyPressed(int key) {
 		//fluidSimulation.addObstacle(flowToolsLogoImage.getTexture());
 		mouseForces.reset();
 		break;
-	
+
 	case 'z':
 	case 'Z':
 		sourceMode.set((sourceMode.get() + 1) % SOURCE_COUNT);
@@ -508,71 +562,76 @@ void ofApp::keyPressed(int key) {
 		loadNextSettingsFile();
 		break;
 
-//	case 'y':
-//        {
-//        ofTexture resultTex = opticalFlow.getOpticalFlow();
-//
-//		ofPixels pix;
-//		resultTex.readToPixels(pix);
-//
-//			
-//		ofFile output;
-//		output.open("opticalflow.bin", ofFile::WriteOnly, true);
-//		output.write((const char *)pix.getData(), pix.getTotalBytes());
-//		output.close();
-//        }
+		//	case 'y':
+		//        {
+		//        ofTexture resultTex = opticalFlow.getOpticalFlow();
+		//
+		//		ofPixels pix;
+		//		resultTex.readToPixels(pix);
+		//
+		//			
+		//		ofFile output;
+		//		output.open("opticalflow.bin", ofFile::WriteOnly, true);
+		//		output.write((const char *)pix.getData(), pix.getTotalBytes());
+		//		output.close();
+		//        }
 		break;
-    case OF_KEY_UP:
-        {
-            float speed = fluidSimulation.getSpeed();
-            if(speed < 99)
-                fluidSimulation.setSpeed(fluidSimulation.getSpeed()+1);
-        }
-        break;
-    case OF_KEY_DOWN:
-        {
-            float speed = fluidSimulation.getSpeed();
-            if(speed > 1)
-                fluidSimulation.setSpeed(fluidSimulation.getSpeed()-1);
-            else
-                fluidSimulation.setSpeed(0);
-        }
-        break;
-    case OF_KEY_RIGHT:
-        {
-            float strength = opticalFlow.getStrength();
-            if(strength < 99)
-                opticalFlow.setStrength(opticalFlow.getStrength()+1);
-        }
-        break;
-    case OF_KEY_LEFT:
-        {
-            float strength = opticalFlow.getStrength();
-            if(strength > 1)
-                opticalFlow.setStrength(opticalFlow.getStrength()-1);
-            else
-                opticalFlow.setStrength(0);
-        }
-        break;
-    case 's':
+	case OF_KEY_UP:
+	{
+		float speed = fluidSimulation.getSpeed();
+		if (speed < 99)
+			fluidSimulation.setSpeed(fluidSimulation.getSpeed() + 1);
+	}
+	break;
+	case OF_KEY_DOWN:
+	{
+		float speed = fluidSimulation.getSpeed();
+		if (speed > 1)
+			fluidSimulation.setSpeed(fluidSimulation.getSpeed() - 1);
+		else
+			fluidSimulation.setSpeed(0);
+	}
+	break;
+	case OF_KEY_RIGHT:
+	{
+		float strength = opticalFlow.getStrength();
+		if (strength < 99)
+			opticalFlow.setStrength(opticalFlow.getStrength() + 1);
+	}
+	break;
+	case OF_KEY_LEFT:
+	{
+		float strength = opticalFlow.getStrength();
+		if (strength > 1)
+			opticalFlow.setStrength(opticalFlow.getStrength() - 1);
+		else
+			opticalFlow.setStrength(0);
+	}
+	break;
+	case 's':
 		increaseCutOff(0.0001);
 		break;
-    case 'S':
+	case 'S':
 		increaseCutOff(0.001);
-        break;
-    case 'a':
+		break;
+	case 'a':
 		decreaseCutOff(0.0001);
 		break;
-    case 'A':
+	case 'A':
 		decreaseCutOff(0.001);
-        break;
+		break;
+
+	case 'U':
+	case 'u':
+		startTransition(relateiveDataPath + "settings1.xml", relateiveDataPath + "settings2.xml");
+		break;
 
 	default: break;
 	}
 }
 
 void ofApp::increaseCutOff(float val) {
-	if (recolor.cutoff < (1-val))
+	if (recolor.cutoff < (1 - val))
 		recolor.cutoff += val;
 	else
 		recolor.cutoff = 1;
@@ -603,11 +662,12 @@ void ofApp::drawModeSetName(int &_value) {
 	case DRAW_SOURCE:			drawName.set("Source         "); break;
 	case DRAW_MOUSE:			drawName.set("Left Mouse     (8)"); break;
 	case DRAW_VELDOTS:			drawName.set("VelDots        (0)"); break;
-    case DRAW_DISPLACEMENT:		drawName.set("Displacement   "); break;
+	case DRAW_DISPLACEMENT:		drawName.set("Displacement   "); break;
 	}
 }
 
 void ofApp::setLoadSettingsName(int &fileIndex) {
+	ofLogWarning("Loading settings name");
 	gui.loadFromFile(relateiveDataPath + "settings" + std::to_string(fileIndex) + ".xml");
 }
 
@@ -639,7 +699,7 @@ void ofApp::draw() {
 	case DRAW_SOURCE: drawSource(); break;
 	case DRAW_MOUSE: drawMouseForces(); break;
 	case DRAW_VELDOTS: drawVelocityDots(); break;
-    case DRAW_DISPLACEMENT: drawVelocityDisplacement(); break;
+	case DRAW_DISPLACEMENT: drawVelocityDisplacement(); break;
 	}
 	if (toggleGuiDraw)
 	{
@@ -649,7 +709,7 @@ void ofApp::draw() {
 	else {
 		ofHideCursor();
 	}
-	
+
 }
 
 //--------------------------------------------------------------
@@ -890,14 +950,14 @@ void ofApp::drawVelocityDots(int _x, int _y, int _width, int _height) {
 	velocityDots.draw(_x, _y, _width, _height);
 	ofPopStyle();
 }
-    
+
 void ofApp::drawVelocityDisplacement(int _x, int _y, int _width, int _height) {
-    ofPushStyle();
-    ofEnableBlendMode(OF_BLENDMODE_ADD);
-    velocityOffset.setColorMap(cameraFbo.getTextureReference());
-    velocityOffset.setSource(fluidSimulation.getVelocity());
-    velocityOffset.draw(_x, _y, _width, _height);
-    ofPopStyle();
+	ofPushStyle();
+	ofEnableBlendMode(OF_BLENDMODE_ADD);
+	velocityOffset.setColorMap(cameraFbo.getTextureReference());
+	velocityOffset.setSource(fluidSimulation.getVelocity());
+	velocityOffset.draw(_x, _y, _width, _height);
+	ofPopStyle();
 }
 
 //--------------------------------------------------------------
@@ -934,9 +994,13 @@ void ofApp::drawGui() {
 void	ofApp::MultiSavePressed(const void * sender) {
 	ofxButton * button = (ofxButton*)sender;
 	ofLogWarning("Saving to a new settings.xml file");
+
 	while (isFileExist(relateiveDataPath + "settings" + std::to_string(lastSaveFileCounter) + ".xml")) {
 		lastSaveFileCounter++;
 	}
+
+	loadSettingsFileIndex = lastSaveFileCounter;
+
 	gui.saveToFile(relateiveDataPath + "settings" + std::to_string(lastSaveFileCounter) + ".xml");
 	loadSettingsFileNumber = lastSaveFileCounter;
 }
