@@ -560,28 +560,35 @@ void ofApp::keyPressed(int key) {
         }
         break;
     case 's':
+		increaseCutOff(0.0001);
+		break;
     case 'S':
-        {
-            if (recolor.cutoff < 0.99)
-                recolor.cutoff+=0.01;
-            else
-                recolor.cutoff=1;
-        }
+		increaseCutOff(0.001);
         break;
     case 'a':
+		decreaseCutOff(0.0001);
+		break;
     case 'A':
-        {
-            if (recolor.cutoff > 0.01)
-                recolor.cutoff-=0.01;
-            else
-                recolor.cutoff=0;
-        }
+		decreaseCutOff(0.001);
         break;
 
 	default: break;
 	}
 }
 
+void ofApp::increaseCutOff(float val) {
+	if (recolor.cutoff < (1-val))
+		recolor.cutoff += val;
+	else
+		recolor.cutoff = 1;
+}
+
+void ofApp::decreaseCutOff(float val) {
+	if (recolor.cutoff > val)
+		recolor.cutoff -= val;
+	else
+		recolor.cutoff = 0;
+}
 //--------------------------------------------------------------
 void ofApp::drawModeSetName(int &_value) {
 	switch (_value) {
