@@ -4,6 +4,8 @@
 #define _KINECT
 #endif
 
+#include <string>
+
 #include "ofMain.h"
 #include "ofxGui.h"
 #include "ofxFlowTools.h"
@@ -217,8 +219,14 @@ public:
 	ofParameter<float>	transitionStatesInterval;
 	void				startTransition(std::string settings1Path, std::string settings2Path);
 	void				updateTransition();
+	void				updateGuiFromTag(float timeSinceAnimationStart, string tag);
 	float				transitionStartTime;
 	ofxXmlSettings		*settingsFrom;
 	ofxXmlSettings		*settingsTo;
-	float				getValueTransitionStep(std::string tagName, float amount);
+	double				getValueTransitionStep(std::string tagName, double amount);
+	string				getValueAsString(string tagName);
+	bool				getValueTransitionStep(string tagName, bool amount);
+	int					getValueTransitionStep(string tagName, int amount);
+	int					getNextSettingsCounter();
+	bool				isTransitionFinished = true;
 };

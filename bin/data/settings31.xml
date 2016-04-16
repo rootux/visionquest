@@ -1,13 +1,6 @@
 <settings>
-	<settings_transition>
-		<Settings_file>1</Settings_file>
-		<Transition_mode>0</Transition_mode>
-		<Transition_time>2.29592</Transition_time>
-		<UnknownName>0</UnknownName>
-		<Jump_between_interval>0</Jump_between_interval>
-	</settings_transition>
-	<average_FPS>68</average_FPS>
-	<minimum_FPS>53.2502</minimum_FPS>
+	<average_FPS>61</average_FPS>
+	<minimum_FPS>49.0539</minimum_FPS>
 	<fullscreen__F_>1</fullscreen__F_>
 	<show_gui__G_>1</show_gui__G_>
 	<flip_camera>0</flip_camera>
@@ -165,4 +158,11 @@
 		<min_dot_size>2</min_dot_size>
 		<max_dot_size>10</max_dot_size>
 	</velocity_dots>
+<settings_transition>
+		<Settings_file>31</Settings_file>
+		<Transition_mode>0</Transition_mode>
+		<Transition_time>0</Transition_time>
+		<UnknownName>0</UnknownName>
+		<Jump_between_interval>0</Jump_between_interval>
+	</settings_transition>
 </settings>

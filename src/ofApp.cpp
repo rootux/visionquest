@@ -7,7 +7,28 @@ static const int ITUR_BT_601_CVG = -852492;
 static const int ITUR_BT_601_CVR = 1673527;
 static const int ITUR_BT_601_SHIFT = 20;
 
-//--------------------------------------------------------------
+
+// a pretty useful tokenization systes. equal to str.split
+// Example: For the given "settings:recolor:Cutoff" will split to 3 items
+static vector<string> tokenize(const string & str, const string & delim);
+static vector<string> tokenize(const string & str, const string & delim)
+{
+	vector<string> tokens;
+
+	size_t p0 = 0, p1 = string::npos;
+	while (p0 != string::npos)
+	{
+		p1 = str.find_first_of(delim, p0);
+		if (p1 != p0)
+		{
+			string token = str.substr(p0, p1 - p0);
+			tokens.push_back(token);
+		}
+		p0 = str.find_first_not_of(delim, p1);
+	}
+	return tokens;
+}
+
 void ofApp::setup() {
 
 	ofSetVerticalSync(false);
@@ -93,6 +114,62 @@ void ofApp::setup() {
 		ofLogError() << "Failed to open PS eye!";
 	}
 
+}//for settings:recolor:cutoff will  return settings
+static string getNextTagNode(string tag, string &firstTagName) {
+	vector<string> tokens = tokenize(tag, ":");
+	//no tags so we return
+	if (tokens.size() == 0) return ""; // No more tokens
+	firstTagName = string(tokens[0]);
+	if (tokens.size() == 1) return ""; //Last one
+	int count = tag.length() - firstTagName.length();
+	return tag.substr(firstTagName.length() + 1, count-1);
+}
+
+static bool isInt(string str) {
+	char *end;
+	long i = strtol(str.c_str(), &end, 10);
+	return (*end == '\0');
+}
+
+static void yuv422_to_rgba(const uint8_t *yuv_src, const int stride, uint8_t *dst, const int width, const int height)
+{
+	const int bIdx = 2;
+	const int uIdx = 0;
+	const int yIdx = 0;
+
+	const int uidx = 1 - yIdx + uIdx * 2;
+	const int vidx = (2 + uidx) % 4;
+	int j, i;
+
+#define _max(a, b) (((a) > (b)) ? (a) : (b))
+#define _saturate(v) static_cast<uint8_t>(static_cast<uint32_t>(v) <= 0xff ? v : v > 0 ? 0xff : 0)
+
+	for (j = 0; j < height; j++, yuv_src += stride)
+	{
+		uint8_t* row = dst + (width * 4) * j; // 4 channels
+
+		for (i = 0; i < 2 * width; i += 4, row += 8)
+		{
+			int u = static_cast<int>(yuv_src[i + uidx]) - 128;
+			int v = static_cast<int>(yuv_src[i + vidx]) - 128;
+
+			int ruv = (1 << (ITUR_BT_601_SHIFT - 1)) + ITUR_BT_601_CVR * v;
+			int guv = (1 << (ITUR_BT_601_SHIFT - 1)) + ITUR_BT_601_CVG * v + ITUR_BT_601_CUG * u;
+			int buv = (1 << (ITUR_BT_601_SHIFT - 1)) + ITUR_BT_601_CUB * u;
+
+			int y00 = _max(0, static_cast<int>(yuv_src[i + yIdx]) - 16) * ITUR_BT_601_CY;
+			row[2 - bIdx] = _saturate((y00 + ruv) >> ITUR_BT_601_SHIFT);
+			row[1] = _saturate((y00 + guv) >> ITUR_BT_601_SHIFT);
+			row[bIdx] = _saturate((y00 + buv) >> ITUR_BT_601_SHIFT);
+			row[3] = (0xff);
+
+			int y01 = _max(0, static_cast<int>(yuv_src[i + yIdx + 2]) - 16) * ITUR_BT_601_CY;
+			row[6 - bIdx] = _saturate((y01 + ruv) >> ITUR_BT_601_SHIFT);
+			row[5] = _saturate((y01 + guv) >> ITUR_BT_601_SHIFT);
+			row[4 + bIdx] = _saturate((y01 + buv) >> ITUR_BT_601_SHIFT);
+			row[7] = (0xff);
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -218,48 +295,6 @@ int ofApp::getNumberOfSettingsFile() {
 		counter++;
 	}
 	return counter;
-}
-
-
-static void yuv422_to_rgba(const uint8_t *yuv_src, const int stride, uint8_t *dst, const int width, const int height)
-{
-	const int bIdx = 2;
-	const int uIdx = 0;
-	const int yIdx = 0;
-
-	const int uidx = 1 - yIdx + uIdx * 2;
-	const int vidx = (2 + uidx) % 4;
-	int j, i;
-
-#define _max(a, b) (((a) > (b)) ? (a) : (b))
-#define _saturate(v) static_cast<uint8_t>(static_cast<uint32_t>(v) <= 0xff ? v : v > 0 ? 0xff : 0)
-
-	for (j = 0; j < height; j++, yuv_src += stride)
-	{
-		uint8_t* row = dst + (width * 4) * j; // 4 channels
-
-		for (i = 0; i < 2 * width; i += 4, row += 8)
-		{
-			int u = static_cast<int>(yuv_src[i + uidx]) - 128;
-			int v = static_cast<int>(yuv_src[i + vidx]) - 128;
-
-			int ruv = (1 << (ITUR_BT_601_SHIFT - 1)) + ITUR_BT_601_CVR * v;
-			int guv = (1 << (ITUR_BT_601_SHIFT - 1)) + ITUR_BT_601_CVG * v + ITUR_BT_601_CUG * u;
-			int buv = (1 << (ITUR_BT_601_SHIFT - 1)) + ITUR_BT_601_CUB * u;
-
-			int y00 = _max(0, static_cast<int>(yuv_src[i + yIdx]) - 16) * ITUR_BT_601_CY;
-			row[2 - bIdx] = _saturate((y00 + ruv) >> ITUR_BT_601_SHIFT);
-			row[1] = _saturate((y00 + guv) >> ITUR_BT_601_SHIFT);
-			row[bIdx] = _saturate((y00 + buv) >> ITUR_BT_601_SHIFT);
-			row[3] = (0xff);
-
-			int y01 = _max(0, static_cast<int>(yuv_src[i + yIdx + 2]) - 16) * ITUR_BT_601_CY;
-			row[6 - bIdx] = _saturate((y01 + ruv) >> ITUR_BT_601_SHIFT);
-			row[5] = _saturate((y01 + guv) >> ITUR_BT_601_SHIFT);
-			row[4 + bIdx] = _saturate((y01 + buv) >> ITUR_BT_601_SHIFT);
-			row[7] = (0xff);
-		}
-	}
 }
 
 bool ofApp::isKinectSource() {
@@ -457,55 +492,45 @@ void ofApp::update() {
 	updateTransition();
 	}
 
-void ofApp::startTransition(std::string settings1Path, std::string settings2Path) {
+void ofApp::startTransition(string settings1Path, string settings2Path) {
 	transitionStartTime = ofGetElapsedTimef();
-	//settingsFrom = ofxXmlSettings(settings1Path); //TODO this can be the current loaded settings
 	settingsFrom = new ofxXmlSettings(settings1Path);
 	settingsTo = new ofxXmlSettings(settings2Path);
-
-	//TODO - Traverse manually in a more generic way
-	//For each value in first xml check if exist in 2nd xml and then transition between values
-
-	//std::vector <std::string> tagNames;
-	//settings1.getAttributeNames("settings", tagNames);
-	//settings1.pushTag("settings");
-	//int draw_mode2 = settings1.getValue("draw_mode", 0);
-	//std::string draw_name = settings1.getValue("MODE", "");
-	//int draw_mode_a = settings1.getAttribute("draw_mode", 0);
-	//std::string of = settings1.getValue("optical_flow", "");
-
-	//settings1.pushTag("optical_flow");
-	//float strength = settings1.getValue("strength", 0.0, 0);
-	//settings1.popTag();
-
-	//settings1.pushTag("fluid_solver");
-	//std::string speed = settings1.getValue("speed", "");
-	//settings1.popTag();
-	//settings1.popTag();
+	isTransitionFinished = false;
 }
 
-
+//TODO - Traverse automatically in a more generic way
+//For each value in first xml check if exist in 2nd xml and then transition between values
 void ofApp::updateTransition() {
+	if (isTransitionFinished)
+		return;
+
 	float timeSinceAnimationStart = ofGetElapsedTimef() - transitionStartTime;
 
 	// Check if animation completed
 	if (timeSinceAnimationStart >= transitionTime) {
+		//When animation finish - set the new file as the loaded file
+		isTransitionFinished = true;
+		gui.loadFromFile(relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex++) + ".xml");
 		return;
 	}
 
-	if (settingsFrom == NULL || !settingsFrom->bDocLoaded) //TODO better way to validate that transition started
+	if (settingsFrom == NULL || !settingsFrom->bDocLoaded)
 		return;
 
-	float amount = ofMap(timeSinceAnimationStart, 0, transitionTime, 0, 1);
-
-	float currentSpeed = getValueTransitionStep("settings:fluid_solver:speed", amount);
-	fluidSimulation.setSpeed(currentSpeed);
-
-	float currentStrength = getValueTransitionStep("settings:optical_flow:strength", amount);
-	opticalFlow.setStrength(currentStrength);
-
-	//float currentSpeed = getValueTransitionStep("settings:Recolor:speed", amount);
-	//fluidSimulation.setSpeed(currentSpeed);
+	updateGuiFromTag(timeSinceAnimationStart, "settings:optical_flow:strength");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:optical_flow:threshold");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:recolor:Cutoff");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:fluid_solver:speed");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:fluid_solver:cell_size");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:fluid_solver:viscosity");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:fluid_solver:vorticity");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:fluid_solver:dissipation");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:velocity_mask:strength");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:spawn_hue");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:size");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:mass");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:lifespan");
 
 	//The following is more generic but cost loading time and other loaded settings which kills the transition
 	//This could work if we already set all the to parameters on the other settings - this prevents us
@@ -513,10 +538,89 @@ void ofApp::updateTransition() {
 	//gui.loadFrom(*settingsFrom);
 }
 
-float ofApp::getValueTransitionStep(std::string tagName, float amount) {
-	float val1 = settingsFrom->getValue(tagName, 0.0, 0);
-	float val2 = settingsTo->getValue(tagName, 0.0, 0);
+/*
+Receives a tag. for example "settings:recolor:Cutoff".
+Reads from settingsFrom and settingsTo xml files
+Updates the parameters based on a time based transition median
+*/
+void ofApp::updateGuiFromTag(float timeSinceAnimationStart, string tag) {
+	string subTag;
+
+	string value = getValueAsString(tag);
+	float amount = ofMap(timeSinceAnimationStart, 0, transitionTime, 0, 1);
+	//Check if value is double, int or bool	
+
+	double parameterValue; //TODO: bool
+	//if (value.c_str  == '1')
+	if (isInt(value.c_str())) {
+		parameterValue = getValueTransitionStep(tag, amount);
+	}
+	else {
+		parameterValue = getValueTransitionStep(tag, (int)amount);
+	}
+	//TODO: check for bool
+
+	string firstTagName = string();
+	subTag = getNextTagNode(tag, firstTagName); //Remove first node "settings:"
+	std::replace(subTag.begin(), subTag.end(), '_',' '); //TODO: wont work for all settings since also '(' translates to ' '
+	ofxGuiGroup group = gui;
+	string lastTagName;
+	//Start from gui and drill down till we get to the last node
+	do {
+		lastTagName = firstTagName;
+		subTag = getNextTagNode(subTag, firstTagName);
+		if (subTag == "")
+			continue;
+
+		group = group.getGroup(firstTagName);
+	} while (subTag != "");
+
+	//no more nodes - extract control
+	ofxBaseGui* control = group.getControl(firstTagName);
+	ofAbstractParameter* parameter = &control->getParameter();
+
+	// Find what type of parameter it is
+	if (ofParameter<float>* floatParam = dynamic_cast<ofParameter<float>*>(parameter)) {
+		floatParam->set(parameterValue);
+		return;
+	}
+	// Find what type of parameter it is
+	if (ofParameter<int>* intParam = dynamic_cast<ofParameter<int>*>(parameter)) {
+		intParam->set(parameterValue);
+		return;
+	}
+}
+
+int ofApp::getValueTransitionStep(string tagName, int amount) {
+	int val1 = settingsFrom->getValue(tagName, 0);
+	int val2 = settingsTo->getValue(tagName, 0);
 	return ofLerp(val1, val2, amount);
+}
+
+double ofApp::getValueTransitionStep(string tagName, double amount) {
+	double val1 = settingsFrom->getValue(tagName, 0.0, 0);
+	double val2 = settingsTo->getValue(tagName, 0.0, 0);
+	return ofLerp(val1, val2, amount);
+}
+
+string ofApp::getValueAsString(string tagName) {
+	return settingsTo->getValue(tagName, "");
+}
+
+bool ofApp::getValueTransitionStep(string tagName, bool amount) {
+	bool val1 = settingsFrom->getValue(tagName, 0.0, 0);
+	bool val2 = settingsTo->getValue(tagName, 0.0, 0);
+	return (amount > 0.5) ? val2 : val1;
+}
+
+
+int ofApp::getNextSettingsCounter() {
+	if (!isFileExist(relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex.get()+1) + ".xml")) {
+		return 1;
+	}
+	else {
+		return loadSettingsFileIndex.get()+1;
+	}
 }
 
 void ofApp::loadNextSettingsFile() {
@@ -531,6 +635,7 @@ void ofApp::loadNextSettingsFile() {
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 	switch (key) {
+	case OF_KEY_TAB:
 	case 'G':
 	case 'g': toggleGuiDraw = !toggleGuiDraw; break;
 	case 'f':
@@ -579,15 +684,15 @@ void ofApp::keyPressed(int key) {
 	case OF_KEY_UP:
 	{
 		float speed = fluidSimulation.getSpeed();
-		if (speed < 99)
-			fluidSimulation.setSpeed(fluidSimulation.getSpeed() + 1);
+		if (speed < 99.8)
+			fluidSimulation.setSpeed(fluidSimulation.getSpeed() + 0.2);
 	}
 	break;
 	case OF_KEY_DOWN:
 	{
 		float speed = fluidSimulation.getSpeed();
-		if (speed > 1)
-			fluidSimulation.setSpeed(fluidSimulation.getSpeed() - 1);
+		if (speed > 0.2)
+			fluidSimulation.setSpeed(fluidSimulation.getSpeed() - 0.2);
 		else
 			fluidSimulation.setSpeed(0);
 	}
@@ -620,12 +725,15 @@ void ofApp::keyPressed(int key) {
 	case 'A':
 		decreaseCutOff(0.001);
 		break;
-
-	case 'U':
-	case 'u':
-		startTransition(relateiveDataPath + "settings1.xml", relateiveDataPath + "settings2.xml");
+	case 'K':
+	case 'k':
+	{
+		//Transition from current setting to the next one
+		int nextFileIndex = ofApp::getNextSettingsCounter();
+		startTransition(relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex) + ".xml",
+			relateiveDataPath + "settings" + std::to_string(nextFileIndex) + ".xml");
 		break;
-
+	}
 	default: break;
 	}
 }
@@ -667,7 +775,7 @@ void ofApp::drawModeSetName(int &_value) {
 }
 
 void ofApp::setLoadSettingsName(int &fileIndex) {
-	ofLogWarning("Loading settings name");
+	//ofLogWarning("Loading settings name");
 	gui.loadFromFile(relateiveDataPath + "settings" + std::to_string(fileIndex) + ".xml");
 }
 
@@ -1009,16 +1117,16 @@ void ofApp::setRelativePath(const char *filename) {
 	relateiveDataPath = dirnameOf(filename) + "\\data\\";
 }
 
-bool ofApp::isFileExist(std::string fileName)
+bool ofApp::isFileExist(string fileName)
 {
 	std::ifstream infile(fileName);
 	return infile.good();
 }
 
-std::string ofApp::dirnameOf(const std::string& fname)
+string ofApp::dirnameOf(const string& fname)
 {
 	size_t pos = fname.find_last_of("\\/");
-	return (std::string::npos == pos)
+	return (string::npos == pos)
 		? ""
 		: fname.substr(0, pos);
 }
