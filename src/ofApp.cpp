@@ -530,7 +530,7 @@ void ofApp::updateTransition() {
 	if (timeSinceAnimationStart >= transitionTime) {
 		//When animation finish - set the new file as the loaded file
 		isTransitionFinished = true;
-		gui.loadFromFile(relateiveDataPath + "settings" + std::to_string(++loadSettingsFileIndex) + ".xml");
+		loadNextSettingsFile();
 		return;
 	}
 

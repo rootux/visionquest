@@ -157,7 +157,6 @@
 		<max_dot_size>10</max_dot_size>
 	</velocity_dots>
 <settings_transition>
-		<Settings_file>30</Settings_file>
 		<Transition_mode>0</Transition_mode>
 		<UnknownName>1</UnknownName>
 		<Jump_between_interval>0</Jump_between_interval>

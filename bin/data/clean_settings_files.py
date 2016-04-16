@@ -8,7 +8,9 @@ This allows for configuration loaded to not change some of the display modes
 We can use XPath to go to sub parameter such as 
 Transition_time which is a child of settings_transition
 '''
-elementsToRemove =['fullscreen__F_','show_gui__G_','.//settings_transition/Transition_time']
+elementsToRemove =['fullscreen__F_','show_gui__G_',
+'.//settings_transition/Transition_time',
+'.//settings_transition/Settings_file']
 def clean():
     currentDir = os.path.dirname(os.path.realpath(__file__))
     print(currentDir)
