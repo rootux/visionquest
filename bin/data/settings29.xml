@@ -159,7 +159,7 @@
 		<max_dot_size>10</max_dot_size>
 	</velocity_dots>
 <settings_transition>
-		<Settings_file>29</Settings_file>
+		<Settings_file>30</Settings_file>
 		<Transition_mode>0</Transition_mode>
 		<Transition_time>5</Transition_time>
 		<UnknownName>1</UnknownName>

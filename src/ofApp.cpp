@@ -125,10 +125,13 @@ static string getNextTagNode(string tag, string &firstTagName) {
 	return tag.substr(firstTagName.length() + 1, count-1);
 }
 
-static bool isInt(string str) {
-	char *end;
-	long i = strtol(str.c_str(), &end, 10);
-	return (*end == '\0');
+static bool isOnlyDouble(const char* str) {
+	char* endptr = 0;
+	strtod(str, &endptr);
+
+	if (*endptr != '\0' || endptr == str)
+		return false;
+	return true;
 }
 
 static void yuv422_to_rgba(const uint8_t *yuv_src, const int stride, uint8_t *dst, const int width, const int height)
@@ -497,10 +500,29 @@ void ofApp::startTransition(string settings1Path, string settings2Path) {
 	settingsFrom = new ofxXmlSettings(settings1Path);
 	settingsTo = new ofxXmlSettings(settings2Path);
 	isTransitionFinished = false;
+
+	//TODO - Traverse manually in a more generic way
+	//For each value in first xml check if exist in 2nd xml and then transition between values
+
+	//std::vector <string> tagNames;
+	//settings1.getAttributeNames("settings", tagNames);
+	//settings1.pushTag("settings");
+	//int draw_mode2 = settings1.getValue("draw_mode", 0);
+	//string draw_name = settings1.getValue("MODE", "");
+	//int draw_mode_a = settings1.getAttribute("draw_mode", 0);
+	//string of = settings1.getValue("optical_flow", "");
+
+	//settings1.pushTag("optical_flow");
+	//float strength = settings1.getValue("strength", 0.0, 0);
+	//settings1.popTag();
+
+	//settings1.pushTag("fluid_solver");
+	//string speed = settings1.getValue("speed", "");
+	//settings1.popTag();
+	//settings1.popTag();
 }
 
-//TODO - Traverse automatically in a more generic way
-//For each value in first xml check if exist in 2nd xml and then transition between values
+
 void ofApp::updateTransition() {
 	if (isTransitionFinished)
 		return;
@@ -511,7 +533,7 @@ void ofApp::updateTransition() {
 	if (timeSinceAnimationStart >= transitionTime) {
 		//When animation finish - set the new file as the loaded file
 		isTransitionFinished = true;
-		gui.loadFromFile(relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex++) + ".xml");
+		gui.loadFromFile(relateiveDataPath + "settings" + std::to_string(++loadSettingsFileIndex) + ".xml");
 		return;
 	}
 
@@ -531,7 +553,7 @@ void ofApp::updateTransition() {
 	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:size");
 	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:mass");
 	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:lifespan");
-
+	
 	//The following is more generic but cost loading time and other loaded settings which kills the transition
 	//This could work if we already set all the to parameters on the other settings - this prevents us
 	// from live dj during a transition
@@ -551,8 +573,10 @@ void ofApp::updateGuiFromTag(float timeSinceAnimationStart, string tag) {
 	//Check if value is double, int or bool	
 
 	double parameterValue; //TODO: bool
-	//if (value.c_str  == '1')
-	if (isInt(value.c_str())) {
+	if (value.compare("1") == 0 || value.compare("0") == '0') {
+		parameterValue = getValueTransitionStep(tag, (int)amount);
+	}
+	if (isOnlyDouble(value.c_str())) {
 		parameterValue = getValueTransitionStep(tag, amount);
 	}
 	else {
