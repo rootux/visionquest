@@ -69,7 +69,6 @@
 	<settings_transition>
 		<Settings_file>16</Settings_file>
 		<Transition_mode>0</Transition_mode>
-		<Transition_time>0</Transition_time>
 		<UnknownName>1</UnknownName>
 		<Jump_between_interval>0</Jump_between_interval>
 	</settings_transition>
