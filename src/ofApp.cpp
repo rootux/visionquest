@@ -174,14 +174,13 @@ static void yuv422_to_rgba(const uint8_t *yuv_src, const int stride, uint8_t *ds
 		}
 	}
 }
-
 //--------------------------------------------------------------
 void ofApp::setupGui() {
 	gui.setup("settings");
 	gui.setDefaultBackgroundColor(ofColor(0, 0, 0, 127));
 	gui.setDefaultFillColor(ofColor(160, 160, 160, 160));
-
 	gui.add(multiSaveButton.setup("Multiple Save Settings"));
+	multiSaveButton.addListener(this, &ofApp::MultiSavePressed);
 	loadSettingsFileNumber = getNumberOfSettingsFile();
 
 	settingsGroup.setName("settings transition");
@@ -206,8 +205,6 @@ void ofApp::setupGui() {
 	drawMode.addListener(this, &ofApp::drawModeSetName);
 	gui.add(drawName.set("MODE", "draw name"));
 	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT_PS3EYE, SOURCE_KINECT_PS3EYE, SOURCE_COUNT - 1));
-
-	multiSaveButton.addListener(this, &ofApp::MultiSavePressed);
 
 	int guiColorSwitch = 0;
 	ofColor guiHeaderColor[2];
@@ -1123,9 +1120,9 @@ void ofApp::drawGui() {
 	ofPopStyle();
 }
 
-void	ofApp::MultiSavePressed(const void * sender) {
-	ofxButton * button = (ofxButton*)sender;
+void ofApp::MultiSavePressed(const void * sender) {
 	ofLogWarning("Saving to a new settings.xml file");
+	ofxButton * button = (ofxButton*)sender;
 
 	while (isFileExist(relateiveDataPath + "settings" + std::to_string(lastSaveFileCounter) + ".xml")) {
 		lastSaveFileCounter++;

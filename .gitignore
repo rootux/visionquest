@@ -7,6 +7,7 @@
 /bin/data/*
 !/bin/data/
 !/bin/data/*.xml
+!/bin/data/*.py
 !/bin/data/color1d
 !/bin/data/color2d
 

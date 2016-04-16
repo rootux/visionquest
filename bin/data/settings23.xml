@@ -8,13 +8,10 @@
 	</settings_transition>
 	<average_FPS>43</average_FPS>
 	<minimum_FPS>33.0323</minimum_FPS>
-	<fullscreen__F_>1</fullscreen__F_>
-	<show_gui__G_>1</show_gui__G_>
 	<flip_camera>0</flip_camera>
 	<draw_camera__C_>0</draw_camera__C_>
 	<draw_mode>0</draw_mode>
 	<MODE>Composite      (1)</MODE>
-	<Source_mode__z_>2</Source_mode__z_>
 	<optical_flow>
 		<strength>4.71939</strength>
 		<offset>3</offset>
