@@ -141,10 +141,8 @@ public:
 	ofxPanel			gui;
 	void				setupGui();
 	void				keyPressed(int key);
-	void				increaseCutOff(float val);
-	void				decreaseCutOff(float val);
-	void				increaseSpawnHue(float val);
-	void				decreaseSpawnHue(float val);
+	void				increaseParameter(ofParameter<float> parameter, float val, float max=1);
+	void				decreaseParameter(ofParameter<float> parameter, float val, float min=0);
 	void				drawGui();
 	ofParameter<bool>	toggleGuiDraw;
 	ofParameter<float>	guiFPS;

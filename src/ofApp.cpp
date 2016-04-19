@@ -737,16 +737,16 @@ void ofApp::keyPressed(int key) {
 	}
 	break;
 	case 's':
-		increaseCutOff(0.0001);
+		increaseParameter(recolor.cutoff, 0.0001);
 		break;
 	case 'S':
-		increaseCutOff(0.001);
+		increaseParameter(recolor.cutoff, 0.001);
 		break;
 	case 'a':
-		decreaseCutOff(0.0001);
+		decreaseParameter(recolor.cutoff, 0.0001);
 		break;
 	case 'A':
-		decreaseCutOff(0.001);
+		decreaseParameter(recolor.cutoff, 0.001);
 		break;
 	case 'K':
 	case 'k':
@@ -758,48 +758,43 @@ void ofApp::keyPressed(int key) {
 		break;
 	}
 	case 'v':
-		increaseSpawnHue(0.001);
+		increaseParameter(particleFlow.spawnHue, 0.001);
 		break;
 	case 'V':
-		increaseSpawnHue(0.01);
+		increaseParameter(particleFlow.spawnHue, 0.01);
 		break;
 	case 'b':
-		decreaseSpawnHue(0.001);
+		decreaseParameter(particleFlow.spawnHue, 0.001);
 		break;
 	case 'B':
-		decreaseSpawnHue(0.01);
+		decreaseParameter(particleFlow.spawnHue, 0.01);
+		break;
+	case '>':
+	case '.':
+		increaseParameter(particleFlow.size, 0.1, 10);
+		break;
+	case '<':
+	case ',':
+		decreaseParameter(particleFlow.size, 0.1);
 		break;
 	default: break;
 	}
 }
 
-void ofApp::increaseCutOff(float val) {
-	if (recolor.cutoff < (1 - val))
-		recolor.cutoff += val;
+void ofApp::increaseParameter(ofParameter<float> parameter, float val, float max) {
+	if (parameter < (max - val))
+		parameter += val;
 	else
-		recolor.cutoff = 1;
+		parameter = max;
 }
 
-void ofApp::decreaseCutOff(float val) {
-	if (recolor.cutoff > val)
-		recolor.cutoff -= val;
+void ofApp::decreaseParameter(ofParameter<float> parameter, float val, float min) {
+	if (parameter > val)
+		parameter -= val;
 	else
-		recolor.cutoff = 0;
+		parameter = min;
 }
 
-void ofApp::increaseSpawnHue(float val) {
-	if (particleFlow.spawnHue < (1 - val))
-		particleFlow.spawnHue += val;
-	else
-		particleFlow.spawnHue = 1;
-}
-
-void ofApp::decreaseSpawnHue(float val) {
-	if (particleFlow.spawnHue > val)
-		particleFlow.spawnHue -= val;
-	else
-		particleFlow.spawnHue = 0;
-}
 //--------------------------------------------------------------
 void ofApp::drawModeSetName(int &_value) {
 	switch (_value) {
