@@ -143,6 +143,8 @@ public:
 	void				keyPressed(int key);
 	void				increaseCutOff(float val);
 	void				decreaseCutOff(float val);
+	void				increaseSpawnHue(float val);
+	void				decreaseSpawnHue(float val);
 	void				drawGui();
 	ofParameter<bool>	toggleGuiDraw;
 	ofParameter<float>	guiFPS;

@@ -549,8 +549,10 @@ void ofApp::updateTransition() {
 	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:spawn_hue");
 	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:size");
 	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:mass");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:mass_spread");
 	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:lifespan");
-	
+	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:cell_size");
+
 	//The following is more generic but cost loading time and other loaded settings which kills the transition
 	//This could work if we already set all the to parameters on the other settings - this prevents us
 	// from live dj during a transition
@@ -755,6 +757,18 @@ void ofApp::keyPressed(int key) {
 			relateiveDataPath + "settings" + std::to_string(nextFileIndex) + ".xml");
 		break;
 	}
+	case 'v':
+		increaseSpawnHue(0.001);
+		break;
+	case 'V':
+		increaseSpawnHue(0.01);
+		break;
+	case 'b':
+		decreaseSpawnHue(0.001);
+		break;
+	case 'B':
+		decreaseSpawnHue(0.01);
+		break;
 	default: break;
 	}
 }
@@ -771,6 +785,20 @@ void ofApp::decreaseCutOff(float val) {
 		recolor.cutoff -= val;
 	else
 		recolor.cutoff = 0;
+}
+
+void ofApp::increaseSpawnHue(float val) {
+	if (particleFlow.spawnHue < (1 - val))
+		particleFlow.spawnHue += val;
+	else
+		particleFlow.spawnHue = 1;
+}
+
+void ofApp::decreaseSpawnHue(float val) {
+	if (particleFlow.spawnHue > val)
+		particleFlow.spawnHue -= val;
+	else
+		particleFlow.spawnHue = 0;
 }
 //--------------------------------------------------------------
 void ofApp::drawModeSetName(int &_value) {
