@@ -10,6 +10,8 @@
 #include "ofxGui.h"
 #include "ofxFlowTools.h"
 #include "ofxXmlSettings.h"
+#include "ofxOsc.h"
+
 #ifdef _KINECT
 #include "ofxKinectForWindows2.h"
 #endif
@@ -20,6 +22,8 @@
 #include "ftVelocityOffset.h"
 
 #define USE_PROGRAMMABLE_GL					// Maybe there is a reason you would want to
+
+#define PORT 10000
 
 using namespace flowTools;
 
@@ -201,32 +205,39 @@ public:
     void                drawVelocityDisplacement(int _x, int _y, int _width, int _height);
 
     // Settings group
-	bool				isFileExist(std::string fileName);
-	std::string			dirnameOf(const std::string& fname);
+	bool				isFileExist(string fileName);
+	string				dirnameOf(const string& fname);
 	void				setRelativePath(const char *filename);
-	std::string			relateiveDataPath;
+	string				relateiveDataPath;
 	int					lastSaveFileCounter = 1;
 	ofParameter<int>	loadSettingsFileIndex;
 	int					loadSettingsFileNumber;
 	int                 getNumberOfSettingsFile();
 	void				setLoadSettingsName(int& _value);
-	void 				loadNextSettingsFile();
+	void 				loadNextSettingsFile(string settingsTo);
+
+	void	reset();
 
 	// Settings Transitions
 	ofParameter<int>	transitionMode;
 	ofParameter<float>	transitionTime;
 	ofParameter<bool>	doJumpBetweenStates;
 	ofParameter<float>	transitionStatesInterval;
-	void				startTransition(std::string settings1Path, std::string settings2Path);
+	void				updateOscMessages();
+	void				startTransition(string settings1Path, string settings2Path);
 	void				updateTransition();
 	void				updateGuiFromTag(float timeSinceAnimationStart, string tag);
 	float				transitionStartTime;
 	ofxXmlSettings		*settingsFrom;
+	string				settingsFromPath;
 	ofxXmlSettings		*settingsTo;
-	double				getValueTransitionStep(std::string tagName, double amount);
+	string				settingsToPath;
+	double				getValueTransitionStep(string tagName, double amount);
 	string				getValueAsString(string tagName);
 	bool				getValueTransitionStep(string tagName, bool amount);
 	int					getValueTransitionStep(string tagName, int amount);
 	int					getNextSettingsCounter();
 	bool				isTransitionFinished = true;
+
+	ofxOscReceiver		oscReceiver;
 };

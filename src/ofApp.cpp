@@ -116,6 +116,7 @@ void ofApp::setup() {
 
 	doFullScreen.set(1);
 
+	oscReceiver.setup(PORT);
 }
 
 //for settings:recolor:cutoff will  return settings
@@ -494,33 +495,97 @@ void ofApp::update() {
 	particleFlow.update();
 
 	updateTransition();
+
+	updateOscMessages();
+}
+
+void ofApp::updateOscMessages() {
+	while (oscReceiver.hasWaitingMessages()) {
+		ofxOscMessage m;
+		oscReceiver.getNextMessage(&m);
+			if (m.getAddress() == "/1/strength") {
+				opticalFlow.setStrength(m.getArgAsFloat(0));
+			}
+			if (m.getAddress() == "/1/speed") {
+				fluidSimulation.setSpeed(m.getArgAsFloat(0));
+			}
+
+			if (m.getAddress() == "/1/cutoff") {
+				recolor.cutoff.set(m.getArgAsFloat(0));
+			}
+
+			if (m.getAddress() == "/1/draw_camera" &&
+				m.getArgAsBool(0) == true) {
+				doDrawCamBackground.set(!doDrawCamBackground.get());
+			}
+
+			if (m.getAddress() == "/1/spawn_hue") {
+				particleFlow.spawnHue.set(m.getArgAsFloat(0));
+			}
+
+			if (m.getAddress() == "/1/particle_size") {
+				particleFlow.size.set(m.getArgAsFloat(0));
+			}
+
+			if (m.getAddress() == "/1/reset" &&
+				m.getArgAsBool(0) == true) {
+				reset();
+			}
+
+			if (m.getAddress() == "/1/transition_time") {
+				transitionTime.set(m.getArgAsFloat(0));
+			}
+
+			if (m.getAddress() == "/1/next_effect" &&
+				m.getArgAsBool(0) == true) {
+				
+				//TODO: DRY
+				//Transition from current setting to the next one
+				int oldSettingsFileIndex = loadSettingsFileIndex;
+				loadSettingsFileIndex = ofApp::getNextSettingsCounter();
+				startTransition(relateiveDataPath + "settings" + std::to_string(oldSettingsFileIndex) + ".xml",
+					relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex) + ".xml");
+			}
+
+			if ((m.getAddress().find("/1/effects") != std::string::npos) &&
+				(m.getArgAsBool(0) == true)) {
+				int mode = stoi(m.getAddress().substr(m.getAddress().find("1", 2) + 2)); //find the next /1
+				switch (mode) {
+					case 0: drawMode.set(DRAW_COMPOSITE); break;
+					case 1: drawMode.set(DRAW_COMPOSITE); break;
+					case 2: drawMode.set(DRAW_FLUID_DENSITY); break;
+					case 3: drawMode.set(DRAW_PARTICLES); break;
+					case 4: drawMode.set(DRAW_VELDOTS); break;
+					case 5: drawMode.set(DRAW_FLUID_VELOCITY); break;
+					case 6: drawMode.set(DRAW_DISPLACEMENT); break;
+				}
+			}
+
+			if ((m.getAddress().find("/settings/jump_to_setting") != std::string::npos) &&
+				m.getArgAsBool(0) == true) {
+
+				int startOfRow = m.getAddress().find("jump_to_setting") + std::string("jump_to_setting/").length();
+				int row = stoi(m.getAddress().substr(startOfRow,1));
+				//int startOfCol = m.getAddress().find("/", startOfRow);
+				int col = stoi(m.getAddress().substr(m.getAddress().find("/", startOfRow)+1));
+				//Map the matrix of rows and cols to file number
+				int oldSettingsFileIndex = loadSettingsFileIndex;
+				loadSettingsFileIndex = ((row-1) * 6) + col; //6 is length of line
+				//TODO: DRY
+				//Transition from current setting to the next one
+				startTransition(relateiveDataPath + "settings" + std::to_string(oldSettingsFileIndex) + ".xml",
+					relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex) + ".xml");
+			}
 	}
+}
 
 void ofApp::startTransition(string settings1Path, string settings2Path) {
 	transitionStartTime = ofGetElapsedTimef();
 	settingsFrom = new ofxXmlSettings(settings1Path);
+	settingsFromPath = settings1Path;
 	settingsTo = new ofxXmlSettings(settings2Path);
+	settingsToPath = settings2Path;
 	isTransitionFinished = false;
-
-	//TODO - Traverse manually in a more generic way
-	//For each value in first xml check if exist in 2nd xml and then transition between values
-
-	//std::vector <string> tagNames;
-	//settings1.getAttributeNames("settings", tagNames);
-	//settings1.pushTag("settings");
-	//int draw_mode2 = settings1.getValue("draw_mode", 0);
-	//string draw_name = settings1.getValue("MODE", "");
-	//int draw_mode_a = settings1.getAttribute("draw_mode", 0);
-	//string of = settings1.getValue("optical_flow", "");
-
-	//settings1.pushTag("optical_flow");
-	//float strength = settings1.getValue("strength", 0.0, 0);
-	//settings1.popTag();
-
-	//settings1.pushTag("fluid_solver");
-	//string speed = settings1.getValue("speed", "");
-	//settings1.popTag();
-	//settings1.popTag();
 }
 
 
@@ -534,7 +599,7 @@ void ofApp::updateTransition() {
 	if (timeSinceAnimationStart >= transitionTime) {
 		//When animation finish - set the new file as the loaded file
 		isTransitionFinished = true;
-		loadNextSettingsFile();
+		loadNextSettingsFile(settingsToPath);
 		return;
 	}
 
@@ -650,13 +715,15 @@ int ofApp::getNextSettingsCounter() {
 	}
 }
 
-void ofApp::loadNextSettingsFile() {
+void ofApp::loadNextSettingsFile(string settingsToPathArg) {
 	ofLogWarning("Loaded a file");
-	if (!isFileExist(relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex.get()) + ".xml")) {
-		loadSettingsFileIndex.set(1);
-	}
-	gui.loadFromFile(relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex.get()) + ".xml");
-	loadSettingsFileIndex++;
+	gui.loadFromFile(settingsToPathArg);
+}
+
+void ofApp::reset() {
+	fluidSimulation.reset();
+	//fluidSimulation.addObstacle(flowToolsLogoImage.getTexture());
+	mouseForces.reset();
 }
 
 //--------------------------------------------------------------
@@ -680,18 +747,20 @@ void ofApp::keyPressed(int key) {
 
 	case 'r':
 	case 'R':
-		fluidSimulation.reset();
-		//fluidSimulation.addObstacle(flowToolsLogoImage.getTexture());
-		mouseForces.reset();
+		reset();
 		break;
-
 	case 'z':
 	case 'Z':
 		sourceMode.set((sourceMode.get() + 1) % SOURCE_COUNT);
 		break;
 	case 'l':
 	case 'L':
-		loadNextSettingsFile();
+		/*string nextFile = relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex.get()) + ".xml";
+		if (!isFileExist(relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex.get()) + ".xml")) {
+			loadSettingsFileIndex.set(1);
+			nextFile = relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex.get()) + ".xml";
+		}
+		loadNextSettingsFile(nextFile);*/
 		break;
 
 		//	case 'y':
@@ -824,7 +893,7 @@ void ofApp::drawModeSetName(int &_value) {
 
 void ofApp::setLoadSettingsName(int &fileIndex) {
 	//ofLogWarning("Loading settings name");
-	gui.loadFromFile(relateiveDataPath + "settings" + std::to_string(fileIndex) + ".xml");
+	//gui.loadFromFile(relateiveDataPath + "settings" + std::to_string(fileIndex) + ".xml");
 }
 
 //--------------------------------------------------------------
