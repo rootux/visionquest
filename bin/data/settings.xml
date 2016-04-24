@@ -3,9 +3,12 @@
 		<Transition_mode>0</Transition_mode>
 		<UnknownName>0</UnknownName>
 		<Jump_between_interval>0</Jump_between_interval>
+	<Settings_file>1</Settings_file>
+		<Transition_time>0</Transition_time>
 	</settings_transition>
 	<average_FPS>68</average_FPS>
-	<minimum_FPS>53.2502</minimum_FPS>
+	<fullscreen__F_>1</fullscreen__F_>
+	<minimum_FPS>46.6677</minimum_FPS>
 	<flip_camera>0</flip_camera>
 	<draw_camera__C_>0</draw_camera__C_>
 	<draw_mode>1</draw_mode>
@@ -100,7 +103,7 @@
 		<draw_flow_res_1>
 			<non_den_vel_tem_prs_ob>2</non_den_vel_tem_prs_ob>
 			<is_temporary>1</is_temporary>
-			<force>0.00156251, 0, 0, 1</force>
+			<force>0, 0, 0, 1</force>
 			<strength>1</strength>
 			<radius>0.035</radius>
 			<edge>1</edge>
@@ -161,4 +164,7 @@
 		<min_dot_size>2</min_dot_size>
 		<max_dot_size>10</max_dot_size>
 	</velocity_dots>
+<settings/>
+	<fullscreen__F_>0</fullscreen__F_>
+	<show_gui__G_>1</show_gui__G_>
 </settings>

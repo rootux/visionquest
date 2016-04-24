@@ -7,7 +7,7 @@
 	<MODE>Composite      (1)</MODE>
 	<Source_mode__z_>2</Source_mode__z_>
 	<optical_flow>
-		<strength>12.8827</strength>
+		<strength>3.88</strength>
 		<offset>1</offset>
 		<lambda>0.01</lambda>
 		<threshold>0.02</threshold>
@@ -40,7 +40,7 @@
 	</velocity_mask>
 	<fluid_solver>
 		<reset>0</reset>
-		<speed>6.12245</speed>
+		<speed>3.9</speed>
 		<cell_size>0.0255102</cell_size>
 		<iterations>64</iterations>
 		<viscosity>0.387755</viscosity>
@@ -156,4 +156,9 @@
 		<min_dot_size>2</min_dot_size>
 		<max_dot_size>10</max_dot_size>
 	</velocity_dots>
-</settings>
+<settings_transition>
+		<Transition_mode>0</Transition_mode>
+		<UnknownName>0</UnknownName>
+		<Jump_between_interval>0</Jump_between_interval>
+	</settings_transition>
+	</settings>

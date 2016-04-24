@@ -1,13 +1,13 @@
 <settings>
-	<average_FPS>50</average_FPS>
-	<minimum_FPS>36.9842</minimum_FPS>
+	<average_FPS>54</average_FPS>
+	<minimum_FPS>38.6415</minimum_FPS>
 	<flip_camera>0</flip_camera>
 	<draw_camera__C_>1</draw_camera__C_>
-	<draw_mode>2</draw_mode>
-	<MODE>Particles      </MODE>
+	<draw_mode>0</draw_mode>
+	<MODE>Composite      (1)</MODE>
 	<Source_mode__z_>2</Source_mode__z_>
 	<optical_flow>
-		<strength>88.7755</strength>
+		<strength>11</strength>
 		<offset>3</offset>
 		<lambda>0.01</lambda>
 		<threshold>0.02</threshold>
@@ -23,7 +23,7 @@
 		<Active>1</Active>
 		<Noise_Dimension>1</Noise_Dimension>
 		<Use_Noise>0</Use_Noise>
-		<Cutoff>0.0140306</Cutoff>
+		<Cutoff>0.0217406</Cutoff>
 		<Offset>0</Offset>
 		<Scale>3.41837</Scale>
 		<Animate_Scale>1</Animate_Scale>
@@ -40,12 +40,12 @@
 	</velocity_mask>
 	<fluid_solver>
 		<reset>0</reset>
-		<speed>32.6531</speed>
+		<speed>2</speed>
 		<cell_size>1</cell_size>
 		<iterations>37</iterations>
-		<viscosity>0.117347</viscosity>
-		<vorticity>0.112245</vorticity>
-		<dissipation>0.000459184</dissipation>
+		<viscosity>0.387755</viscosity>
+		<vorticity>0.280612</vorticity>
+		<dissipation>0.00938775</dissipation>
 		<advanced_dissipation>
 			<velocity_offset>-0.001</velocity_offset>
 			<density_offset>0</density_offset>
@@ -68,7 +68,7 @@
 	</fluid_solver>
 	<particle_flow>
 		<active>1</active>
-		<speed>32.6531</speed>
+		<speed>2</speed>
 		<cell_size>1</cell_size>
 		<birth_chance>0.5</birth_chance>
 		<birth_velocity_chance>0.5</birth_velocity_chance>
@@ -95,7 +95,7 @@
 		<draw_flow_res_1>
 			<non_den_vel_tem_prs_ob>2</non_den_vel_tem_prs_ob>
 			<is_temporary>1</is_temporary>
-			<force>0, 0.0319445, 0, 1</force>
+			<force>0, -0.00138891, 0, 1</force>
 			<strength>1</strength>
 			<radius>0.035</radius>
 			<edge>1</edge>
@@ -156,4 +156,9 @@
 		<min_dot_size>2</min_dot_size>
 		<max_dot_size>10</max_dot_size>
 	</velocity_dots>
+<settings_transition>
+		<Transition_mode>0</Transition_mode>
+		<UnknownName>1</UnknownName>
+		<Jump_between_interval>0</Jump_between_interval>
+	</settings_transition>
 </settings>

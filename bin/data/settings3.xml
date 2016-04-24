@@ -7,7 +7,7 @@
 	<MODE>Particles      </MODE>
 	<Source_mode__z_>2</Source_mode__z_>
 	<optical_flow>
-		<strength>37.2449</strength>
+		<strength>38</strength>
 		<offset>3</offset>
 		<lambda>0.01</lambda>
 		<threshold>0.02</threshold>
@@ -40,7 +40,7 @@
 	</velocity_mask>
 	<fluid_solver>
 		<reset>0</reset>
-		<speed>60.7143</speed>
+		<speed>0</speed>
 		<cell_size>0.77551</cell_size>
 		<iterations>37</iterations>
 		<viscosity>0.1</viscosity>
