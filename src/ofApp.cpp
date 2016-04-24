@@ -538,13 +538,7 @@ void ofApp::updateOscMessages() {
 
 			if (m.getAddress() == "/1/next_effect" &&
 				m.getArgAsBool(0) == true) {
-				
-				//TODO: DRY
-				//Transition from current setting to the next one
-				int oldSettingsFileIndex = loadSettingsFileIndex;
-				loadSettingsFileIndex = ofApp::getNextSettingsCounter();
-				startTransition(relateiveDataPath + "settings" + std::to_string(oldSettingsFileIndex) + ".xml",
-					relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex) + ".xml");
+				jumpToNextEffect();
 			}
 
 			if ((m.getAddress().find("/1/effects") != std::string::npos) &&
@@ -568,8 +562,8 @@ void ofApp::updateOscMessages() {
 				int row = stoi(m.getAddress().substr(startOfRow,1));
 				//int startOfCol = m.getAddress().find("/", startOfRow);
 				int col = stoi(m.getAddress().substr(m.getAddress().find("/", startOfRow)+1));
-				//Map the matrix of rows and cols to file number
 				int oldSettingsFileIndex = loadSettingsFileIndex;
+				//Map the matrix of rows and cols to file number
 				loadSettingsFileIndex = ((row-1) * 6) + col; //6 is length of line
 				//TODO: DRY
 				//Transition from current setting to the next one
@@ -755,12 +749,8 @@ void ofApp::keyPressed(int key) {
 		break;
 	case 'l':
 	case 'L':
-		/*string nextFile = relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex.get()) + ".xml";
-		if (!isFileExist(relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex.get()) + ".xml")) {
-			loadSettingsFileIndex.set(1);
-			nextFile = relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex.get()) + ".xml";
-		}
-		loadNextSettingsFile(nextFile);*/
+		transitionTime = 0;
+		jumpToNextEffect();
 		break;
 
 		//	case 'y':
@@ -824,10 +814,7 @@ void ofApp::keyPressed(int key) {
 	case 'K':
 	case 'k':
 	{
-		//Transition from current setting to the next one
-		int nextFileIndex = ofApp::getNextSettingsCounter();
-		startTransition(relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex) + ".xml",
-			relateiveDataPath + "settings" + std::to_string(nextFileIndex) + ".xml");
+		jumpToNextEffect();
 		break;
 	}
 	case 'v':
@@ -866,6 +853,14 @@ void ofApp::decreaseParameter(ofParameter<float> parameter, float val, float min
 		parameter -= val;
 	else
 		parameter = min;
+}
+
+//Transition from current setting to the next one
+void ofApp::jumpToNextEffect() {
+	int oldSettingsFileIndex = loadSettingsFileIndex;
+	loadSettingsFileIndex = ofApp::getNextSettingsCounter();
+	startTransition(relateiveDataPath + "settings" + std::to_string(oldSettingsFileIndex) + ".xml",
+		relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex) + ".xml");
 }
 
 //--------------------------------------------------------------

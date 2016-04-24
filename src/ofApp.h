@@ -147,6 +147,7 @@ public:
 	void				keyPressed(int key);
 	void				increaseParameter(ofParameter<float> parameter, float val, float max=1);
 	void				decreaseParameter(ofParameter<float> parameter, float val, float min=0);
+	void				jumpToNextEffect();
 	void				drawGui();
 	ofParameter<bool>	toggleGuiDraw;
 	ofParameter<float>	guiFPS;
