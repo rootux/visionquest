@@ -114,7 +114,11 @@ void ofApp::setup() {
 		ofLogError() << "Failed to open PS eye!";
 	}
 
-}//for settings:recolor:cutoff will  return settings
+	doFullScreen.set(1);
+
+}
+
+//for settings:recolor:cutoff will  return settings
 static string getNextTagNode(string tag, string &firstTagName) {
 	vector<string> tokens = tokenize(tag, ":");
 	//no tags so we return
@@ -285,7 +289,7 @@ void ofApp::setupGui() {
 	gui.loadFromFile("settings.xml");
 
 	gui.minimizeAll();
-	toggleGuiDraw = true;
+	toggleGuiDraw = false;
 
 }
 
