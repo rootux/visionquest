@@ -10,6 +10,7 @@
 !/bin/data/*.py
 !/bin/data/color1d
 !/bin/data/color2d
+!/bin/data/*.touchosc
 
 # User-specific files
 *.suo
