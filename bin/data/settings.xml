@@ -3,6 +3,7 @@
 		<Transition_mode>0</Transition_mode>
 		<UnknownName>0</UnknownName>
 		<Jump_between_interval>0</Jump_between_interval>
+		<Transition_time>0.4</Transition_time>
 	</settings_transition>
 	<average_FPS>68</average_FPS>
 	<minimum_FPS>46.6677</minimum_FPS>
@@ -45,7 +46,7 @@
 	</velocity_mask>
 	<fluid_solver>
 		<reset>0</reset>
-		<speed>0</speed>
+		<speed>0.5</speed>
 		<cell_size>0.77551</cell_size>
 		<iterations>37</iterations>
 		<viscosity>0.1</viscosity>
@@ -161,6 +162,4 @@
 		<min_dot_size>2</min_dot_size>
 		<max_dot_size>10</max_dot_size>
 	</velocity_dots>
-<settings />
-	<fullscreen__F_>0</fullscreen__F_>
-	</settings>
+</settings>
