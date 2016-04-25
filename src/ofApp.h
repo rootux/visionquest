@@ -24,6 +24,7 @@
 #define USE_PROGRAMMABLE_GL					// Maybe there is a reason you would want to
 
 #define PORT 10000
+#define PORT_SERVER 10001
 
 using namespace flowTools;
 
@@ -67,6 +68,7 @@ enum transitionModeEnum {
 class ofApp : public ofBaseApp {
 public:
 	void	setup();
+	void	setupPsEye();
 	void	update();
 	void	draw();
 
@@ -76,7 +78,7 @@ public:
 	ofxKFW2::Device		kinect;
 	ftFbo				kinectFbo;
 #endif
-	ps3eye::PS3EYECam::PS3EYERef eye;
+	ps3eye::PS3EYECam::PS3EYERef eye = NULL;
 	unsigned char *		videoFrame;
 	ofTexture			videoTexture;
 
@@ -227,7 +229,7 @@ public:
 	void				updateOscMessages();
 	void				startTransition(string settings1Path, string settings2Path);
 	void				updateTransition();
-	void				updateGuiFromTag(float timeSinceAnimationStart, string tag);
+	void				updateGuiFromTag(float timeSinceAnimationStart, string tag, string oscMsgPath = "");
 	float				transitionStartTime;
 	ofxXmlSettings		*settingsFrom;
 	string				settingsFromPath;
@@ -241,4 +243,5 @@ public:
 	bool				isTransitionFinished = true;
 
 	ofxOscReceiver		oscReceiver;
+	ofxOscSender		oscSender;
 };

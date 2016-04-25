@@ -92,14 +92,22 @@ void ofApp::setup() {
 
 	lastTime = ofGetElapsedTimef();
 
+	doFullScreen.set(1);
 
-	//Setup ps3 eye
+	oscReceiver.setup(PORT);
+	oscSender.setup("10.0.0.4", PORT_SERVER);
+}
+
+void ofApp::setupPsEye() {
+	if (eye) {
+		return;
+	}
 	using namespace ps3eye;
 	std::vector<PS3EYECam::PS3EYERef> devices(PS3EYECam::getDevices());
 	if (devices.size())
 	{
 		eye = devices.at(0);
-		bool res = eye->init(640, 480, 60);
+		bool res = eye->init(640, 480, 120);
 		if (res) {
 			eye->start();
 			eye->setExposure(255);
@@ -113,10 +121,6 @@ void ofApp::setup() {
 	else {
 		ofLogError() << "Failed to open PS eye!";
 	}
-
-	doFullScreen.set(1);
-
-	oscReceiver.setup(PORT);
 }
 
 //for settings:recolor:cutoff will  return settings
@@ -302,6 +306,11 @@ int ofApp::getNumberOfSettingsFile() {
 	return counter;
 }
 
+//TODO: create a generic listener that will connect an osc path to send whanever this parameter changes
+//void ofApp::connectParameterToOsc() {
+	//
+//}
+
 bool ofApp::isKinectSource() {
 	return (sourceMode.get() == SOURCE_KINECT_PS3EYE ||
 		sourceMode.get() == SOURCE_KINECT_DEPTH_PS3EYE ||
@@ -331,6 +340,12 @@ void ofApp::update() {
 	}
 #endif
 
+	if(isPsEyeSource()) {
+		if (!eye) {
+			setupPsEye();
+		}
+	}
+
 	if (isPsEyeSource() && eye)
 	{
 		uint8_t* new_pixels = eye->getFrame();
@@ -344,7 +359,6 @@ void ofApp::update() {
 #else
 	if ((isPsEyeSource() && eye) || simpleCam.isFrameNew()) {
 #endif
-		//simpleCam.isFrameNew();
 		ofPushStyle();
 		ofEnableBlendMode(OF_BLENDMODE_DISABLED);
 #ifdef _KINECT
@@ -600,17 +614,17 @@ void ofApp::updateTransition() {
 	if (settingsFrom == NULL || !settingsFrom->bDocLoaded)
 		return;
 
-	updateGuiFromTag(timeSinceAnimationStart, "settings:optical_flow:strength");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:optical_flow:strength", "/1/strength");
 	updateGuiFromTag(timeSinceAnimationStart, "settings:optical_flow:threshold");
-	updateGuiFromTag(timeSinceAnimationStart, "settings:recolor:Cutoff");
-	updateGuiFromTag(timeSinceAnimationStart, "settings:fluid_solver:speed");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:recolor:Cutoff", "/1/cutoff");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:fluid_solver:speed", "/1/speed");
 	updateGuiFromTag(timeSinceAnimationStart, "settings:fluid_solver:cell_size");
 	updateGuiFromTag(timeSinceAnimationStart, "settings:fluid_solver:viscosity");
 	updateGuiFromTag(timeSinceAnimationStart, "settings:fluid_solver:vorticity");
 	updateGuiFromTag(timeSinceAnimationStart, "settings:fluid_solver:dissipation");
 	updateGuiFromTag(timeSinceAnimationStart, "settings:velocity_mask:strength");
-	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:spawn_hue");
-	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:size");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:spawn_hue", "/1/spawn_hue");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:size", "/1/particle_size");
 	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:mass");
 	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:mass_spread");
 	updateGuiFromTag(timeSinceAnimationStart, "settings:particle_flow:lifespan");
@@ -627,7 +641,7 @@ Receives a tag. for example "settings:recolor:Cutoff".
 Reads from settingsFrom and settingsTo xml files
 Updates the parameters based on a time based transition median
 */
-void ofApp::updateGuiFromTag(float timeSinceAnimationStart, string tag) {
+void ofApp::updateGuiFromTag(float timeSinceAnimationStart, string tag, string oscMsgPath) {
 	string subTag;
 
 	string value = getValueAsString(tag);
@@ -668,11 +682,27 @@ void ofApp::updateGuiFromTag(float timeSinceAnimationStart, string tag) {
 	// Find what type of parameter it is
 	if (ofParameter<float>* floatParam = dynamic_cast<ofParameter<float>*>(parameter)) {
 		floatParam->set(parameterValue);
+
+		//send osc message
+		if (!oscMsgPath.empty()) {
+			ofxOscMessage m;
+			m.setAddress(oscMsgPath);
+			m.addFloatArg(parameterValue);
+			oscSender.sendMessage(m);
+		}
 		return;
 	}
 	// Find what type of parameter it is
 	if (ofParameter<int>* intParam = dynamic_cast<ofParameter<int>*>(parameter)) {
 		intParam->set(parameterValue);
+
+		//send osc message
+		if (!oscMsgPath.empty()) {
+			ofxOscMessage m;
+			m.setAddress(oscMsgPath);
+			m.addIntArg(parameterValue);
+			oscSender.sendMessage(m);
+		}
 		return;
 	}
 }
