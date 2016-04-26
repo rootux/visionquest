@@ -192,6 +192,7 @@ public:
 
 	void				MultiSavePressed(const void * sender);
 
+	void				sourceChanged(int& value);
 	// DRAW
 	ofParameter<bool>	doDrawCamBackground;
 
@@ -241,12 +242,15 @@ public:
 	string				dirnameOf(const string& fname);
 	void				setRelativePath(const char *filename);
 	string				relateiveDataPath;
+	string				relateiveKinectDataPath;
+	string				relateivePsEyeDataPath;
 	int					lastSaveFileCounter = 1;
 	ofParameter<int>	loadSettingsFileIndex;
 	int					loadSettingsFileNumber;
 	int                 getNumberOfSettingsFile();
 	void				setLoadSettingsName(int& _value);
 	void 				loadNextSettingsFile(string settingsTo);
+	string				oscRemoteServerIpAddress;
 
 	void	reset();
 
@@ -257,6 +261,7 @@ public:
 	ofParameter<float>	jumpBetweenStatesInterval;
 	float				jumpBetweenStatesStartTime;
 	void				startJumpBetweenStates(bool&);
+	void				updateNumberOfSettingFiles();
 	void				updateJumpBetweenStates();
 	void				updateOscMessages();
 	void				startTransition(string settings1Path, string settings2Path);

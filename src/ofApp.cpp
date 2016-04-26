@@ -97,7 +97,6 @@ void ofApp::setup() {
 	doFullScreen.set(1);
 
 	oscReceiver.setup(PORT);
-	oscSender.setup("10.0.0.6", PORT_SERVER);
 }
 
 void ofApp::setupPsEye() {
@@ -222,6 +221,7 @@ void ofApp::setupGui() {
 	drawMode.addListener(this, &ofApp::drawModeSetName);
 	gui.add(drawName.set("MODE", "draw name"));
 	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT_PS3EYE, SOURCE_KINECT_PS3EYE, SOURCE_COUNT - 1));
+	sourceMode.addListener(this, &ofApp::sourceChanged);
 
 	int guiColorSwitch = 0;
 	ofColor guiHeaderColor[2];
@@ -318,6 +318,25 @@ int ofApp::getNumberOfSettingsFile() {
 //void ofApp::connectParameterToOsc() {
 	//
 //}
+
+/*
+Whenever a source is changed we are loading a different settins file.
+one from bin/data for the kinect
+second from bin/data/pseyesettings for the pseye
+*/
+void ofApp::sourceChanged(int& mode) {
+	switch (mode) {
+	case SOURCE_KINECT:
+		relateiveDataPath = relateiveKinectDataPath;
+		ofLogWarning("Switched to Kinect");
+		break;
+	case SOURCE_PS3EYE:
+		relateiveDataPath = relateivePsEyeDataPath;
+		ofLogWarning("Switched to PsEye");
+		break;
+	}
+	updateNumberOfSettingFiles();
+}
 
 bool ofApp::isKinectSource() {
 	return (sourceMode.get() == SOURCE_KINECT_PS3EYE ||
@@ -542,73 +561,80 @@ void ofApp::updateOscMessages() {
 	while (oscReceiver.hasWaitingMessages()) {
 		ofxOscMessage m;
 		oscReceiver.getNextMessage(&m);
-			if (m.getAddress() == "/1/strength") {
-				opticalFlow.setStrength(m.getArgAsFloat(0));
-			}
-			if (m.getAddress() == "/1/speed") {
-				fluidSimulation.setSpeed(m.getArgAsFloat(0));
-			}
+		
+		// Set remote address by osc message
+		if (!m.getRemoteIp().empty() && oscRemoteServerIpAddress.empty()) {
+			oscRemoteServerIpAddress = m.getRemoteIp();
+			oscSender.setup(oscRemoteServerIpAddress, PORT_SERVER);
+		}
+			
+		if (m.getAddress() == "/1/strength") {
+			opticalFlow.setStrength(m.getArgAsFloat(0));
+		}
+		if (m.getAddress() == "/1/speed") {
+			fluidSimulation.setSpeed(m.getArgAsFloat(0));
+		}
 
-			if (m.getAddress() == "/1/cutoff") {
-				recolor.cutoff.set(m.getArgAsFloat(0));
-			}
+		if (m.getAddress() == "/1/cutoff") {
+			recolor.cutoff.set(m.getArgAsFloat(0));
+		}
 
-			if (m.getAddress() == "/1/draw_camera" &&
-				m.getArgAsBool(0) == true) {
-				doDrawCamBackground.set(!doDrawCamBackground.get());
-			}
+		if (m.getAddress() == "/1/draw_camera" &&
+			m.getArgAsBool(0) == true) {
+			doDrawCamBackground.set(!doDrawCamBackground.get());
+		}
 
-			if (m.getAddress() == "/1/spawn_hue") {
-				particleFlow.spawnHue.set(m.getArgAsFloat(0));
-			}
+		if (m.getAddress() == "/1/spawn_hue") {
+			particleFlow.spawnHue.set(m.getArgAsFloat(0));
+		}
 
-			if (m.getAddress() == "/1/particle_size") {
-				particleFlow.size.set(m.getArgAsFloat(0));
-			}
+		if (m.getAddress() == "/1/particle_size") {
+			particleFlow.size.set(m.getArgAsFloat(0));
+		}
 
-			if (m.getAddress() == "/1/reset" &&
-				m.getArgAsBool(0) == true) {
-				reset();
-			}
+		if (m.getAddress() == "/1/reset" &&
+			m.getArgAsBool(0) == true) {
+			reset();
+		}
 
-			if (m.getAddress() == "/1/transition_time") {
-				transitionTime.set(m.getArgAsFloat(0));
-			}
+		if (m.getAddress() == "/1/transition_time") {
+			transitionTime.set(m.getArgAsFloat(0));
+		}
 
-			if (m.getAddress() == "/1/next_effect" &&
-				m.getArgAsBool(0) == true) {
-				jumpToNextEffect();
-			}
+		if (m.getAddress() == "/1/next_effect" &&
+			m.getArgAsBool(0) == true) {
+			jumpToNextEffect();
+		}
 
-			if ((m.getAddress().find("/1/effects") != std::string::npos) &&
-				(m.getArgAsBool(0) == true)) {
-				int mode = stoi(m.getAddress().substr(m.getAddress().find("1", 2) + 2)); //find the next /1
-				switch (mode) {
-					case 0: drawMode.set(DRAW_COMPOSITE); break;
-					case 1: drawMode.set(DRAW_COMPOSITE); break;
-					case 2: drawMode.set(DRAW_FLUID_DENSITY); break;
-					case 3: drawMode.set(DRAW_PARTICLES); break;
-					case 4: drawMode.set(DRAW_VELDOTS); break;
-					case 5: drawMode.set(DRAW_FLUID_VELOCITY); break;
-					case 6: drawMode.set(DRAW_DISPLACEMENT); break;
-				}
+		if ((m.getAddress().find("/1/effects") != std::string::npos) &&
+			(m.getArgAsBool(0) == true)) {
+			int mode = stoi(m.getAddress().substr(m.getAddress().find("1", 2) + 2)); //find the next /1
+			switch (mode) {
+				case 0: drawMode.set(DRAW_COMPOSITE); break;
+				case 1: drawMode.set(DRAW_COMPOSITE); break;
+				case 2: drawMode.set(DRAW_FLUID_DENSITY); break;
+				case 3: drawMode.set(DRAW_PARTICLES); break;
+				case 4: drawMode.set(DRAW_VELDOTS); break;
+				case 5: drawMode.set(DRAW_FLUID_VELOCITY); break;
+				case 6: drawMode.set(DRAW_DISPLACEMENT); break;
 			}
+		}
 
-			if ((m.getAddress().find("/settings/jump_to_setting") != std::string::npos) &&
-				m.getArgAsBool(0) == true) {
+		if ((m.getAddress().find("/settings/jump_to_setting") != std::string::npos) &&
+			m.getArgAsBool(0) == true) {
 
-				int startOfRow = m.getAddress().find("jump_to_setting") + std::string("jump_to_setting/").length();
-				int row = stoi(m.getAddress().substr(startOfRow,1));
-				//int startOfCol = m.getAddress().find("/", startOfRow);
-				int col = stoi(m.getAddress().substr(m.getAddress().find("/", startOfRow)+1));
-				int oldSettingsFileIndex = loadSettingsFileIndex;
-				//Map the matrix of rows and cols to file number
-				loadSettingsFileIndex = ((row-1) * 6) + col; //6 is length of line
-				//TODO: DRY
-				//Transition from current setting to the next one
-				startTransition(relateiveDataPath + "settings" + std::to_string(oldSettingsFileIndex) + ".xml",
-					relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex) + ".xml");
-			}
+			int startOfRow = m.getAddress().find("jump_to_setting") + std::string("jump_to_setting/").length();
+			int row = stoi(m.getAddress().substr(startOfRow,1));
+			//int startOfCol = m.getAddress().find("/", startOfRow);
+			int col = stoi(m.getAddress().substr(m.getAddress().find("/", startOfRow)+1));
+			int oldSettingsFileIndex = loadSettingsFileIndex;
+			//Map the matrix of rows and cols to file number
+			loadSettingsFileIndex = ((row-1) * 6) + col; //6 is length of line
+			//TODO: DRY
+			//Transition from current setting to the next one
+			startTransition(relateiveDataPath + "settings" + std::to_string(oldSettingsFileIndex) + ".xml",
+				relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex) + ".xml");
+		}
 	}
 }
 
@@ -1296,6 +1322,16 @@ void ofApp::startJumpBetweenStates(bool&) {
 	jumpBetweenStatesStartTime = ofGetElapsedTimef();
 }
 
+void ofApp::updateNumberOfSettingFiles() {
+	lastSaveFileCounter = 1;
+	while (isFileExist(relateiveDataPath + "settings" + std::to_string(lastSaveFileCounter) + ".xml")) {
+		lastSaveFileCounter++;
+	}
+
+	loadSettingsFileIndex.setMax(lastSaveFileCounter - 1);
+	loadSettingsFileIndex = 1;
+}
+
 void ofApp::MultiSavePressed(const void * sender) {
 	ofLogWarning("Saving to a new settings.xml file");
 	ofxButton * button = (ofxButton*)sender;
@@ -1312,6 +1348,8 @@ void ofApp::MultiSavePressed(const void * sender) {
 
 void ofApp::setRelativePath(const char *filename) {
 	relateiveDataPath = dirnameOf(filename) + "\\data\\";
+	relateiveKinectDataPath = relateiveDataPath;
+	relateivePsEyeDataPath = relateiveDataPath + "\\pseyesettings\\";
 }
 
 bool ofApp::isFileExist(string fileName)
