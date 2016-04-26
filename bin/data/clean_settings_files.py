@@ -10,7 +10,9 @@ Transition_time which is a child of settings_transition
 '''
 elementsToRemove =['fullscreen__F_','show_gui__G_',
 './/settings_transition/Transition_time',
-'.//settings_transition/Settings_file']
+'.//settings_transition/Settings_file',
+'.//settings_transition/Jump_between_interval',
+'.//settings_transition/UnknownName']
 def clean():
     currentDir = os.path.dirname(os.path.realpath(__file__))
     print(currentDir)
