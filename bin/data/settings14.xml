@@ -40,9 +40,7 @@
 	</recolor>
 	<settings_transition>
 		<Transition_mode>0</Transition_mode>
-		<UnknownName>1</UnknownName>
-		<Jump_between_interval>0</Jump_between_interval>
-	</settings_transition>
+		</settings_transition>
 	<fluid_solver>
 		<reset>0</reset>
 		<speed>1.91327</speed>
