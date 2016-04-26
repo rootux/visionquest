@@ -444,6 +444,7 @@ void ofApp::update() {
 #endif
 		{
 			cameraFbo.end();
+            ofPopStyle();
 			opticalFlow.setSource(cameraFbo.getTexture());
 		}
 
@@ -971,7 +972,7 @@ void ofApp::drawComposite(int _x, int _y, int _width, int _height) {
 
 	ofEnableBlendMode(OF_BLENDMODE_ADD);
 	if (particleFlow.isActive())
-		particleFlow.draw(_x, _y, _width, _height);
+		particleFlow.draw(_x, _y, _width, _height, fluidSimulation.getVelocity());
 
 	if (showLogo) {
 		flowToolsLogoImage.draw(_x, _y, _width, _height);
@@ -985,7 +986,7 @@ void ofApp::drawParticles(int _x, int _y, int _width, int _height) {
 	ofPushStyle();
 	ofEnableBlendMode(OF_BLENDMODE_ALPHA);
 	if (particleFlow.isActive())
-		particleFlow.draw(_x, _y, _width, _height);
+		particleFlow.draw(_x, _y, _width, _height, fluidSimulation.getVelocity());
 	ofPopStyle();
 }
 
