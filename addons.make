@@ -1,4 +1,4 @@
 ofxFlowTools
 ofxGui
-ofxKinectForWindows2
+ofxOsc
 ofxXmlSettings

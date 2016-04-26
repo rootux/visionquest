@@ -7,7 +7,7 @@
     "640A848B4A5FDACE22970ED38CD5421AE9100774" : 0,
     "2A03CE0CF301C466938025B767254CAAC3CB8DB0" : 0
   },
-  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "5E212E9C-EEF0-4E6A-819D-32DD1D002BD8",
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "923234F8-A338-4E05-A89F-2A303E7ECE31",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
     "640A848B4A5FDACE22970ED38CD5421AE9100774" : "visionquest\/",
     "2A03CE0CF301C466938025B767254CAAC3CB8DB0" : "..\/..\/addons\/ofxFlowTools"
@@ -17,7 +17,7 @@
   "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "visionquest.xcodeproj",
   "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
     {
-      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:moostrik\/ofxFlowTools.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:rootux\/ofxFlowTools.git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "2A03CE0CF301C466938025B767254CAAC3CB8DB0"
     },
