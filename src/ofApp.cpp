@@ -95,7 +95,7 @@ void ofApp::setup() {
 	doFullScreen.set(1);
 
 	oscReceiver.setup(PORT);
-	oscSender.setup("10.0.0.4", PORT_SERVER);
+	oscSender.setup("10.0.0.6", PORT_SERVER);
 }
 
 void ofApp::setupPsEye() {
@@ -198,8 +198,9 @@ void ofApp::setupGui() {
 
 	settingsGroup.add(transitionMode.set("Transition mode", TRANSITION_NONE, TRANSITION_NONE, TRANSITION_COUNT - 1));
 	settingsGroup.add(transitionTime.set("Transition time", 0, 0, 360));
-	settingsGroup.add(doJumpBetweenStates.set("Jump between states"));
-	settingsGroup.add(transitionStatesInterval.set("Jump between interval", 0, 0, 360));
+	settingsGroup.add(doJumpBetweenStates.set("Jump between states", false));
+	doJumpBetweenStates.addListener(this, &ofApp::startJumpBetweenStates);
+	settingsGroup.add(jumpBetweenStatesInterval.set("Jump between interval", 0, 0, 360));
 
 	gui.add(settingsGroup);
 
@@ -511,6 +512,22 @@ void ofApp::update() {
 	updateTransition();
 
 	updateOscMessages();
+
+	updateJumpBetweenStates();
+}
+
+void ofApp::updateJumpBetweenStates() {
+	if (!doJumpBetweenStates || jumpBetweenStatesInterval <= 0) {
+		return;
+	}
+	float timeSinceAnimationStart = ofGetElapsedTimef() - transitionStartTime;
+	// Check if animation completed
+	if (timeSinceAnimationStart >= jumpBetweenStatesInterval) {
+		jumpToNextEffect();
+		bool dummy;
+		startJumpBetweenStates(dummy);
+		return;
+	}
 }
 
 void ofApp::updateOscMessages() {
@@ -586,6 +603,7 @@ void ofApp::updateOscMessages() {
 			}
 	}
 }
+
 
 void ofApp::startTransition(string settings1Path, string settings2Path) {
 	transitionStartTime = ofGetElapsedTimef();
@@ -1239,6 +1257,10 @@ void ofApp::drawGui() {
 	ofEnableBlendMode(OF_BLENDMODE_ADD);
 	ofDrawCircle(ofGetMouseX(), ofGetMouseY(), ofGetWindowWidth() / 600.0);
 	ofPopStyle();
+}
+
+void ofApp::startJumpBetweenStates(bool&) {
+	jumpBetweenStatesStartTime = ofGetElapsedTimef();
 }
 
 void ofApp::MultiSavePressed(const void * sender) {

@@ -225,7 +225,10 @@ public:
 	ofParameter<int>	transitionMode;
 	ofParameter<float>	transitionTime;
 	ofParameter<bool>	doJumpBetweenStates;
-	ofParameter<float>	transitionStatesInterval;
+	ofParameter<float>	jumpBetweenStatesInterval;
+	float				jumpBetweenStatesStartTime;
+	void				startJumpBetweenStates(bool&);
+	void				updateJumpBetweenStates();
 	void				updateOscMessages();
 	void				startTransition(string settings1Path, string settings2Path);
 	void				updateTransition();
