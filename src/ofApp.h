@@ -7,6 +7,10 @@
 #include <string>
 
 #include "ofMain.h"
+#ifdef _WIN32
+#include "SpoutSDK\Spout.h" // Spout SDK
+#endif
+
 #include "ofxGui.h"
 #include "ofxFlowTools.h"
 #include "ofxXmlSettings.h"
@@ -20,6 +24,8 @@
 
 #include "ofxRecolor.h"
 #include "ftVelocityOffset.h"
+
+
 
 #define USE_PROGRAMMABLE_GL					// Maybe there is a reason you would want to
 
@@ -90,18 +96,39 @@ public:
 	bool				didCamUpdate;
 	ftFbo				cameraFbo;
 	ofParameter<bool>	doFlipCamera;
-
+	ofFbo				globalFbo;
+	bool				spoutInitialized;
+#ifdef _WIN32
+	SpoutSender			senderSpout;
+#endif
 
 	// Time
 	float				lastTime;
 	float				deltaTime;
 
 	// FlowTools
-	int					flowWidth;
-	int					flowHeight;
-	int					drawWidth;
-	int					drawHeight;
+	int				    internalWidth; // base resolution for intermediate buffers
+	int					internalHeight;
+	int					flowWidth; // base resolution for fluid simulation buffers
+	int					flowHeight; // usually 1/4 of internalWidth/Height
 
+	int getDrawWidth() const {
+		if (sendToSpout) {
+			return internalWidth;
+		}
+		else {
+			return ofGetWindowWidth();
+		}
+	}
+
+	int getDrawHeight() const {
+		if (sendToSpout) {
+			return internalHeight;
+		}
+		else {
+			return ofGetWindowHeight();
+		}
+	}
 	ftOpticalFlow		opticalFlow;
 	ftVelocityMask		velocityMask;
 	ftFluidSimulation	fluidSimulation;
@@ -129,6 +156,8 @@ public:
 	ofParameter<int>	sourceMode;
     
     ofxRecolor          recolor;
+
+	ofParameter<bool>   sendToSpout;
 
 	ofParameter<bool>	showScalar;
 	ofParameter<bool>	showField;
@@ -170,41 +199,41 @@ public:
 	void				drawModeSetName(int& _value);
 	ofParameter<string> drawName;
 
-	void				drawComposite() { drawComposite(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
+	void				drawComposite() { drawComposite(0, 0, getDrawWidth(), getDrawHeight()); }
 	void				drawComposite(int _x, int _y, int _width, int _height);
-	void				drawParticles() { drawParticles(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
+	void				drawParticles() { drawParticles(0, 0, getDrawWidth(), getDrawHeight()); }
 	void				drawParticles(int _x, int _y, int _width, int _height);
-	void				drawFluidFields() { drawFluidFields(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
+	void				drawFluidFields() { drawFluidFields(0, 0, getDrawWidth(), getDrawHeight()); }
 	void				drawFluidFields(int _x, int _y, int _width, int _height);
-	void				drawFluidDensity() { drawFluidDensity(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
+	void				drawFluidDensity() { drawFluidDensity(0, 0, getDrawWidth(), getDrawHeight()); }
 	void				drawFluidDensity(int _x, int _y, int _width, int _height);
-	void				drawFluidVelocity() { drawFluidVelocity(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
+	void				drawFluidVelocity() { drawFluidVelocity(0, 0, getDrawWidth(), getDrawHeight()); }
 	void				drawFluidVelocity(int _x, int _y, int _width, int _height);
-	void				drawFluidPressure() { drawFluidPressure(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
+	void				drawFluidPressure() { drawFluidPressure(0, 0, getDrawWidth(), getDrawHeight()); }
 	void				drawFluidPressure(int _x, int _y, int _width, int _height);
-	void				drawFluidTemperature() { drawFluidTemperature(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
+	void				drawFluidTemperature() { drawFluidTemperature(0, 0, getDrawWidth(), getDrawHeight()); }
 	void				drawFluidTemperature(int _x, int _y, int _width, int _height);
-	void				drawFluidDivergence() { drawFluidDivergence(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
+	void				drawFluidDivergence() { drawFluidDivergence(0, 0, getDrawWidth(), getDrawHeight()); }
 	void				drawFluidDivergence(int _x, int _y, int _width, int _height);
-	void				drawFluidVorticity() { drawFluidVorticity(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
+	void				drawFluidVorticity() { drawFluidVorticity(0, 0, getDrawWidth(), getDrawHeight()); }
 	void				drawFluidVorticity(int _x, int _y, int _width, int _height);
-	void				drawFluidBuoyance() { drawFluidBuoyance(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
+	void				drawFluidBuoyance() { drawFluidBuoyance(0, 0, getDrawWidth(), getDrawHeight()); }
 	void				drawFluidBuoyance(int _x, int _y, int _width, int _height);
-	void				drawFluidObstacle() { drawFluidObstacle(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
+	void				drawFluidObstacle() { drawFluidObstacle(0, 0, getDrawWidth(), getDrawHeight()); }
 	void				drawFluidObstacle(int _x, int _y, int _width, int _height);
-	void				drawMask() { drawMask(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
+	void				drawMask() { drawMask(0, 0, getDrawWidth(), getDrawHeight()); }
 	void				drawMask(int _x, int _y, int _width, int _height);
-	void				drawOpticalFlow() { drawOpticalFlow(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
+	void				drawOpticalFlow() { drawOpticalFlow(0, 0, getDrawWidth(), getDrawHeight()); }
 	void				drawOpticalFlow(int _x, int _y, int _width, int _height);
-	void				drawSource() { drawSource(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
+	void				drawSource() { drawSource(0, 0, getDrawWidth(), getDrawHeight()); }
 	void				drawSource(int _x, int _y, int _width, int _height);
-	void				drawMouseForces() { drawMouseForces(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
+	void				drawMouseForces() { drawMouseForces(0, 0, getDrawWidth(), getDrawHeight()); }
 	void				drawMouseForces(int _x, int _y, int _width, int _height);
 
-	void				drawVelocityDots() { drawVelocityDots(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
+	void				drawVelocityDots() { drawVelocityDots(0, 0, getDrawWidth(), getDrawHeight()); }
 	void				drawVelocityDots(int _x, int _y, int _width, int _height);
     
-    void				drawVelocityDisplacement() { drawVelocityDisplacement(0, 0, ofGetWindowWidth(), ofGetWindowHeight()); }
+    void				drawVelocityDisplacement() { drawVelocityDisplacement(0, 0, getDrawWidth(), getDrawHeight()); }
     void                drawVelocityDisplacement(int _x, int _y, int _width, int _height);
 
     // Settings group

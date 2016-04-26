@@ -34,19 +34,19 @@ void ofApp::setup() {
 	ofSetVerticalSync(false);
 	ofSetLogLevel(OF_LOG_NOTICE);
 
-	drawWidth = 1280;
-	drawHeight = 720;
+	internalWidth = 1280;
+	internalHeight = 720;
 	// process all but the density on 16th resolution
-	flowWidth = drawWidth / 4;
-	flowHeight = drawHeight / 4;
+	flowWidth = internalWidth / 4;
+	flowHeight = internalHeight / 4;
 
 	// FLOW & MASK
 	opticalFlow.setup(flowWidth, flowHeight);
-	velocityMask.setup(drawWidth, drawHeight);
+	velocityMask.setup(internalWidth, internalHeight);
 
 	// FLUID & PARTICLES
-	fluidSimulation.setup(flowWidth, flowHeight, drawWidth, drawHeight);
-	particleFlow.setup(flowWidth, flowHeight, drawWidth, drawHeight);
+	fluidSimulation.setup(flowWidth, flowHeight, internalWidth, internalHeight);
+	particleFlow.setup(flowWidth, flowHeight, internalWidth, internalHeight);
 
 	//flowToolsLogoImage.load("flowtools.png");
 	//fluidSimulation.addObstacle(flowToolsLogoImage.getTexture());
@@ -63,7 +63,7 @@ void ofApp::setup() {
 	velocityOffset.allocate(flowWidth / 2, flowHeight / 2);
 
 	// MOUSE DRAW
-	mouseForces.setup(flowWidth, flowHeight, drawWidth, drawHeight);
+	mouseForces.setup(flowWidth, flowHeight, internalWidth, internalHeight);
 
 	// CAMERA
 	simpleCam.setup(640, 480, true);
@@ -76,14 +76,16 @@ void ofApp::setup() {
 	kinect.initInfraredSource();
 	kinect.initBodySource();
 	kinect.initBodyIndexSource();
-	kinectFbo.allocate(1280, 720, GL_R16);
+	kinectFbo.allocate(internalWidth, internalHeight, GL_R16);
 	kinectFbo.getTexture().setRGToRGBASwizzles(true);
 	ofLogError("kinect inited");
 #endif
 
 	didCamUpdate = false;
-	cameraFbo.allocate(1280, 720);
+	cameraFbo.allocate(internalWidth, internalHeight);
 	cameraFbo.black();
+
+	globalFbo.allocate(internalWidth, internalHeight);
 
 	recolor.setup();
 
@@ -211,6 +213,11 @@ void ofApp::setupGui() {
 	gui.add(toggleGuiDraw.set("show gui (G)", false));
 	gui.add(doFlipCamera.set("flip camera", true));
 	gui.add(doDrawCamBackground.set("draw camera (C)", true));
+#ifdef _WIN32
+	gui.add(sendToSpout.set("Send to Spout", true));
+#else
+	sendToSpout.set(false);
+#endif
 	gui.add(drawMode.set("draw mode", DRAW_COMPOSITE, DRAW_COMPOSITE, DRAW_COUNT - 1));
 	drawMode.addListener(this, &ofApp::drawModeSetName);
 	gui.add(drawName.set("MODE", "draw name"));
@@ -942,6 +949,9 @@ void ofApp::setLoadSettingsName(int &fileIndex) {
 
 //--------------------------------------------------------------
 void ofApp::draw() {
+	if (sendToSpout) {
+		globalFbo.begin();
+	}
 	ofClear(0, 0);
 	if (doDrawCamBackground.get())
 		drawSource();
@@ -969,6 +979,28 @@ void ofApp::draw() {
 	case DRAW_MOUSE: drawMouseForces(); break;
 	case DRAW_VELDOTS: drawVelocityDots(); break;
 	case DRAW_DISPLACEMENT: drawVelocityDisplacement(); break;
+	}
+	if (sendToSpout) {
+		globalFbo.end();
+	}
+#ifdef _WIN32
+	if (!spoutInitialized) {
+		spoutInitialized = senderSpout.CreateSender("OF Spout Sender", internalWidth, internalHeight);
+		if (!spoutInitialized) {
+			ofLogError() << "Failed to initialize sender spout!";
+		}
+	}
+	// TODO: check if enabled too
+	if (spoutInitialized && sendToSpout) {
+		const auto& texData = globalFbo.getTexture().getTextureData();
+		senderSpout.SendTexture(texData.textureID, texData.textureTarget, internalWidth, internalHeight, false);
+	}
+#endif
+	if (sendToSpout) {
+		ofPushStyle();
+		ofEnableBlendMode(OF_BLENDMODE_DISABLED);
+		globalFbo.draw(0, 0, ofGetWidth(), ofGetHeight());
+		ofPopStyle();
 	}
 	if (toggleGuiDraw)
 	{
