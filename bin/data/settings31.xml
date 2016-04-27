@@ -1,7 +1,6 @@
 <settings>
 	<settings_transition>
 		<Transition_mode>0</Transition_mode>
-		<Jump_between_states>0</Jump_between_states>
 		</settings_transition>
 	<average_FPS>14</average_FPS>
 	<minimum_FPS>12.0626</minimum_FPS>
@@ -9,7 +8,6 @@
 	<draw_camera__C_>0</draw_camera__C_>
 	<draw_mode>2</draw_mode>
 	<MODE>Particles      </MODE>
-	<Source_mode__z_>2</Source_mode__z_>
 	<optical_flow>
 		<strength>9.69388</strength>
 		<offset>3</offset>

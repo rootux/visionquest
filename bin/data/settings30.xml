@@ -8,7 +8,6 @@
 	<draw_camera__C_>0</draw_camera__C_>
 	<draw_mode>1</draw_mode>
 	<MODE>Fluid Density  </MODE>
-	<Source_mode__z_>2</Source_mode__z_>
 	<optical_flow>
 		<strength>10.3636</strength>
 		<offset>3</offset>

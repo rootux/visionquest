@@ -220,7 +220,7 @@ void ofApp::setupGui() {
 	gui.add(drawMode.set("draw mode", DRAW_COMPOSITE, DRAW_COMPOSITE, DRAW_COUNT - 1));
 	drawMode.addListener(this, &ofApp::drawModeSetName);
 	gui.add(drawName.set("MODE", "draw name"));
-	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT_PS3EYE, SOURCE_KINECT_PS3EYE, SOURCE_COUNT - 1));
+	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT, SOURCE_PS3EYE, SOURCE_COUNT - 1));
 	sourceMode.addListener(this, &ofApp::sourceChanged);
 
 	int guiColorSwitch = 0;
@@ -339,19 +339,11 @@ void ofApp::sourceChanged(int& mode) {
 }
 
 bool ofApp::isKinectSource() {
-	return (sourceMode.get() == SOURCE_KINECT_PS3EYE ||
-		sourceMode.get() == SOURCE_KINECT_DEPTH_PS3EYE ||
-		sourceMode.get() == SOURCE_KINECT);
+	return (sourceMode.get() == SOURCE_KINECT);
 }
 
 bool ofApp::isPsEyeSource() {
-	return (sourceMode.get() == SOURCE_KINECT_PS3EYE ||
-		sourceMode.get() == SOURCE_KINECT_DEPTH_PS3EYE ||
-		sourceMode.get() == SOURCE_PS3EYE);
-}
-
-bool ofApp::isKinectAndPsEyeSource() {
-	return sourceMode.get() == SOURCE_KINECT_PS3EYE;
+	return (sourceMode.get() == SOURCE_PS3EYE);
 }
 
 //--------------------------------------------------------------
@@ -736,7 +728,7 @@ void ofApp::updateGuiFromTag(float timeSinceAnimationStart, string tag, string o
 		floatParam->set(parameterValue);
 
 		//send osc message
-		if (!oscMsgPath.empty()) {
+		if (!oscMsgPath.empty() && !oscRemoteServerIpAddress.empty()) {
 			ofxOscMessage m;
 			m.setAddress(oscMsgPath);
 			m.addFloatArg(parameterValue);
@@ -749,7 +741,7 @@ void ofApp::updateGuiFromTag(float timeSinceAnimationStart, string tag, string o
 		intParam->set(parameterValue);
 
 		//send osc message
-		if (!oscMsgPath.empty()) {
+		if (!oscMsgPath.empty() && !oscRemoteServerIpAddress.empty()) {
 			ofxOscMessage m;
 			m.setAddress(oscMsgPath);
 			m.addIntArg(parameterValue);
