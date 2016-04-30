@@ -9,12 +9,16 @@ We can use XPath to go to sub parameter such as
 Transition_time which is a child of settings_transition
 '''
 elementsToRemove =['fullscreen__F_','show_gui__G_',
+'Source_mode__z_',
 './/settings_transition/Transition_time',
 './/settings_transition/Settings_file',
 './/settings_transition/Jump_between_interval',
+'.//settings_transition/Jump_between_states',
 './/settings_transition/UnknownName']
-def clean():
+def clean(subFolder=''):
     currentDir = os.path.dirname(os.path.realpath(__file__))
+    if(subFolder):
+        currentDir+='\\'+subFolder
     print(currentDir)
 
     for filename in os.listdir(currentDir+'\\'):
@@ -37,4 +41,5 @@ def cleanFile(filename):
 
 if __name__ == '__main__':
     clean()
+    clean('pseyesettings')
     input("Done. Pressed any key to close.")

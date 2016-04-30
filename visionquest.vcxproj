@@ -212,6 +212,15 @@
     <ClCompile Include="..\..\..\addons\ofxOsc\libs\oscpack\src\osc\OscPrintReceivedElements.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOsc\libs\oscpack\src\osc\OscReceivedElements.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOsc\libs\oscpack\src\osc\OscTypes.cpp" />
+    <ClCompile Include="src\SpoutSDK\SpoutDirectX.cpp" />
+    <ClCompile Include="src\SpoutSDK\SpoutGLDXinterop.cpp" />
+    <ClCompile Include="src\SpoutSDK\SpoutGLextensions.cpp" />
+    <ClCompile Include="src\SpoutSDK\SpoutMemoryShare.cpp" />
+    <ClCompile Include="src\SpoutSDK\SpoutReceiver.cpp" />
+    <ClCompile Include="src\SpoutSDK\SpoutSDK.cpp" />
+    <ClCompile Include="src\SpoutSDK\SpoutSender.cpp" />
+    <ClCompile Include="src\SpoutSDK\SpoutSenderNames.cpp" />
+    <ClCompile Include="src\SpoutSDK\SpoutSharedMemory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\libusb\libusb.h" />
@@ -306,6 +315,17 @@
     <ClInclude Include="..\..\..\addons\ofxOsc\libs\oscpack\src\osc\OscPrintReceivedElements.h" />
     <ClInclude Include="..\..\..\addons\ofxOsc\libs\oscpack\src\osc\OscReceivedElements.h" />
     <ClInclude Include="..\..\..\addons\ofxOsc\libs\oscpack\src\osc\OscTypes.h" />
+    <ClInclude Include="src\SpoutSDK\Spout.h" />
+    <ClInclude Include="src\SpoutSDK\SpoutCommon.h" />
+    <ClInclude Include="src\SpoutSDK\SpoutDirectX.h" />
+    <ClInclude Include="src\SpoutSDK\SpoutGLDXinterop.h" />
+    <ClInclude Include="src\SpoutSDK\SpoutGLextensions.h" />
+    <ClInclude Include="src\SpoutSDK\SpoutMemoryShare.h" />
+    <ClInclude Include="src\SpoutSDK\SpoutReceiver.h" />
+    <ClInclude Include="src\SpoutSDK\SpoutSDK.h" />
+    <ClInclude Include="src\SpoutSDK\SpoutSender.h" />
+    <ClInclude Include="src\SpoutSDK\SpoutSenderNames.h" />
+    <ClInclude Include="src\SpoutSDK\SpoutSharedMemory.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(OF_ROOT)\libs\openFrameworksCompiled\project\vs\openframeworksLib.vcxproj">

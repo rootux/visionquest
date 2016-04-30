@@ -34,19 +34,19 @@ void ofApp::setup() {
 	ofSetVerticalSync(false);
 	ofSetLogLevel(OF_LOG_NOTICE);
 
-	drawWidth = 1280;
-	drawHeight = 720;
+	internalWidth = 1280;
+	internalHeight = 720;
 	// process all but the density on 16th resolution
-	flowWidth = drawWidth / 4;
-	flowHeight = drawHeight / 4;
+	flowWidth = internalWidth / 4;
+	flowHeight = internalHeight / 4;
 
 	// FLOW & MASK
 	opticalFlow.setup(flowWidth, flowHeight);
-	velocityMask.setup(drawWidth, drawHeight);
+	velocityMask.setup(internalWidth, internalHeight);
 
 	// FLUID & PARTICLES
-	fluidSimulation.setup(flowWidth, flowHeight, drawWidth, drawHeight);
-	particleFlow.setup(flowWidth, flowHeight, drawWidth, drawHeight);
+	fluidSimulation.setup(flowWidth, flowHeight, internalWidth, internalHeight);
+	particleFlow.setup(flowWidth, flowHeight, internalWidth, internalHeight);
 
 	//flowToolsLogoImage.load("flowtools.png");
 	//fluidSimulation.addObstacle(flowToolsLogoImage.getTexture());
@@ -63,7 +63,7 @@ void ofApp::setup() {
 	velocityOffset.allocate(flowWidth / 2, flowHeight / 2);
 
 	// MOUSE DRAW
-	mouseForces.setup(flowWidth, flowHeight, drawWidth, drawHeight);
+	mouseForces.setup(flowWidth, flowHeight, internalWidth, internalHeight);
 
 	// CAMERA
 	simpleCam.setup(640, 480, true);
@@ -76,14 +76,16 @@ void ofApp::setup() {
 	kinect.initInfraredSource();
 	kinect.initBodySource();
 	kinect.initBodyIndexSource();
-	kinectFbo.allocate(1280, 720, GL_R16);
+	kinectFbo.allocate(internalWidth, internalHeight, GL_R16);
 	kinectFbo.getTexture().setRGToRGBASwizzles(true);
 	ofLogError("kinect inited");
 #endif
 
 	didCamUpdate = false;
-	cameraFbo.allocate(1280, 720);
+	cameraFbo.allocate(internalWidth, internalHeight);
 	cameraFbo.black();
+
+	globalFbo.allocate(internalWidth, internalHeight);
 
 	recolor.setup();
 
@@ -95,7 +97,6 @@ void ofApp::setup() {
 	doFullScreen.set(1);
 
 	oscReceiver.setup(PORT);
-	oscSender.setup("10.0.0.6", PORT_SERVER);
 }
 
 void ofApp::setupPsEye() {
@@ -211,10 +212,16 @@ void ofApp::setupGui() {
 	gui.add(toggleGuiDraw.set("show gui (G)", false));
 	gui.add(doFlipCamera.set("flip camera", true));
 	gui.add(doDrawCamBackground.set("draw camera (C)", true));
+#ifdef _WIN32
+	gui.add(sendToSpout.set("Send to Spout", true));
+#else
+	sendToSpout.set(false);
+#endif
 	gui.add(drawMode.set("draw mode", DRAW_COMPOSITE, DRAW_COMPOSITE, DRAW_COUNT - 1));
 	drawMode.addListener(this, &ofApp::drawModeSetName);
 	gui.add(drawName.set("MODE", "draw name"));
-	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT_PS3EYE, SOURCE_KINECT_PS3EYE, SOURCE_COUNT - 1));
+	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT, SOURCE_PS3EYE, SOURCE_COUNT - 1));
+	sourceMode.addListener(this, &ofApp::sourceChanged);
 
 	int guiColorSwitch = 0;
 	ofColor guiHeaderColor[2];
@@ -312,20 +319,31 @@ int ofApp::getNumberOfSettingsFile() {
 	//
 //}
 
+/*
+Whenever a source is changed we are loading a different settins file.
+one from bin/data for the kinect
+second from bin/data/pseyesettings for the pseye
+*/
+void ofApp::sourceChanged(int& mode) {
+	switch (mode) {
+	case SOURCE_KINECT:
+		relateiveDataPath = relateiveKinectDataPath;
+		ofLogWarning("Switched to Kinect");
+		break;
+	case SOURCE_PS3EYE:
+		relateiveDataPath = relateivePsEyeDataPath;
+		ofLogWarning("Switched to PsEye");
+		break;
+	}
+	updateNumberOfSettingFiles();
+}
+
 bool ofApp::isKinectSource() {
-	return (sourceMode.get() == SOURCE_KINECT_PS3EYE ||
-		sourceMode.get() == SOURCE_KINECT_DEPTH_PS3EYE ||
-		sourceMode.get() == SOURCE_KINECT);
+	return (sourceMode.get() == SOURCE_KINECT);
 }
 
 bool ofApp::isPsEyeSource() {
-	return (sourceMode.get() == SOURCE_KINECT_PS3EYE ||
-		sourceMode.get() == SOURCE_KINECT_DEPTH_PS3EYE ||
-		sourceMode.get() == SOURCE_PS3EYE);
-}
-
-bool ofApp::isKinectAndPsEyeSource() {
-	return sourceMode.get() == SOURCE_KINECT_PS3EYE;
+	return (sourceMode.get() == SOURCE_PS3EYE);
 }
 
 //--------------------------------------------------------------
@@ -535,73 +553,80 @@ void ofApp::updateOscMessages() {
 	while (oscReceiver.hasWaitingMessages()) {
 		ofxOscMessage m;
 		oscReceiver.getNextMessage(&m);
-			if (m.getAddress() == "/1/strength") {
-				opticalFlow.setStrength(m.getArgAsFloat(0));
-			}
-			if (m.getAddress() == "/1/speed") {
-				fluidSimulation.setSpeed(m.getArgAsFloat(0));
-			}
+		
+		// Set remote address by osc message
+		if (!m.getRemoteIp().empty() && oscRemoteServerIpAddress.empty()) {
+			oscRemoteServerIpAddress = m.getRemoteIp();
+			oscSender.setup(oscRemoteServerIpAddress, PORT_SERVER);
+		}
+			
+		if (m.getAddress() == "/1/strength") {
+			opticalFlow.setStrength(m.getArgAsFloat(0));
+		}
+		if (m.getAddress() == "/1/speed") {
+			fluidSimulation.setSpeed(m.getArgAsFloat(0));
+		}
 
-			if (m.getAddress() == "/1/cutoff") {
-				recolor.cutoff.set(m.getArgAsFloat(0));
-			}
+		if (m.getAddress() == "/1/cutoff") {
+			recolor.cutoff.set(m.getArgAsFloat(0));
+		}
 
-			if (m.getAddress() == "/1/draw_camera" &&
-				m.getArgAsBool(0) == true) {
-				doDrawCamBackground.set(!doDrawCamBackground.get());
-			}
+		if (m.getAddress() == "/1/draw_camera" &&
+			m.getArgAsBool(0) == true) {
+			doDrawCamBackground.set(!doDrawCamBackground.get());
+		}
 
-			if (m.getAddress() == "/1/spawn_hue") {
-				particleFlow.spawnHue.set(m.getArgAsFloat(0));
-			}
+		if (m.getAddress() == "/1/spawn_hue") {
+			particleFlow.spawnHue.set(m.getArgAsFloat(0));
+		}
 
-			if (m.getAddress() == "/1/particle_size") {
-				particleFlow.size.set(m.getArgAsFloat(0));
-			}
+		if (m.getAddress() == "/1/particle_size") {
+			particleFlow.size.set(m.getArgAsFloat(0));
+		}
 
-			if (m.getAddress() == "/1/reset" &&
-				m.getArgAsBool(0) == true) {
-				reset();
-			}
+		if (m.getAddress() == "/1/reset" &&
+			m.getArgAsBool(0) == true) {
+			reset();
+		}
 
-			if (m.getAddress() == "/1/transition_time") {
-				transitionTime.set(m.getArgAsFloat(0));
-			}
+		if (m.getAddress() == "/1/transition_time") {
+			transitionTime.set(m.getArgAsFloat(0));
+		}
 
-			if (m.getAddress() == "/1/next_effect" &&
-				m.getArgAsBool(0) == true) {
-				jumpToNextEffect();
-			}
+		if (m.getAddress() == "/1/next_effect" &&
+			m.getArgAsBool(0) == true) {
+			jumpToNextEffect();
+		}
 
-			if ((m.getAddress().find("/1/effects") != std::string::npos) &&
-				(m.getArgAsBool(0) == true)) {
-				int mode = stoi(m.getAddress().substr(m.getAddress().find("1", 2) + 2)); //find the next /1
-				switch (mode) {
-					case 0: drawMode.set(DRAW_COMPOSITE); break;
-					case 1: drawMode.set(DRAW_COMPOSITE); break;
-					case 2: drawMode.set(DRAW_FLUID_DENSITY); break;
-					case 3: drawMode.set(DRAW_PARTICLES); break;
-					case 4: drawMode.set(DRAW_VELDOTS); break;
-					case 5: drawMode.set(DRAW_FLUID_VELOCITY); break;
-					case 6: drawMode.set(DRAW_DISPLACEMENT); break;
-				}
+		if ((m.getAddress().find("/1/effects") != std::string::npos) &&
+			(m.getArgAsBool(0) == true)) {
+			int mode = stoi(m.getAddress().substr(m.getAddress().find("1", 2) + 2)); //find the next /1
+			switch (mode) {
+				case 0: drawMode.set(DRAW_COMPOSITE); break;
+				case 1: drawMode.set(DRAW_COMPOSITE); break;
+				case 2: drawMode.set(DRAW_FLUID_DENSITY); break;
+				case 3: drawMode.set(DRAW_PARTICLES); break;
+				case 4: drawMode.set(DRAW_VELDOTS); break;
+				case 5: drawMode.set(DRAW_FLUID_VELOCITY); break;
+				case 6: drawMode.set(DRAW_DISPLACEMENT); break;
 			}
+		}
 
-			if ((m.getAddress().find("/settings/jump_to_setting") != std::string::npos) &&
-				m.getArgAsBool(0) == true) {
+		if ((m.getAddress().find("/settings/jump_to_setting") != std::string::npos) &&
+			m.getArgAsBool(0) == true) {
 
-				int startOfRow = m.getAddress().find("jump_to_setting") + std::string("jump_to_setting/").length();
-				int row = stoi(m.getAddress().substr(startOfRow,1));
-				//int startOfCol = m.getAddress().find("/", startOfRow);
-				int col = stoi(m.getAddress().substr(m.getAddress().find("/", startOfRow)+1));
-				int oldSettingsFileIndex = loadSettingsFileIndex;
-				//Map the matrix of rows and cols to file number
-				loadSettingsFileIndex = ((row-1) * 6) + col; //6 is length of line
-				//TODO: DRY
-				//Transition from current setting to the next one
-				startTransition(relateiveDataPath + "settings" + std::to_string(oldSettingsFileIndex) + ".xml",
-					relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex) + ".xml");
-			}
+			int startOfRow = m.getAddress().find("jump_to_setting") + std::string("jump_to_setting/").length();
+			int row = stoi(m.getAddress().substr(startOfRow,1));
+			//int startOfCol = m.getAddress().find("/", startOfRow);
+			int col = stoi(m.getAddress().substr(m.getAddress().find("/", startOfRow)+1));
+			int oldSettingsFileIndex = loadSettingsFileIndex;
+			//Map the matrix of rows and cols to file number
+			loadSettingsFileIndex = ((row-1) * 6) + col; //6 is length of line
+			//TODO: DRY
+			//Transition from current setting to the next one
+			startTransition(relateiveDataPath + "settings" + std::to_string(oldSettingsFileIndex) + ".xml",
+				relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex) + ".xml");
+		}
 	}
 }
 
@@ -703,7 +728,7 @@ void ofApp::updateGuiFromTag(float timeSinceAnimationStart, string tag, string o
 		floatParam->set(parameterValue);
 
 		//send osc message
-		if (!oscMsgPath.empty()) {
+		if (!oscMsgPath.empty() && !oscRemoteServerIpAddress.empty()) {
 			ofxOscMessage m;
 			m.setAddress(oscMsgPath);
 			m.addFloatArg(parameterValue);
@@ -716,7 +741,7 @@ void ofApp::updateGuiFromTag(float timeSinceAnimationStart, string tag, string o
 		intParam->set(parameterValue);
 
 		//send osc message
-		if (!oscMsgPath.empty()) {
+		if (!oscMsgPath.empty() && !oscRemoteServerIpAddress.empty()) {
 			ofxOscMessage m;
 			m.setAddress(oscMsgPath);
 			m.addIntArg(parameterValue);
@@ -942,6 +967,9 @@ void ofApp::setLoadSettingsName(int &fileIndex) {
 
 //--------------------------------------------------------------
 void ofApp::draw() {
+	if (sendToSpout) {
+		globalFbo.begin();
+	}
 	ofClear(0, 0);
 	if (doDrawCamBackground.get())
 		drawSource();
@@ -969,6 +997,28 @@ void ofApp::draw() {
 	case DRAW_MOUSE: drawMouseForces(); break;
 	case DRAW_VELDOTS: drawVelocityDots(); break;
 	case DRAW_DISPLACEMENT: drawVelocityDisplacement(); break;
+	}
+	if (sendToSpout) {
+		globalFbo.end();
+	}
+#ifdef _WIN32
+	if (!spoutInitialized) {
+		spoutInitialized = senderSpout.CreateSender("OF Spout Sender", internalWidth, internalHeight);
+		if (!spoutInitialized) {
+			ofLogError() << "Failed to initialize sender spout!";
+		}
+	}
+	// TODO: check if enabled too
+	if (spoutInitialized && sendToSpout) {
+		const auto& texData = globalFbo.getTexture().getTextureData();
+		senderSpout.SendTexture(texData.textureID, texData.textureTarget, internalWidth, internalHeight, false);
+	}
+#endif
+	if (sendToSpout) {
+		ofPushStyle();
+		ofEnableBlendMode(OF_BLENDMODE_DISABLED);
+		globalFbo.draw(0, 0, ofGetWidth(), ofGetHeight());
+		ofPopStyle();
 	}
 	if (toggleGuiDraw)
 	{
@@ -1264,6 +1314,16 @@ void ofApp::startJumpBetweenStates(bool&) {
 	jumpBetweenStatesStartTime = ofGetElapsedTimef();
 }
 
+void ofApp::updateNumberOfSettingFiles() {
+	lastSaveFileCounter = 1;
+	while (isFileExist(relateiveDataPath + "settings" + std::to_string(lastSaveFileCounter) + ".xml")) {
+		lastSaveFileCounter++;
+	}
+
+	loadSettingsFileIndex.setMax(lastSaveFileCounter - 1);
+	loadSettingsFileIndex = 1;
+}
+
 void ofApp::MultiSavePressed(const void * sender) {
 	ofLogWarning("Saving to a new settings.xml file");
 	ofxButton * button = (ofxButton*)sender;
@@ -1280,6 +1340,8 @@ void ofApp::MultiSavePressed(const void * sender) {
 
 void ofApp::setRelativePath(const char *filename) {
 	relateiveDataPath = dirnameOf(filename) + "\\data\\";
+	relateiveKinectDataPath = relateiveDataPath;
+	relateivePsEyeDataPath = relateiveDataPath + "\\pseyesettings\\";
 }
 
 bool ofApp::isFileExist(string fileName)
