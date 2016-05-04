@@ -36,6 +36,7 @@
 		<Animate_Rotation__2D_>0</Animate_Rotation__2D_>
 		<Depth_Scale>0.826531</Depth_Scale>
 		<Depth_Smoothing>0.85</Depth_Smoothing>
+		<stretch>0</stretch>
 	</recolor>
 	<settings_transition>
 		<Transition_mode>0</Transition_mode>

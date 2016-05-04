@@ -80,7 +80,7 @@
 		<size_spread>0.75</size_spread>
 		<twinkle_speed>11</twinkle_speed>
 		<spawn_hue>0.889738</spawn_hue>
-	<stretch>1</stretch>
+		<stretch>1</stretch>
 	</particle_flow>
 	<mouse_left_button>
 		<reset>0</reset>
