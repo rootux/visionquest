@@ -30,7 +30,6 @@
 		<Animate_Rotation__2D_>0</Animate_Rotation__2D_>
 		<Depth_Scale>1</Depth_Scale>
 		<Depth_Smoothing>0.85</Depth_Smoothing>
-		<stretch>0</stretch>
 	</recolor>
 	<velocity_mask>
 		<strength>1.9898</strength>
@@ -80,6 +79,7 @@
 		<size_spread>0.75</size_spread>
 		<twinkle_speed>11</twinkle_speed>
 		<spawn_hue>0.765306</spawn_hue>
+		<stretch>0</stretch>
 	</particle_flow>
 	<mouse_left_button>
 		<reset>0</reset>

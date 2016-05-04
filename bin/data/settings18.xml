@@ -64,7 +64,6 @@
 		<Animate_Rotation__2D_>0</Animate_Rotation__2D_>
 		<Depth_Scale>0.826531</Depth_Scale>
 		<Depth_Smoothing>0.85</Depth_Smoothing>
-		<stretch>0</stretch>
 	</recolor>
 	<settings_transition>
 		<Transition_mode>0</Transition_mode>
@@ -83,6 +82,7 @@
 		<size_spread>0.75</size_spread>
 		<twinkle_speed>11</twinkle_speed>
 		<spawn_hue>0.785714</spawn_hue>
+		<stretch>0</stretch>
 	</particle_flow>
 	<mouse_left_button>
 		<reset>0</reset>
