@@ -264,6 +264,8 @@ public:
 	void				startTransition(string settings1Path, string settings2Path);
 	void				updateTransition();
 	void				updateGuiFromTag(float timeSinceAnimationStart, string tag, string oscMsgPath = "");
+	void sendOscMessage(string oscAddress, int value);
+	void	sendOscMessage(string oscAddress, float value);
 	float				transitionStartTime;
 	ofxXmlSettings		*settingsFrom;
 	string				settingsFromPath;
@@ -278,4 +280,5 @@ public:
 
 	ofxOscReceiver		oscReceiver;
 	ofxOscSender		oscSender;
+	float				timeSinceLastOscMessage; //To prevent sending too much osc messages
 };

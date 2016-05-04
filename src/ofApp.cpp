@@ -576,8 +576,17 @@ void ofApp::updateOscMessages() {
 			doDrawCamBackground.set(!doDrawCamBackground.get());
 		}
 
+		if (m.getAddress() == "/1/stretch" &&
+			m.getArgAsBool(0) == true) {
+			particleFlow.bStretch.set(!particleFlow.bStretch);
+		}
+
 		if (m.getAddress() == "/1/spawn_hue") {
 			particleFlow.spawnHue.set(m.getArgAsFloat(0));
+		}
+
+		if (m.getAddress() == "/1/over_color") {
+			velocityMask.hueOffset.set(m.getArgAsFloat(0));
 		}
 
 		if (m.getAddress() == "/1/particle_size") {
@@ -589,14 +598,11 @@ void ofApp::updateOscMessages() {
 			reset();
 		}
 
-		if (m.getAddress() == "/1/transition_time") {
-			transitionTime.set(m.getArgAsFloat(0));
-		}
-
 		if (m.getAddress() == "/1/next_effect" &&
 			m.getArgAsBool(0) == true) {
 			jumpToNextEffect();
 		}
+
 
 		if ((m.getAddress().find("/1/effects") != std::string::npos) &&
 			(m.getArgAsBool(0) == true)) {
@@ -610,6 +616,25 @@ void ofApp::updateOscMessages() {
 				case 5: drawMode.set(DRAW_FLUID_VELOCITY); break;
 				case 6: drawMode.set(DRAW_DISPLACEMENT); break;
 			}
+		}
+
+		if (m.getAddress() == "/settings/transition_time") {
+			transitionTime.set(m.getArgAsFloat(0));
+		}
+
+		if (m.getAddress() == "/settings/jump_between_states_time") {
+			jumpBetweenStatesInterval.set(m.getArgAsFloat(0));
+			
+			//TODO: check why after 2 minutes its Crashing the system
+			//float now = ofGetElapsedTimef();
+			//if (timeSinceLastOscMessage < now - 2) { //2 seconds thrashold between message
+			//	sendOscMessage("/settings/animation_time", m.getArgAsFloat(0));
+			//	timeSinceLastOscMessage = now;
+			//}
+		}
+
+		if (m.getAddress() == "/settings/animate") {
+			doJumpBetweenStates.set(m.getArgAsBool(0));
 		}
 
 		if ((m.getAddress().find("/settings/jump_to_setting") != std::string::npos) &&
@@ -659,6 +684,7 @@ void ofApp::updateTransition() {
 		return;
 
 	updateGuiFromTag(timeSinceAnimationStart, "settings:optical_flow:strength", "/1/strength");
+	updateGuiFromTag(timeSinceAnimationStart, "settings:velocity_mask:hue_offset");
 	updateGuiFromTag(timeSinceAnimationStart, "settings:optical_flow:threshold");
 	updateGuiFromTag(timeSinceAnimationStart, "settings:recolor:Cutoff", "/1/cutoff");
 	updateGuiFromTag(timeSinceAnimationStart, "settings:fluid_solver:speed", "/1/speed");
@@ -726,28 +752,32 @@ void ofApp::updateGuiFromTag(float timeSinceAnimationStart, string tag, string o
 	// Find what type of parameter it is
 	if (ofParameter<float>* floatParam = dynamic_cast<ofParameter<float>*>(parameter)) {
 		floatParam->set(parameterValue);
-
-		//send osc message
-		if (!oscMsgPath.empty() && !oscRemoteServerIpAddress.empty()) {
-			ofxOscMessage m;
-			m.setAddress(oscMsgPath);
-			m.addFloatArg(parameterValue);
-			oscSender.sendMessage(m);
-		}
+		sendOscMessage(oscMsgPath, (float)parameterValue);
 		return;
 	}
 	// Find what type of parameter it is
 	if (ofParameter<int>* intParam = dynamic_cast<ofParameter<int>*>(parameter)) {
 		intParam->set(parameterValue);
-
-		//send osc message
-		if (!oscMsgPath.empty() && !oscRemoteServerIpAddress.empty()) {
-			ofxOscMessage m;
-			m.setAddress(oscMsgPath);
-			m.addIntArg(parameterValue);
-			oscSender.sendMessage(m);
-		}
+		sendOscMessage(oscMsgPath, (int)parameterValue);
 		return;
+	}
+}
+
+void ofApp::sendOscMessage(string oscAddress, int value) {
+	if (!oscAddress.empty() && !oscRemoteServerIpAddress.empty()) {
+		ofxOscMessage m;
+		m.setAddress(oscAddress);
+		m.addIntArg(value);
+		oscSender.sendMessage(m);
+	}
+}
+
+void ofApp::sendOscMessage(string oscAddress, float value) {
+	if (!oscAddress.empty() && !oscRemoteServerIpAddress.empty()) {
+		ofxOscMessage m;
+		m.setAddress(oscAddress);
+		m.addFloatArg(value);
+		oscSender.sendMessage(m);
 	}
 }
 
