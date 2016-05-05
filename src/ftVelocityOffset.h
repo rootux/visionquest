@@ -29,6 +29,10 @@ namespace flowTools {
                 fieldMesh.addIndex(resetIndex);
 			}
             fieldMesh.setUsage(GL_STATIC_DRAW);
+            
+            // TODO: fix size hack
+            feedbackBuffer.allocate(_width*16, _height*16);
+            feedbackBuffer.clear();
 			
 			
 			parameters.setName("velocity lines");
@@ -42,14 +46,22 @@ namespace flowTools {
 			ofPushMatrix();
 			ofPushStyle();
 			
+            feedbackBuffer.begin();
+            
 			ofEnableAlphaBlending();
-			ofDisableAntiAliasing();
+            
+            ofSetColor(0, 10);
+            
+            ofDrawRectangle(0, 0, feedbackBuffer.getWidth(), feedbackBuffer.getHeight());
+            ofSetColor(255, 255);
+            
+			//ofDisableAntiAliasing();
 			
 			if (lineSmooth.get()) {
 				glEnable(GL_LINE_SMOOTH);
 			}
-			
-			ofScale(_width, _height);
+			// TODO: fit into 
+			ofScale(feedbackBuffer.getWidth(), feedbackBuffer.getHeight());
 //			fieldMesh.draw();
 //			fieldVbo.draw(GL_POINTS, 0, vectorSize.get());
             if (colorTexture != NULL) {
@@ -61,8 +73,12 @@ namespace flowTools {
 			if (lineSmooth.get()) {
 				glDisable(GL_LINE_SMOOTH);
 			}
+            
 			
-			ofEnableAntiAliasing();
+            feedbackBuffer.end();
+            feedbackBuffer.draw(_x, _y, _width, _height);
+            
+			//ofEnableAntiAliasing();
 			ofPopStyle();
 			ofPopMatrix();
 		}
@@ -97,6 +113,8 @@ namespace flowTools {
         int resetIndex;
 		
 		ftVelocityOffsetShader velocityOffsetShader;
+        
+        ftFbo feedbackBuffer; //TODO: make global
 		
 	};
 }
