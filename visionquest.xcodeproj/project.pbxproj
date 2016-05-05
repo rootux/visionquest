@@ -84,6 +84,7 @@
 		063DA0AF40B3AAB9B4229D9D /* ofxRecolor.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxRecolor.h; path = src/ofxRecolor.h; sourceTree = SOURCE_ROOT; };
 		07818DEA3E42B969F242F634 /* ftTemperatureField.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ftTemperatureField.h; path = ../../../addons/ofxFlowTools/src/visualisation/ftTemperatureField.h; sourceTree = SOURCE_ROOT; };
 		080146631CCF700A0076A1F6 /* libusb-1.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libusb-1.0.0.dylib"; path = "libusb/libusb-1.0.0.dylib"; sourceTree = "<group>"; };
+		080146661CCFB0AD0076A1F6 /* ftDrawParticleShader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ftDrawParticleShader.h; path = ../../../addons/ofxFlowTools/src/particles/ftDrawParticleShader.h; sourceTree = "<group>"; };
 		0A1DAC09F322AE313A40706D /* ofxToggle.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxToggle.h; path = ../../../addons/ofxGui/src/ofxToggle.h; sourceTree = SOURCE_ROOT; };
 		0AED834CE4DEC5260AF302A2 /* ofxOscParameterSync.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxOscParameterSync.cpp; path = ../../../addons/ofxOsc/src/ofxOscParameterSync.cpp; sourceTree = SOURCE_ROOT; };
 		0D418D07961710BA2605389F /* ftVelocityField.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ftVelocityField.h; path = ../../../addons/ofxFlowTools/src/visualisation/ftVelocityField.h; sourceTree = SOURCE_ROOT; };
@@ -95,7 +96,7 @@
 		1C0DA2561397A7DE0246858B /* ofxGuiGroup.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxGuiGroup.h; path = ../../../addons/ofxGui/src/ofxGuiGroup.h; sourceTree = SOURCE_ROOT; };
 		1E9471F754EB7EE1B0CC0D1F /* ftOpticalFlow.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ftOpticalFlow.h; path = ../../../addons/ofxFlowTools/src/opticalflow/ftOpticalFlow.h; sourceTree = SOURCE_ROOT; };
 		20F35AFADAF0068B067E713F /* OscReceivedElements.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = OscReceivedElements.h; path = ../../../addons/ofxOsc/libs/oscpack/src/osc/OscReceivedElements.h; sourceTree = SOURCE_ROOT; };
-		22757F50E29B6C4E2020B4BE /* ftDrawParticleShader.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ftDrawParticleShader.h; path = ../../../addons/ofxFlowTools/src/particles/ftDrawParticleShader.h; sourceTree = SOURCE_ROOT; };
+		22757F50E29B6C4E2020B4BE /* ftDrawParticleStretchedShader.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ftDrawParticleStretchedShader.h; path = ../../../addons/ofxFlowTools/src/particles/ftDrawParticleStretchedShader.h; sourceTree = SOURCE_ROOT; };
 		23640F57DF6C4BB6BFC5DA4C /* PacketListener.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = PacketListener.h; path = ../../../addons/ofxOsc/libs/oscpack/src/ip/PacketListener.h; sourceTree = SOURCE_ROOT; };
 		246A12FF77BA6C0F1726C5A0 /* ftVelocityOffsetShader.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ftVelocityOffsetShader.h; path = src/ftVelocityOffsetShader.h; sourceTree = SOURCE_ROOT; };
 		253346E9CF7A7617C548092F /* ftGaussianBlurShader.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ftGaussianBlurShader.h; path = ../../../addons/ofxFlowTools/src/filters/ftGaussianBlurShader.h; sourceTree = SOURCE_ROOT; };
@@ -629,8 +630,9 @@
 		FFEF4C14324021333F122BE8 /* particles */ = {
 			isa = PBXGroup;
 			children = (
+				080146661CCFB0AD0076A1F6 /* ftDrawParticleShader.h */,
 				F430932D8FF3D3EFBF775672 /* ftAgeLifespanMassSizeParticleShader.h */,
-				22757F50E29B6C4E2020B4BE /* ftDrawParticleShader.h */,
+				22757F50E29B6C4E2020B4BE /* ftDrawParticleStretchedShader.h */,
 				28ACBF0B88C18B573D06F071 /* ftInitPositionShader.h */,
 				5BAA25ECC443288AC1701455 /* ftMoveParticleShader.h */,
 				EC4179AA42E82A975E5EDC50 /* ftParticleFlow.cpp */,
