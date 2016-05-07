@@ -1,6 +1,9 @@
 <settings>
 	<settings_transition>
 		<Transition_mode>0</Transition_mode>
+		<Transition_time>1.0</Transition_time>
+		<Jump_between_states>1</Jump_between_states>
+		<Jump_between_interval>60.0</Jump_between_interval>
 	</settings_transition>
 	<average_FPS>159</average_FPS>
 	<minimum_FPS>76.5607</minimum_FPS>
