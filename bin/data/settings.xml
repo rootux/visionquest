@@ -2,14 +2,14 @@
 	<settings_transition>
 		<Transition_mode>0</Transition_mode>
 	</settings_transition>
-	<average_FPS>68</average_FPS>
-	<minimum_FPS>46.6677</minimum_FPS>
+	<average_FPS>159</average_FPS>
+	<minimum_FPS>76.5607</minimum_FPS>
 	<flip_camera>0</flip_camera>
 	<draw_camera__C_>0</draw_camera__C_>
 	<draw_mode>1</draw_mode>
 	<MODE>Fluid Density  </MODE>
 	<optical_flow>
-		<strength>9.69388</strength>
+		<strength>20.6939</strength>
 		<offset>3</offset>
 		<lambda>0.01</lambda>
 		<threshold>0.00918367</threshold>
@@ -39,10 +39,11 @@
 		<saturation>3</saturation>
 		<blur_passes>3</blur_passes>
 		<blur_radius>5</blur_radius>
+	<hue_offset>0.120891</hue_offset>
 	</velocity_mask>
 	<fluid_solver>
 		<reset>0</reset>
-		<speed>0.5</speed>
+		<speed>0</speed>
 		<cell_size>0.77551</cell_size>
 		<iterations>37</iterations>
 		<viscosity>0.1</viscosity>
@@ -82,6 +83,7 @@
 		<size_spread>0.75</size_spread>
 		<twinkle_speed>11</twinkle_speed>
 		<spawn_hue>0.765306</spawn_hue>
+	<stretch>0</stretch>
 	</particle_flow>
 	<mouse_left_button>
 		<reset>0</reset>
@@ -97,7 +99,7 @@
 		<draw_flow_res_1>
 			<non_den_vel_tem_prs_ob>2</non_den_vel_tem_prs_ob>
 			<is_temporary>1</is_temporary>
-			<force>0, 0, 0, 1</force>
+			<force>0.00156251, 0, 0, 1</force>
 			<strength>1</strength>
 			<radius>0.035</radius>
 			<edge>1</edge>

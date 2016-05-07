@@ -159,5 +159,4 @@
 		<min_dot_size>2</min_dot_size>
 		<max_dot_size>10</max_dot_size>
 	</velocity_dots>
-<Send_to_Spout>1</Send_to_Spout>
 </settings>

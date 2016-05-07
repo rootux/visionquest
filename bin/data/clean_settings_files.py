@@ -10,6 +10,7 @@ Transition_time which is a child of settings_transition
 '''
 elementsToRemove =['fullscreen__F_','show_gui__G_',
 'Source_mode__z_',
+'Send_to_Spout',
 './/settings_transition/Transition_time',
 './/settings_transition/Settings_file',
 './/settings_transition/Jump_between_interval',
