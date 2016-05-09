@@ -94,9 +94,9 @@ void ofApp::setup() {
 
 	lastTime = ofGetElapsedTimef();
 
-	doFullScreen.set(1);
+	doFullScreen.set(0);
 
-	oscReceiver.setup(PORT);
+	oscReceiver.setup(oscPort);
 }
 
 void ofApp::setupPsEye() {
@@ -557,7 +557,11 @@ void ofApp::updateOscMessages() {
 		// Set remote address by osc message
 		if (!m.getRemoteIp().empty() && oscRemoteServerIpAddress.empty()) {
 			oscRemoteServerIpAddress = m.getRemoteIp();
-			oscSender.setup(oscRemoteServerIpAddress, PORT_SERVER);
+			//oscSender.setup(oscRemoteServerIpAddress, PORT_SERVER);
+		}
+
+		if (m.getAddress() == "helo") {
+			
 		}
 			
 		if (m.getAddress() == "/1/strength") {
@@ -598,11 +602,10 @@ void ofApp::updateOscMessages() {
 			reset();
 		}
 
-		if (m.getAddress() == "/1/next_effect" &&
+		if (m.getAddress() == "/1/source" &&
 			m.getArgAsBool(0) == true) {
-			jumpToNextEffect();
+			sourceMode.set((sourceMode.get() + 1) % SOURCE_COUNT);
 		}
-
 
 		if ((m.getAddress().find("/1/effects") != std::string::npos) &&
 			(m.getArgAsBool(0) == true)) {
@@ -612,10 +615,13 @@ void ofApp::updateOscMessages() {
 				case 1: drawMode.set(DRAW_COMPOSITE); break;
 				case 2: drawMode.set(DRAW_FLUID_DENSITY); break;
 				case 3: drawMode.set(DRAW_PARTICLES); break;
-				case 4: drawMode.set(DRAW_VELDOTS); break;
-				case 5: drawMode.set(DRAW_FLUID_VELOCITY); break;
-				case 6: drawMode.set(DRAW_DISPLACEMENT); break;
+				case 4: drawMode.set(DRAW_DISPLACEMENT); break;
 			}
+		}
+
+		if (m.getAddress() == "/settings/next_effect" &&
+			m.getArgAsBool(0) == true) {
+			jumpToNextEffect();
 		}
 
 		if (m.getAddress() == "/settings/transition_time") {
@@ -768,7 +774,7 @@ void ofApp::sendOscMessage(string oscAddress, int value) {
 		ofxOscMessage m;
 		m.setAddress(oscAddress);
 		m.addIntArg(value);
-		oscSender.sendMessage(m);
+		//oscSender.sendMessage(m);
 	}
 }
 
@@ -777,7 +783,7 @@ void ofApp::sendOscMessage(string oscAddress, float value) {
 		ofxOscMessage m;
 		m.setAddress(oscAddress);
 		m.addFloatArg(value);
-		oscSender.sendMessage(m);
+		//oscSender.sendMessage(m);
 	}
 }
 

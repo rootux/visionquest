@@ -29,9 +29,6 @@
 
 #define USE_PROGRAMMABLE_GL					// Maybe there is a reason you would want to
 
-#define PORT 10000
-#define PORT_SERVER 10001
-
 using namespace flowTools;
 
 enum drawModeEnum {
@@ -238,6 +235,7 @@ public:
 	bool				isFileExist(string fileName);
 	string				dirnameOf(const string& fname);
 	void				setRelativePath(const char *filename);
+	void				setOscPort(const char *filename);
 	string				relateiveDataPath;
 	string				relateiveKinectDataPath;
 	string				relateivePsEyeDataPath;
@@ -278,6 +276,7 @@ public:
 	int					getNextSettingsCounter();
 	bool				isTransitionFinished = true;
 
+	int					oscPort;
 	ofxOscReceiver		oscReceiver;
 	ofxOscSender		oscSender;
 	float				timeSinceLastOscMessage; //To prevent sending too much osc messages
