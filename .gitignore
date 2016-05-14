@@ -11,6 +11,7 @@
 !/bin/data/color1d
 !/bin/data/color2d
 !/bin/data/*.touchosc
+!/bin/data/old_setttings/
 
 # User-specific files
 *.suo

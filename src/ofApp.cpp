@@ -94,7 +94,7 @@ void ofApp::setup() {
 
 	lastTime = ofGetElapsedTimef();
 
-	doFullScreen.set(0);
+	doFullScreen.set(1);
 
 	oscReceiver.setup(oscPort);
 }
