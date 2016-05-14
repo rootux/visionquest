@@ -83,6 +83,9 @@
 		<size_spread>0.362245</size_spread>
 		<twinkle_speed>0</twinkle_speed>
 		<spawn_hue>0.780612</spawn_hue>
+		<spawn_hue_animate>0</spawn_hue_animate>
+		<spawn_hue_animate_time>5</spawn_hue_animate_time>
+		<spawn_hue_animate_range>0.2</spawn_hue_animate_range>
 		<stretch>1.32653</stretch>
 	</particle_flow>
 	<mouse_left_button>
