@@ -158,14 +158,6 @@
 		<max_dot_size>10</max_dot_size>
 	</velocity_dots>
 <settings_transition>
-		<Settings_file>34</Settings_file>
 		<Transition_mode>0</Transition_mode>
-		<Transition_time>0</Transition_time>
-		<Jump_between_states>0</Jump_between_states>
-		<Jump_between_interval>6.0503</Jump_between_interval>
-	</settings_transition>
-	<fullscreen__F_>0</fullscreen__F_>
-	<show_gui__G_>1</show_gui__G_>
-	<Send_to_Spout>1</Send_to_Spout>
-	<Source_mode__z_>0</Source_mode__z_>
-</settings>
+		</settings_transition>
+	</settings>

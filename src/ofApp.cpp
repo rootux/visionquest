@@ -30,7 +30,7 @@ static vector<string> tokenize(const string & str, const string & delim)
 }
 
 void ofApp::setup() {
-
+	ofSetEscapeQuitsApp(false);
 	ofSetVerticalSync(false);
 	ofSetLogLevel(OF_LOG_NOTICE);
 
@@ -108,7 +108,7 @@ void ofApp::setupPsEye() {
 	if (devices.size())
 	{
 		eye = devices.at(0);
-		bool res = eye->init(640, 480, 120);
+		bool res = eye->init(640, 480, 60);
 		if (res) {
 			eye->start();
 			eye->setExposure(255);
@@ -330,7 +330,7 @@ void ofApp::sourceChanged(int& mode) {
 		relateiveDataPath = relateiveKinectDataPath;
 		ofLogWarning("Switched to Kinect");
 		break;
-	case SOURCE_PS3EYE:
+	case SOURCE_PS3EYE:		
 		relateiveDataPath = relateivePsEyeDataPath;
 		ofLogWarning("Switched to PsEye");
 		break;
@@ -830,6 +830,7 @@ void ofApp::reset() {
 	mouseForces.reset();
 }
 
+
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 	switch (key) {
@@ -853,6 +854,7 @@ void ofApp::keyPressed(int key) {
 	case 'R':
 		reset();
 		break;
+
 	case 'z':
 	case 'Z':
 		sourceMode.set((sourceMode.get() + 1) % SOURCE_COUNT);
