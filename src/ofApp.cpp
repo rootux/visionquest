@@ -330,7 +330,9 @@ int ofApp::getNumberOfSettingsFile() {
 //}
 
 void ofApp::psEyeCameraChanged(int& index) {
-	setupPsEye();
+	if (isPsEyeSource()) {
+		setupPsEye();
+	}
 }
 
 /*
@@ -1059,7 +1061,12 @@ void ofApp::draw() {
 	}
 #ifdef _WIN32
 	if (!spoutInitialized) {
-		spoutInitialized = senderSpout.CreateSender("OF Spout Sender", internalWidth, internalHeight);
+		int spoutRandom = rand() % 1000 + 1;
+		string spoutName = "OF Spout Sender" + to_string(spoutRandom);
+		char *spoutNameCstr = new char[spoutName.length() + 1];
+		strcpy(spoutNameCstr, spoutName.c_str());
+		spoutInitialized = senderSpout.CreateSender(spoutNameCstr, internalWidth, internalHeight);
+
 		if (!spoutInitialized) {
 			ofLogError() << "Failed to initialize sender spout!";
 		}
