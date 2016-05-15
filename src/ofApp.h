@@ -243,6 +243,7 @@ public:
 	ofParameter<int>	loadSettingsFileIndex;
 	int					loadSettingsFileNumber;
 	int                 getNumberOfSettingsFile();
+	void psEyeCameraChanged(int &index);
 	void				setLoadSettingsName(int& _value);
 	void 				loadNextSettingsFile(string settingsTo);
 	string				oscRemoteServerIpAddress;
@@ -280,4 +281,6 @@ public:
 	ofxOscReceiver		oscReceiver;
 	ofxOscSender		oscSender;
 	float				timeSinceLastOscMessage; //To prevent sending too much osc messages
+
+	ofParameter<int>	psEyeCameraIndex; //Which camera to use from multiple connected pseye camera
 };

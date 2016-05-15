@@ -101,17 +101,25 @@ void ofApp::setup() {
 
 void ofApp::setupPsEye() {
 	if (eye) {
-		return;
+		eye->stop();
+		eye = NULL;
+		//return;
 	}
 	using namespace ps3eye;
 	std::vector<PS3EYECam::PS3EYERef> devices(PS3EYECam::getDevices());
 	if (devices.size())
 	{
-		eye = devices.at(0);
+		psEyeCameraIndex.setMax(devices.size() - 1);
+		int psEyeCameraToUse = 0;
+		if (devices.size() > psEyeCameraIndex) {
+			psEyeCameraToUse = psEyeCameraIndex;
+		}
+		//TODO: disable the old camera - check if needed
+		eye = devices.at(psEyeCameraToUse);
 		bool res = eye->init(640, 480, 60);
 		if (res) {
 			eye->start();
-			eye->setExposure(255);
+			eye->setExposure(125); //TODO: was 255
 			videoFrame = new unsigned char[eye->getWidth()*eye->getHeight() * 4];
 			videoTexture.allocate(eye->getWidth(), eye->getHeight(), GL_RGBA);
 		}
@@ -221,6 +229,8 @@ void ofApp::setupGui() {
 	drawMode.addListener(this, &ofApp::drawModeSetName);
 	gui.add(drawName.set("MODE", "draw name"));
 	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT, SOURCE_PS3EYE, SOURCE_COUNT - 1));
+	gui.add(psEyeCameraIndex.set("PsEye Camera # (x)", 0, 0, 2));
+	psEyeCameraIndex.addListener(this, &ofApp::psEyeCameraChanged);
 	sourceMode.addListener(this, &ofApp::sourceChanged);
 
 	int guiColorSwitch = 0;
@@ -318,6 +328,10 @@ int ofApp::getNumberOfSettingsFile() {
 //void ofApp::connectParameterToOsc() {
 	//
 //}
+
+void ofApp::psEyeCameraChanged(int& index) {
+	setupPsEye();
+}
 
 /*
 Whenever a source is changed we are loading a different settins file.
@@ -858,6 +872,10 @@ void ofApp::keyPressed(int key) {
 	case 'z':
 	case 'Z':
 		sourceMode.set((sourceMode.get() + 1) % SOURCE_COUNT);
+		break;
+	case 'x':
+	case 'X':
+		psEyeCameraIndex.set((psEyeCameraIndex.get() + 1) % (psEyeCameraIndex.getMax()+1));
 		break;
 	case 'l':
 	case 'L':
