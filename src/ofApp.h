@@ -71,6 +71,7 @@ public:
 	void	setupPsEye();
 	void	update();
 	void	draw();
+	void	exit();
 
 	// Camera
 	ofVideoGrabber		simpleCam;

@@ -1065,8 +1065,9 @@ void ofApp::draw() {
 		string spoutName = "OF Spout Sender" + to_string(spoutRandom);
 		char *spoutNameCstr = new char[spoutName.length() + 1];
 		strcpy(spoutNameCstr, spoutName.c_str());
+		
 		spoutInitialized = senderSpout.CreateSender(spoutNameCstr, internalWidth, internalHeight);
-
+		
 		if (!spoutInitialized) {
 			ofLogError() << "Failed to initialize sender spout!";
 		}
@@ -1419,4 +1420,8 @@ string ofApp::dirnameOf(const string& fname)
 	return (string::npos == pos)
 		? ""
 		: fname.substr(0, pos);
+}
+
+void ofApp::exit() {
+	senderSpout.ReleaseSender(); // Release the sender
 }
