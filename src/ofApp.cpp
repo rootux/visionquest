@@ -121,7 +121,7 @@ void ofApp::setupPsEye() {
 			eye->start();
 			eye->setExposure(125); //TODO: was 255
 			videoFrame = new unsigned char[eye->getWidth()*eye->getHeight() * 4];
-			videoTexture.allocate(eye->getWidth(), eye->getHeight(), GL_RGBA);
+			videoTexture.allocate(eye->getWidth(), eye->getHeight(), GL_RGB);
 		}
 		else {
 			eye = NULL;
@@ -394,99 +394,30 @@ void ofApp::update() {
 #else
 	if ((isPsEyeSource() && eye) || simpleCam.isFrameNew()) {
 #endif
+
+		ofTexture *videoSource;
+		switch (sourceMode) {
+#ifdef _KINECT
+		case SOURCE_KINECT:
+			videoSource = &kinect.getDepthSource()->getTexture();
+			break;
+#endif
+		case SOURCE_PS3EYE:
+			videoSource = &videoTexture;
+			break;
+		default:
+			videoSource = &simpleCam.getTexture();
+			break;
+		}
+
 		ofPushStyle();
 		ofEnableBlendMode(OF_BLENDMODE_DISABLED);
-#ifdef _KINECT
-		if (sourceMode == SOURCE_KINECT) {
-			kinectFbo.begin();
-		}
-		else
-#endif
-		{
-			cameraFbo.begin();
-		}
-		if (doFlipCamera) {
-			float psEyeXPosition;
-			switch (sourceMode) {
-#ifdef _KINECT
-			case SOURCE_KINECT:
-				//kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				kinect.getDepthSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				break;
-				//case SOURCE_KINECT_PS3EYE:
-				//	kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				//	psEyeXPosition = (cameraFbo.getWidth() / 3 ) + 20;
-				//	videoTexture.draw(psEyeXPosition, 20, -cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-				//	break;
-				//case SOURCE_KINECT_DEPTH_PS3EYE:
-				//	kinect.getDepthSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				//	psEyeXPosition = (cameraFbo.getWidth() / 3) + 20;
-				//	videoTexture.draw(psEyeXPosition, 20, -cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-				//	break;
-#endif
-			case SOURCE_PS3EYE:
-				videoTexture.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				break;
-			default:
-				simpleCam.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				break;
-			};
-		}
-		else {
-			switch (sourceMode) {
-				float psEyeXPosition;
-#ifdef _KINECT
-			case SOURCE_KINECT:
-				kinect.getDepthSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-				break;
-				//         case SOURCE_KINECT_PS3EYE:
-				//             kinect.getColorSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-				//             psEyeXPosition = (cameraFbo.getWidth() / 3 * 2) - 20;
-				//             videoTexture.draw(psEyeXPosition, 20, cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-				//             break;
-				//case SOURCE_KINECT_DEPTH_PS3EYE:
-				//	kinect.getDepthSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-				//	psEyeXPosition = (cameraFbo.getWidth() / 3 * 2) - 20;
-				//	videoTexture.draw(psEyeXPosition, 20, cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-				//	break;
-#endif
-			case SOURCE_PS3EYE:
-				videoTexture.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-				break;
-			default:
-				simpleCam.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-				break;
-			};
-		}
-#ifdef _KINECT
-		if (sourceMode == SOURCE_KINECT) {
-			kinectFbo.end();
 
-			ofPopStyle();
+		recolor.update(cameraFbo, *videoSource, doFlipCamera);
 
-			ofPushStyle();
-			ofEnableBlendMode(OF_BLENDMODE_DISABLED);
-
-			recolor.update(cameraFbo, kinectFbo.getTexture(), doFlipCamera);
-
-			ofPopStyle();
-
-			//TODO: debug kinect raw depth source
-			//opticalFlow.setSource(kinectFbo.getTexture());
-			opticalFlow.setSource(cameraFbo.getTexture());
-		}
-		else
-#endif
-		{
-			cameraFbo.end();
-            ofPopStyle();
-			opticalFlow.setSource(cameraFbo.getTexture());
-		}
-
-
-
-
-
+		ofPopStyle();
+		// TODO: figure out how to use kinectFbo for this on kinect and to have it work
+		opticalFlow.setSource(cameraFbo.getTexture());
 
 		//opticalFlow.update(deltaTime);
 		// use internal deltatime instead
@@ -496,8 +427,6 @@ void ofApp::update() {
 		velocityMask.setDensity(cameraFbo.getTexture());
 		velocityMask.setVelocity(opticalFlow.getOpticalFlow());
 		velocityMask.update();
-
-
 	}
 
 
