@@ -216,7 +216,7 @@ private:
 
 #ifdef _WIN32
 	HANDLE mutexIpc;
-#
+#endif
 };
 
 } // namespace
