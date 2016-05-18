@@ -634,13 +634,18 @@ void ofApp::updateOscMessages() {
 				case 4: drawMode.set(DRAW_DISPLACEMENT); break;
 			}
 		}
+        
+        if (m.getAddress() == "/1/animate_scale") {
+            recolor.animateScale.set(m.getArgAsBool(0));
+        }
 
-		if (m.getAddress() == "/settings/next_effect" &&
+		if (m.getAddress() == "/1/next_effect" &&
 			m.getArgAsBool(0) == true) {
 			jumpToNextEffect();
 		}
 
-		if (m.getAddress() == "/settings/transition_time") {
+		if (m.getAddress() == "/settings/transition_time" &&
+            m.getArgAsBool(0) == true) {
 			transitionTime.set(m.getArgAsFloat(0));
 		}
 
