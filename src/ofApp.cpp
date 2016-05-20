@@ -67,6 +67,8 @@ void ofApp::setup() {
 
 	// CAMERA
 	simpleCam.setup(640, 480, true);
+    
+    
 
 #ifdef _KINECT
 	// KINECT
@@ -97,6 +99,7 @@ void ofApp::setup() {
 	doFullScreen.set(1);
 
 	oscReceiver.setup(oscPort);
+    lastOscMessageTime = ofGetElapsedTimef();
 }
 
 void ofApp::setupPsEye() {
@@ -206,10 +209,10 @@ void ofApp::setupGui() {
 	loadSettingsFileIndex.addListener(this, &ofApp::setLoadSettingsName);
 
 	settingsGroup.add(transitionMode.set("Transition mode", TRANSITION_NONE, TRANSITION_NONE, TRANSITION_COUNT - 1));
-	settingsGroup.add(transitionTime.set("Transition time", 0, 0, 360));
+	settingsGroup.add(transitionTime.set("Transition time", 0, 0, 720));
 	settingsGroup.add(doJumpBetweenStates.set("Jump between states", false));
 	doJumpBetweenStates.addListener(this, &ofApp::startJumpBetweenStates);
-	settingsGroup.add(jumpBetweenStatesInterval.set("Jump between interval", 0, 0, 360));
+	settingsGroup.add(jumpBetweenStatesInterval.set("Jump between interval", 0, 0, 720));
 
 	gui.add(settingsGroup);
 
@@ -570,6 +573,7 @@ void ofApp::updateOscMessages() {
 		ofxOscMessage m;
 		oscReceiver.getNextMessage(&m);
 		
+        lastOscMessageTime = ofGetElapsedTimef();
 		// Set remote address by osc message
 		if (!m.getRemoteIp().empty() && oscRemoteServerIpAddress.empty()) {
 			oscRemoteServerIpAddress = m.getRemoteIp();
@@ -679,7 +683,21 @@ void ofApp::updateOscMessages() {
 			startTransition(relateiveDataPath + "settings" + std::to_string(oldSettingsFileIndex) + ".xml",
 				relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex) + ".xml");
 		}
+        
+        //If the user send a manual command - auto pilot will turn off
+        if(doJumpBetweenStates == 1) {
+            ofLogWarning("User took control. got osc message. auto pilot turned off");
+            doJumpBetweenStates.set(0);
+        }
 	}
+    
+    //Activate auto pilot to on if no message was received for a given period (5 minutes) and no auto pilot is set yet
+    float timeSinceLastMessage = ofGetElapsedTimef() - lastOscMessageTime;
+    if(timeSinceLastMessage >= 300 && doJumpBetweenStates.get() != 1) {
+        lastOscMessageTime = ofGetElapsedTimef();
+        doJumpBetweenStates.set(1);
+        ofLogWarning("No osc message received for the last 5 minutes. moving to auto pilot");
+    }
 }
 
 
@@ -1380,6 +1398,7 @@ void ofApp::drawGui() {
 
 void ofApp::startJumpBetweenStates(bool&) {
 	jumpBetweenStatesStartTime = ofGetElapsedTimef();
+    lastOscMessageTime = ofGetElapsedTimef(); //This to emulate the fact that user manually set to on
 }
 
 void ofApp::updateNumberOfSettingFiles() {

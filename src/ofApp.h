@@ -99,6 +99,9 @@ public:
 	// Time
 	float				lastTime;
 	float				deltaTime;
+    // We will use this to know when was the last time user touched the system
+    // by doing so we will go to auto pilot
+    float				lastOscMessageTime;
 
 	// FlowTools
 	int				    internalWidth; // base resolution for intermediate buffers
