@@ -2,14 +2,14 @@
 	<settings_transition>
 		<Transition_mode>0</Transition_mode>
 		</settings_transition>
-	<average_FPS>118</average_FPS>
-	<minimum_FPS>64.8229</minimum_FPS>
+	<average_FPS>78</average_FPS>
+	<minimum_FPS>60.2353</minimum_FPS>
 	<flip_camera>0</flip_camera>
 	<draw_camera__C_>0</draw_camera__C_>
 	<draw_mode>0</draw_mode>
 	<MODE>Composite      (1)</MODE>
 	<optical_flow>
-		<strength>88.6939</strength>
+		<strength>25.6939</strength>
 		<offset>3</offset>
 		<lambda>0.01</lambda>
 		<threshold>0.00918367</threshold>
@@ -43,7 +43,7 @@
 	</velocity_mask>
 	<fluid_solver>
 		<reset>0</reset>
-		<speed>1.6</speed>
+		<speed>0.8</speed>
 		<cell_size>0.77551</cell_size>
 		<iterations>37</iterations>
 		<viscosity>0.1</viscosity>
@@ -71,7 +71,7 @@
 	</fluid_solver>
 	<particle_flow>
 		<active>1</active>
-		<speed>1.6</speed>
+		<speed>0.8</speed>
 		<cell_size>0.77551</cell_size>
 		<birth_chance>0.178571</birth_chance>
 		<birth_velocity_chance>0.142857</birth_velocity_chance>
@@ -82,10 +82,10 @@
 		<size>3.19796</size>
 		<size_spread>0.362245</size_spread>
 		<twinkle_speed>0</twinkle_speed>
-		<spawn_hue>1</spawn_hue>
+		<spawn_hue>0.780612</spawn_hue>
 		<spawn_hue_animate>0</spawn_hue_animate>
 		<spawn_hue_animate_time>5</spawn_hue_animate_time>
-		<spawn_hue_animate_range>1</spawn_hue_animate_range>
+		<spawn_hue_animate_range>0.2</spawn_hue_animate_range>
 		<stretch>1.32653</stretch>
 	</particle_flow>
 	<mouse_left_button>
@@ -102,7 +102,7 @@
 		<draw_flow_res_1>
 			<non_den_vel_tem_prs_ob>2</non_den_vel_tem_prs_ob>
 			<is_temporary>1</is_temporary>
-			<force>-0.00546876, -0.0972222, 0, 1</force>
+			<force>0.000783697, 0, 0, 1</force>
 			<strength>1</strength>
 			<radius>0.035</radius>
 			<edge>1</edge>
@@ -163,4 +163,4 @@
 		<min_dot_size>2</min_dot_size>
 		<max_dot_size>10</max_dot_size>
 	</velocity_dots>
-</settings>
+	</settings>
