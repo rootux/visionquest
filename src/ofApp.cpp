@@ -232,7 +232,7 @@ void ofApp::setupGui() {
 	drawMode.addListener(this, &ofApp::drawModeSetName);
 	gui.add(drawName.set("MODE", "draw name"));
 	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT, SOURCE_PS3EYE, SOURCE_COUNT - 1));
-	gui.add(psEyeCameraIndex.set("PsEye Camera # (x)", 0, 0, 2));
+	gui.add(psEyeCameraIndex.set("PsEye Camera num (x)", 0, 0, 2));
 	psEyeCameraIndex.addListener(this, &ofApp::psEyeCameraChanged);
 	sourceMode.addListener(this, &ofApp::sourceChanged);
 
