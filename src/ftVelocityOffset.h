@@ -45,6 +45,7 @@ namespace flowTools {
 			
 			ofPushMatrix();
 			ofPushStyle();
+            ofEnableBlendMode(OF_BLENDMODE_ALPHA);
 			
             feedbackBuffer.begin();
             
@@ -56,7 +57,7 @@ namespace flowTools {
             ofSetColor(255, 255);
             
 			//ofDisableAntiAliasing();
-			
+            ofEnableBlendMode(OF_BLENDMODE_ADD);
 			if (lineSmooth.get()) {
 				glEnable(GL_LINE_SMOOTH);
 			}
@@ -76,6 +77,8 @@ namespace flowTools {
             
 			
             feedbackBuffer.end();
+            ofDisableBlendMode();
+            
             feedbackBuffer.draw(_x, _y, _width, _height);
             
 			//ofEnableAntiAliasing();
