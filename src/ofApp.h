@@ -29,9 +29,6 @@
 
 #define USE_PROGRAMMABLE_GL					// Maybe there is a reason you would want to
 
-#define PORT 10000
-#define PORT_SERVER 10001
-
 using namespace flowTools;
 
 enum drawModeEnum {
@@ -74,6 +71,7 @@ public:
 	void	setupPsEye();
 	void	update();
 	void	draw();
+	void	exit();
 
 	// Camera
 	ofVideoGrabber		simpleCam;
@@ -102,6 +100,9 @@ public:
 	// Time
 	float				lastTime;
 	float				deltaTime;
+    // We will use this to know when was the last time user touched the system
+    // by doing so we will go to auto pilot
+    float				lastOscMessageTime;
 
 	// FlowTools
 	int				    internalWidth; // base resolution for intermediate buffers
@@ -238,6 +239,7 @@ public:
 	bool				isFileExist(string fileName);
 	string				dirnameOf(const string& fname);
 	void				setRelativePath(const char *filename);
+	void				setOscPort(const char *filename);
 	string				relateiveDataPath;
 	string				relateiveKinectDataPath;
 	string				relateivePsEyeDataPath;
@@ -245,6 +247,7 @@ public:
 	ofParameter<int>	loadSettingsFileIndex;
 	int					loadSettingsFileNumber;
 	int                 getNumberOfSettingsFile();
+	void psEyeCameraChanged(int &index);
 	void				setLoadSettingsName(int& _value);
 	void 				loadNextSettingsFile(string settingsTo);
 	string				oscRemoteServerIpAddress;
@@ -278,7 +281,10 @@ public:
 	int					getNextSettingsCounter();
 	bool				isTransitionFinished = true;
 
+	int					oscPort;
 	ofxOscReceiver		oscReceiver;
 	ofxOscSender		oscSender;
 	float				timeSinceLastOscMessage; //To prevent sending too much osc messages
+
+	ofParameter<int>	psEyeCameraIndex; //Which camera to use from multiple connected pseye camera
 };

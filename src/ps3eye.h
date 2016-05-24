@@ -214,6 +214,9 @@ private:
 	bool open_usb();
 	void close_usb();
 
+#ifdef _WIN32
+	HANDLE mutexIpc;
+#endif
 };
 
 } // namespace

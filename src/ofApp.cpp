@@ -30,7 +30,7 @@ static vector<string> tokenize(const string & str, const string & delim)
 }
 
 void ofApp::setup() {
-
+	ofSetEscapeQuitsApp(false);
 	ofSetVerticalSync(false);
 	ofSetLogLevel(OF_LOG_NOTICE);
 
@@ -67,6 +67,8 @@ void ofApp::setup() {
 
 	// CAMERA
 	simpleCam.setup(640, 480, true);
+    
+    
 
 #ifdef _KINECT
 	// KINECT
@@ -96,24 +98,33 @@ void ofApp::setup() {
 
 	doFullScreen.set(1);
 
-	oscReceiver.setup(PORT);
+	oscReceiver.setup(oscPort);
+    lastOscMessageTime = ofGetElapsedTimef();
 }
 
 void ofApp::setupPsEye() {
 	if (eye) {
-		return;
+		eye->stop();
+		eye = NULL;
+		//return;
 	}
 	using namespace ps3eye;
 	std::vector<PS3EYECam::PS3EYERef> devices(PS3EYECam::getDevices());
 	if (devices.size())
 	{
-		eye = devices.at(0);
-		bool res = eye->init(640, 480, 120);
+		psEyeCameraIndex.setMax(devices.size() - 1);
+		int psEyeCameraToUse = 0;
+		if (devices.size() > psEyeCameraIndex) {
+			psEyeCameraToUse = psEyeCameraIndex;
+		}
+		//TODO: disable the old camera - check if needed
+		eye = devices.at(psEyeCameraToUse);
+		bool res = eye->init(640, 480, 60);
 		if (res) {
 			eye->start();
-			eye->setExposure(255);
+			eye->setExposure(125); //TODO: was 255
 			videoFrame = new unsigned char[eye->getWidth()*eye->getHeight() * 4];
-			videoTexture.allocate(eye->getWidth(), eye->getHeight(), GL_RGBA);
+			videoTexture.allocate(eye->getWidth(), eye->getHeight(), GL_RGB);
 		}
 		else {
 			eye = NULL;
@@ -198,10 +209,10 @@ void ofApp::setupGui() {
 	loadSettingsFileIndex.addListener(this, &ofApp::setLoadSettingsName);
 
 	settingsGroup.add(transitionMode.set("Transition mode", TRANSITION_NONE, TRANSITION_NONE, TRANSITION_COUNT - 1));
-	settingsGroup.add(transitionTime.set("Transition time", 0, 0, 360));
+	settingsGroup.add(transitionTime.set("Transition time", 0, 0, 720));
 	settingsGroup.add(doJumpBetweenStates.set("Jump between states", false));
 	doJumpBetweenStates.addListener(this, &ofApp::startJumpBetweenStates);
-	settingsGroup.add(jumpBetweenStatesInterval.set("Jump between interval", 0, 0, 360));
+	settingsGroup.add(jumpBetweenStatesInterval.set("Jump between interval", 0, 0, 720));
 
 	gui.add(settingsGroup);
 
@@ -221,6 +232,8 @@ void ofApp::setupGui() {
 	drawMode.addListener(this, &ofApp::drawModeSetName);
 	gui.add(drawName.set("MODE", "draw name"));
 	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT, SOURCE_PS3EYE, SOURCE_COUNT - 1));
+	gui.add(psEyeCameraIndex.set("PsEye Camera # (x)", 0, 0, 2));
+	psEyeCameraIndex.addListener(this, &ofApp::psEyeCameraChanged);
 	sourceMode.addListener(this, &ofApp::sourceChanged);
 
 	int guiColorSwitch = 0;
@@ -319,6 +332,12 @@ int ofApp::getNumberOfSettingsFile() {
 	//
 //}
 
+void ofApp::psEyeCameraChanged(int& index) {
+	if (isPsEyeSource()) {
+		setupPsEye();
+	}
+}
+
 /*
 Whenever a source is changed we are loading a different settins file.
 one from bin/data for the kinect
@@ -330,7 +349,7 @@ void ofApp::sourceChanged(int& mode) {
 		relateiveDataPath = relateiveKinectDataPath;
 		ofLogWarning("Switched to Kinect");
 		break;
-	case SOURCE_PS3EYE:
+	case SOURCE_PS3EYE:		
 		relateiveDataPath = relateivePsEyeDataPath;
 		ofLogWarning("Switched to PsEye");
 		break;
@@ -378,99 +397,30 @@ void ofApp::update() {
 #else
 	if ((isPsEyeSource() && eye) || simpleCam.isFrameNew()) {
 #endif
+
+		ofTexture *videoSource;
+		switch (sourceMode) {
+#ifdef _KINECT
+		case SOURCE_KINECT:
+			videoSource = &kinect.getDepthSource()->getTexture();
+			break;
+#endif
+		case SOURCE_PS3EYE:
+			videoSource = &videoTexture;
+			break;
+		default:
+			videoSource = &simpleCam.getTexture();
+			break;
+		}
+
 		ofPushStyle();
 		ofEnableBlendMode(OF_BLENDMODE_DISABLED);
-#ifdef _KINECT
-		if (sourceMode == SOURCE_KINECT) {
-			kinectFbo.begin();
-		}
-		else
-#endif
-		{
-			cameraFbo.begin();
-		}
-		if (doFlipCamera) {
-			float psEyeXPosition;
-			switch (sourceMode) {
-#ifdef _KINECT
-			case SOURCE_KINECT:
-				//kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				kinect.getDepthSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				break;
-				//case SOURCE_KINECT_PS3EYE:
-				//	kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				//	psEyeXPosition = (cameraFbo.getWidth() / 3 ) + 20;
-				//	videoTexture.draw(psEyeXPosition, 20, -cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-				//	break;
-				//case SOURCE_KINECT_DEPTH_PS3EYE:
-				//	kinect.getDepthSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				//	psEyeXPosition = (cameraFbo.getWidth() / 3) + 20;
-				//	videoTexture.draw(psEyeXPosition, 20, -cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-				//	break;
-#endif
-			case SOURCE_PS3EYE:
-				videoTexture.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				break;
-			default:
-				simpleCam.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				break;
-			};
-		}
-		else {
-			switch (sourceMode) {
-				float psEyeXPosition;
-#ifdef _KINECT
-			case SOURCE_KINECT:
-				kinect.getDepthSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-				break;
-				//         case SOURCE_KINECT_PS3EYE:
-				//             kinect.getColorSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-				//             psEyeXPosition = (cameraFbo.getWidth() / 3 * 2) - 20;
-				//             videoTexture.draw(psEyeXPosition, 20, cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-				//             break;
-				//case SOURCE_KINECT_DEPTH_PS3EYE:
-				//	kinect.getDepthSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-				//	psEyeXPosition = (cameraFbo.getWidth() / 3 * 2) - 20;
-				//	videoTexture.draw(psEyeXPosition, 20, cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-				//	break;
-#endif
-			case SOURCE_PS3EYE:
-				videoTexture.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-				break;
-			default:
-				simpleCam.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-				break;
-			};
-		}
-#ifdef _KINECT
-		if (sourceMode == SOURCE_KINECT) {
-			kinectFbo.end();
 
-			ofPopStyle();
+		recolor.update(cameraFbo, *videoSource, doFlipCamera);
 
-			ofPushStyle();
-			ofEnableBlendMode(OF_BLENDMODE_DISABLED);
-
-			recolor.update(cameraFbo, kinectFbo.getTexture(), doFlipCamera);
-
-			ofPopStyle();
-
-			//TODO: debug kinect raw depth source
-			//opticalFlow.setSource(kinectFbo.getTexture());
-			opticalFlow.setSource(cameraFbo.getTexture());
-		}
-		else
-#endif
-		{
-			cameraFbo.end();
-            ofPopStyle();
-			opticalFlow.setSource(cameraFbo.getTexture());
-		}
-
-
-
-
-
+		ofPopStyle();
+		// TODO: figure out how to use kinectFbo for this on kinect and to have it work
+		opticalFlow.setSource(cameraFbo.getTexture());
 
 		//opticalFlow.update(deltaTime);
 		// use internal deltatime instead
@@ -480,8 +430,6 @@ void ofApp::update() {
 		velocityMask.setDensity(cameraFbo.getTexture());
 		velocityMask.setVelocity(opticalFlow.getOpticalFlow());
 		velocityMask.update();
-
-
 	}
 
 
@@ -554,10 +502,15 @@ void ofApp::updateOscMessages() {
 		ofxOscMessage m;
 		oscReceiver.getNextMessage(&m);
 		
+        lastOscMessageTime = ofGetElapsedTimef();
 		// Set remote address by osc message
 		if (!m.getRemoteIp().empty() && oscRemoteServerIpAddress.empty()) {
 			oscRemoteServerIpAddress = m.getRemoteIp();
-			oscSender.setup(oscRemoteServerIpAddress, PORT_SERVER);
+			//oscSender.setup(oscRemoteServerIpAddress, PORT_SERVER);
+		}
+
+		if (m.getAddress() == "helo") {
+			
 		}
 			
 		if (m.getAddress() == "/1/strength") {
@@ -598,11 +551,10 @@ void ofApp::updateOscMessages() {
 			reset();
 		}
 
-		if (m.getAddress() == "/1/next_effect" &&
+		if (m.getAddress() == "/1/source" &&
 			m.getArgAsBool(0) == true) {
-			jumpToNextEffect();
+			sourceMode.set((sourceMode.get() + 1) % SOURCE_COUNT);
 		}
-
 
 		if ((m.getAddress().find("/1/effects") != std::string::npos) &&
 			(m.getArgAsBool(0) == true)) {
@@ -612,13 +564,21 @@ void ofApp::updateOscMessages() {
 				case 1: drawMode.set(DRAW_COMPOSITE); break;
 				case 2: drawMode.set(DRAW_FLUID_DENSITY); break;
 				case 3: drawMode.set(DRAW_PARTICLES); break;
-				case 4: drawMode.set(DRAW_VELDOTS); break;
-				case 5: drawMode.set(DRAW_FLUID_VELOCITY); break;
-				case 6: drawMode.set(DRAW_DISPLACEMENT); break;
+				case 4: drawMode.set(DRAW_DISPLACEMENT); break;
 			}
 		}
+        
+        if (m.getAddress() == "/1/animate_scale") {
+            recolor.animateScale.set(m.getArgAsBool(0));
+        }
 
-		if (m.getAddress() == "/settings/transition_time") {
+		if (m.getAddress() == "/1/next_effect" &&
+			m.getArgAsBool(0) == true) {
+			jumpToNextEffect();
+		}
+
+		if (m.getAddress() == "/settings/transition_time" &&
+            m.getArgAsBool(0) == true) {
 			transitionTime.set(m.getArgAsFloat(0));
 		}
 
@@ -652,7 +612,21 @@ void ofApp::updateOscMessages() {
 			startTransition(relateiveDataPath + "settings" + std::to_string(oldSettingsFileIndex) + ".xml",
 				relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex) + ".xml");
 		}
+        
+        //If the user send a manual command - auto pilot will turn off
+        if(doJumpBetweenStates == 1) {
+            ofLogWarning("User took control. got osc message. auto pilot turned off");
+            doJumpBetweenStates.set(0);
+        }
 	}
+    
+    //Activate auto pilot to on if no message was received for a given period (5 minutes) and no auto pilot is set yet
+    float timeSinceLastMessage = ofGetElapsedTimef() - lastOscMessageTime;
+    if(timeSinceLastMessage >= 300 && doJumpBetweenStates.get() != 1) {
+        lastOscMessageTime = ofGetElapsedTimef();
+        doJumpBetweenStates.set(1);
+        ofLogWarning("No osc message received for the last 5 minutes. moving to auto pilot");
+    }
 }
 
 
@@ -768,7 +742,7 @@ void ofApp::sendOscMessage(string oscAddress, int value) {
 		ofxOscMessage m;
 		m.setAddress(oscAddress);
 		m.addIntArg(value);
-		oscSender.sendMessage(m);
+		//oscSender.sendMessage(m);
 	}
 }
 
@@ -777,7 +751,7 @@ void ofApp::sendOscMessage(string oscAddress, float value) {
 		ofxOscMessage m;
 		m.setAddress(oscAddress);
 		m.addFloatArg(value);
-		oscSender.sendMessage(m);
+		//oscSender.sendMessage(m);
 	}
 }
 
@@ -824,6 +798,7 @@ void ofApp::reset() {
 	mouseForces.reset();
 }
 
+
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 	switch (key) {
@@ -847,9 +822,14 @@ void ofApp::keyPressed(int key) {
 	case 'R':
 		reset();
 		break;
+
 	case 'z':
 	case 'Z':
 		sourceMode.set((sourceMode.get() + 1) % SOURCE_COUNT);
+		break;
+	case 'x':
+	case 'X':
+		psEyeCameraIndex.set((psEyeCameraIndex.get() + 1) % (psEyeCameraIndex.getMax()+1));
 		break;
 	case 'l':
 	case 'L':
@@ -1033,7 +1013,13 @@ void ofApp::draw() {
 	}
 #ifdef _WIN32
 	if (!spoutInitialized) {
-		spoutInitialized = senderSpout.CreateSender("OF Spout Sender", internalWidth, internalHeight);
+		int spoutRandom = rand() % 1000 + 1;
+		string spoutName = "OF Spout Sender" + to_string(spoutRandom);
+		char *spoutNameCstr = new char[spoutName.length() + 1];
+		strcpy(spoutNameCstr, spoutName.c_str());
+		
+		spoutInitialized = senderSpout.CreateSender(spoutNameCstr, internalWidth, internalHeight);
+		
 		if (!spoutInitialized) {
 			ofLogError() << "Failed to initialize sender spout!";
 		}
@@ -1342,6 +1328,7 @@ void ofApp::drawGui() {
 
 void ofApp::startJumpBetweenStates(bool&) {
 	jumpBetweenStatesStartTime = ofGetElapsedTimef();
+    lastOscMessageTime = ofGetElapsedTimef(); //This to emulate the fact that user manually set to on
 }
 
 void ofApp::updateNumberOfSettingFiles() {
@@ -1386,4 +1373,8 @@ string ofApp::dirnameOf(const string& fname)
 	return (string::npos == pos)
 		? ""
 		: fname.substr(0, pos);
+}
+
+void ofApp::exit() {
+	senderSpout.ReleaseSender(); // Release the sender
 }

@@ -33,3 +33,5 @@ If you're graphic card is having issues. you can try the following fix. replace 
 	windowSettings.setGLVersion(3, 3);
 #endif
 ```
+
+If the app is frozen when starting or when moving to PSEye source perhpas the USB port is not compatible with the PsEye camera. Plug it off and try a different port. install the libusb-win driver using zadiag (Instructions above) - if still doesn't work try again with a different port - this will save you time and frustrations.
