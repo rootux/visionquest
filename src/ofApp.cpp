@@ -230,7 +230,7 @@ void ofApp::setupGui() {
 	gui.add(doFlipCamera.set("flip camera", true));
 	gui.add(doDrawCamBackground.set("draw camera (C)", true));
 #ifdef _WIN32
-	gui.add(sendToSpout.set("Send to Spout", true));
+	gui.add(sendToSpout.set("Send to Spout", false));
 #else
 	sendToSpout.set(false);
 #endif
@@ -582,7 +582,17 @@ void ofApp::updateOscMessages() {
         
         if (m.getAddress() == "/1/animate_scale") {
             recolor.animateScale.set(m.getArgAsBool(0));
+			recolor.animateOffset.set(m.getArgAsBool(0));
         }
+
+		if (m.getAddress() == "/1/gravity_y") {
+			ofVec2f gravity = fluidSimulation.getGravity();
+			fluidSimulation.setGravity(ofVec2f(gravity.x, m.getArgAsFloat(0)));
+		}
+
+		if (m.getAddress() == "/1/dissipation") {
+			fluidSimulation.setDissipation(m.getArgAsFloat(0));
+		}
 
 		if (m.getAddress() == "/1/next_effect" &&
 			m.getArgAsBool(0) == true) {

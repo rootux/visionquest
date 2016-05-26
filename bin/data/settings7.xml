@@ -9,7 +9,7 @@
 	<draw_mode>0</draw_mode>
 	<MODE>Composite      (1)</MODE>
 	<optical_flow>
-		<strength>88.6939</strength>
+		<strength>73</strength>
 		<offset>3</offset>
 		<lambda>0.01</lambda>
 		<threshold>0.00918367</threshold>
@@ -83,7 +83,7 @@
 		<size_spread>0.362245</size_spread>
 		<twinkle_speed>0</twinkle_speed>
 		<spawn_hue>1</spawn_hue>
-		<spawn_hue_animate>0</spawn_hue_animate>
+		<spawn_hue_animate>1</spawn_hue_animate>
 		<spawn_hue_animate_time>5</spawn_hue_animate_time>
 		<spawn_hue_animate_range>1</spawn_hue_animate_range>
 		<stretch>1.32653</stretch>
