@@ -1030,7 +1030,7 @@ void PS3EYECam::start()
 
 void PS3EYECam::stop()
 {
-	std::this_thread::sleep_for(std::chrono::milliseconds(340)); //TODO: if we move between usb cameras quickly we crash. need to understand why
+	std::this_thread::sleep_for(std::chrono::milliseconds(450)); //TODO: if we move between usb cameras quickly we crash. need to understand why
     if(!is_streaming) return;
 
 	/* stop streaming data */
