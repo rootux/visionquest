@@ -1433,5 +1433,7 @@ string ofApp::dirnameOf(const string& fname)
 }
 
 void ofApp::exit() {
+#ifdef _WIN32
 	senderSpout.ReleaseSender(); // Release the sender
+#endif
 }
