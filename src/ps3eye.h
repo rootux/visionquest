@@ -17,7 +17,7 @@
 
 #include <stdint.h>
 
-#if defined(DEBUG) fprintf(stdout, __VA_ARGS__)
+#ifdef _DEBUG
 #define debug(...) fprintf(stdout, __VA_ARGS__)
 #else
 #define debug(...) 
