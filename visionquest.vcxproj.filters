@@ -459,6 +459,9 @@
     <ClInclude Include="src\SpoutSDK\SpoutSender.h" />
     <ClInclude Include="src\SpoutSDK\SpoutSenderNames.h" />
     <ClInclude Include="src\SpoutSDK\SpoutSharedMemory.h" />
+    <ClInclude Include="src\ftDrawMasked.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />

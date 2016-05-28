@@ -239,6 +239,7 @@ void ofApp::setupGui() {
 	gui.add(drawName.set("MODE", "draw name"));
 	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT, SOURCE_PS3EYE, SOURCE_COUNT - 1));
 	gui.add(psEyeCameraIndex.set("PsEye Camera num (x)", 0, 0, 2));
+	gui.add(kinectFilterUsers.set("Users-only kinect filter", true));
 	psEyeCameraIndex.addListener(this, &ofApp::psEyeCameraChanged);
 	sourceMode.addListener(this, &ofApp::sourceChanged);
 
@@ -414,7 +415,16 @@ void ofApp::update() {
 		switch (sourceMode) {
 #ifdef _KINECT
 		case SOURCE_KINECT:
-			videoSource = &kinect.getDepthSource()->getTexture();
+		{
+			if (kinectFilterUsers.get()) {
+				int tracked = kinect.getBodySource()->getBodyCount();
+				drawMaskedShader.update(kinectFbo, kinect.getDepthSource()->getTexture(), kinect.getBodyIndexSource()->getTexture(), tracked);
+				videoSource = &kinectFbo.getTexture();
+			}
+			else {
+				videoSource = &kinect.getDepthSource()->getTexture();
+			}
+		}
 			break;
 #endif
 		case SOURCE_PS3EYE:
