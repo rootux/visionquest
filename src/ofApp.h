@@ -290,4 +290,5 @@ public:
 
 	ofParameter<int>	psEyeCameraIndex; //Which camera to use from multiple connected pseye camera
 	ofParameter<bool>	kinectFilterUsers; // filter out users only for kinect
+	ofParameter<bool>   psEyeRawOpticalFlow; // optical flow on raw data and not recolored
 };

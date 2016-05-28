@@ -239,6 +239,7 @@ void ofApp::setupGui() {
 	gui.add(drawName.set("MODE", "draw name"));
 	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT, SOURCE_PS3EYE, SOURCE_COUNT - 1));
 	gui.add(psEyeCameraIndex.set("PsEye Camera num (x)", 0, 0, 2));
+	gui.add(psEyeRawOpticalFlow.set("psEye raw flow", false));
 	gui.add(kinectFilterUsers.set("Users-only kinect filter", true));
 	psEyeCameraIndex.addListener(this, &ofApp::psEyeCameraChanged);
 	sourceMode.addListener(this, &ofApp::sourceChanged);
@@ -442,7 +443,12 @@ void ofApp::update() {
 
 		ofPopStyle();
 		// TODO: figure out how to use kinectFbo for this on kinect and to have it work
-		opticalFlow.setSource(cameraFbo.getTexture());
+		if ((sourceMode == SOURCE_PS3EYE) && (psEyeRawOpticalFlow.get())) {
+			opticalFlow.setSource(videoTexture);
+		}
+		else {
+			opticalFlow.setSource(cameraFbo.getTexture());
+		}
 
 		//opticalFlow.update(deltaTime);
 		// use internal deltatime instead
