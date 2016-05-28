@@ -18,6 +18,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+visionquest.xcodeproj/project.xcworkspace/xcuserdata/*
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
