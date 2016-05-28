@@ -103,35 +103,41 @@ void ofApp::setup() {
 }
 
 void ofApp::setupPsEye() {
-	if (eye) {
-		eye->stop();
-		eye = NULL;
-		//return;
-	}
-	using namespace ps3eye;
-	std::vector<PS3EYECam::PS3EYERef> devices(PS3EYECam::getDevices());
-	if (devices.size())
-	{
-		psEyeCameraIndex.setMax(devices.size() - 1);
-		int psEyeCameraToUse = 0;
-		if (devices.size() > psEyeCameraIndex) {
-			psEyeCameraToUse = psEyeCameraIndex;
+	try {
+		if (eye) {
+			eye->stop();
+			//eye = NULL;
+			//return;
 		}
-		//TODO: disable the old camera - check if needed
-		eye = devices.at(psEyeCameraToUse);
-		bool res = eye->init(640, 480, 60);
-		if (res) {
-			eye->start();
-			eye->setExposure(125); //TODO: was 255
-			videoFrame = new unsigned char[eye->getWidth()*eye->getHeight() * 4];
-			videoTexture.allocate(eye->getWidth(), eye->getHeight(), GL_RGB);
+		using namespace ps3eye;
+		std::vector<PS3EYECam::PS3EYERef> devices(PS3EYECam::getDevices());
+		if (devices.size())
+		{
+			psEyeCameraIndex.setMax(devices.size() - 1);
+			int psEyeCameraToUse = 0;
+			if (devices.size() > psEyeCameraIndex) {
+				psEyeCameraToUse = psEyeCameraIndex;
+			}
+			//TODO: disable the old camera - check if needed
+			eye = devices.at(psEyeCameraToUse);
+			bool res = eye->init(640, 480, 60);
+			if (res) {
+				eye->start();
+				eye->setExposure(125); //TODO: was 255
+				videoFrame = new unsigned char[eye->getWidth()*eye->getHeight() * 4];
+				videoTexture.allocate(eye->getWidth(), eye->getHeight(), GL_RGB);
+			}
+			else {
+				eye = NULL;
+			}
 		}
 		else {
-			eye = NULL;
+			ofLogError() << "Failed to open PS eye!";
 		}
 	}
-	else {
-		ofLogError() << "Failed to open PS eye!";
+	catch (...) {
+		ofLogError() << "Failed to open PS eye. Exception.";
+		sourceMode.set((sourceMode.get() + 1) % SOURCE_COUNT);
 	}
 }
 
@@ -224,7 +230,7 @@ void ofApp::setupGui() {
 	gui.add(doFlipCamera.set("flip camera", true));
 	gui.add(doDrawCamBackground.set("draw camera (C)", true));
 #ifdef _WIN32
-	gui.add(sendToSpout.set("Send to Spout", true));
+	gui.add(sendToSpout.set("Send to Spout", false));
 #else
 	sendToSpout.set(false);
 #endif
@@ -232,7 +238,7 @@ void ofApp::setupGui() {
 	drawMode.addListener(this, &ofApp::drawModeSetName);
 	gui.add(drawName.set("MODE", "draw name"));
 	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT, SOURCE_PS3EYE, SOURCE_COUNT - 1));
-	gui.add(psEyeCameraIndex.set("PsEye Camera # (x)", 0, 0, 2));
+	gui.add(psEyeCameraIndex.set("PsEye Camera num (x)", 0, 0, 2));
 	psEyeCameraIndex.addListener(this, &ofApp::psEyeCameraChanged);
 	sourceMode.addListener(this, &ofApp::sourceChanged);
 
@@ -386,10 +392,16 @@ void ofApp::update() {
 
 	if (isPsEyeSource() && eye)
 	{
-		uint8_t* new_pixels = eye->getFrame();
-		yuv422_to_rgba(new_pixels, eye->getRowBytes(), videoFrame, eye->getWidth(), eye->getHeight());
-		videoTexture.loadData(videoFrame, eye->getWidth(), eye->getHeight(), GL_RGBA);
-		free(new_pixels);
+		try {
+			uint8_t* new_pixels = eye->getFrame();
+			yuv422_to_rgba(new_pixels, eye->getRowBytes(), videoFrame, eye->getWidth(), eye->getHeight());
+			videoTexture.loadData(videoFrame, eye->getWidth(), eye->getHeight(), GL_RGBA);
+			free(new_pixels);
+		}
+		catch (...) {
+			ofLogWarning("Can't open ps eye. exception. moving to kinect");
+			sourceMode.set((sourceMode.get() + 1) % SOURCE_COUNT);
+		}
 	}
 #ifdef _KINECT
 	if ((isKinectSource() && (kinect.getDepthSource()->isFrameNew())) ||
@@ -570,11 +582,49 @@ void ofApp::updateOscMessages() {
         
         if (m.getAddress() == "/1/animate_scale") {
             recolor.animateScale.set(m.getArgAsBool(0));
+			recolor.animateOffset.set(m.getArgAsBool(0));
         }
+
+		if (m.getAddress() == "/1/gravity_y") {
+			ofVec2f gravity = fluidSimulation.getGravity();
+			fluidSimulation.setGravity(ofVec2f(gravity.x, m.getArgAsFloat(0)));
+		}
+
+		if (m.getAddress() == "/1/dissipation") {
+			fluidSimulation.setDissipation(m.getArgAsFloat(0));
+		}
 
 		if (m.getAddress() == "/1/next_effect" &&
 			m.getArgAsBool(0) == true) {
 			jumpToNextEffect();
+		}
+
+		if (m.getAddress() == "/1/ir_jump" &&
+			m.getArgAsBool(0) == true) {
+			if (sourceMode != SOURCE_PS3EYE) {
+				sourceMode = SOURCE_PS3EYE;
+			}
+			else {
+				psEyeCameraIndex.set((psEyeCameraIndex.get() + 1) % (psEyeCameraIndex.getMax() + 1));
+			}
+		}
+
+		if (m.getAddress() == "/1/ir_exposure") {
+			if (eye) {
+				eye->setExposure(m.getArgAsFloat(0));
+			}
+		}
+
+		if (m.getAddress() == "/1/ir_gain") {
+			if (eye) {
+				eye->setGain(m.getArgAsFloat(0));
+			}
+		}
+
+		if (m.getAddress() == "/1/ir_hue") {
+			if (eye) {
+				eye->setHue(m.getArgAsFloat(0));
+			}
 		}
 
 		if (m.getAddress() == "/settings/transition_time" &&
@@ -832,11 +882,18 @@ void ofApp::keyPressed(int key) {
 		psEyeCameraIndex.set((psEyeCameraIndex.get() + 1) % (psEyeCameraIndex.getMax()+1));
 		break;
 	case 'l':
-	case 'L':
+	case 'L':	
 		transitionTime = 0;
 		jumpToNextEffect();
 		break;
-
+	case 'o':
+	case 'O':
+		increaseParameter(velocityMask.hueOffset, 0.01);
+		break;
+	case 'i':
+	case 'I':
+		decreaseParameter(velocityMask.hueOffset, 0.01);
+		break;
 		//	case 'y':
 		//        {
 		//        ofTexture resultTex = opticalFlow.getOpticalFlow();
