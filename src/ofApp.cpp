@@ -7,6 +7,8 @@ static const int ITUR_BT_601_CVG = -852492;
 static const int ITUR_BT_601_CVR = 1673527;
 static const int ITUR_BT_601_SHIFT = 20;
 
+#define TIMEOUT_KINECT_PEOPLE_FILTER 30
+#define TIMEIN_KINECT_PEOPLE_FILTER 15
 
 // a pretty useful tokenization systes. equal to str.split
 // Example: For the given "settings:recolor:Cutoff" will split to 3 items
@@ -239,8 +241,9 @@ void ofApp::setupGui() {
 	gui.add(drawName.set("MODE", "draw name"));
 	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT, SOURCE_PS3EYE, SOURCE_COUNT - 1));
 	gui.add(psEyeCameraIndex.set("PsEye Camera num (x)", 0, 0, 2));
-	gui.add(psEyeRawOpticalFlow.set("psEye raw flow", false));
+	gui.add(psEyeRawOpticalFlow.set("psEye raw flow", true));
 	gui.add(kinectFilterUsers.set("Users-only kinect filter", true));
+	kinectFilterUsers.addListener(this, &ofApp::onUserOnlyKinectFilter);
 	psEyeCameraIndex.addListener(this, &ofApp::psEyeCameraChanged);
 	sourceMode.addListener(this, &ofApp::sourceChanged);
 
@@ -346,6 +349,17 @@ void ofApp::psEyeCameraChanged(int& index) {
 	}
 }
 
+void ofApp::onUserOnlyKinectFilter(bool& isOn) {
+	if (isOn) {
+		//reset last time a person was in frame
+		timeSinceLastTimeAPersonWasInFrame = ofGetElapsedTimef();
+	}
+	else {
+		//reset last time a person was not in frame
+		timeSinceLastTimeAPersonWasInFrame = ofGetElapsedTimef() -TIMEOUT_KINECT_PEOPLE_FILTER; 
+	}
+}
+
 /*
 Whenever a source is changed we are loading a different settins file.
 one from bin/data for the kinect
@@ -382,7 +396,7 @@ void ofApp::update() {
 	simpleCam.update();
 #ifdef _KINECT
 	if (isKinectSource()) {
-		kinect.update();
+		kinect.update(); 
 	}
 #endif
 
@@ -417,8 +431,10 @@ void ofApp::update() {
 #ifdef _KINECT
 		case SOURCE_KINECT:
 		{
+			checkIfPersonIdentified();
+
+			int tracked = kinect.getBodySource()->getBodyCount();
 			if (kinectFilterUsers.get()) {
-				int tracked = kinect.getBodySource()->getBodyCount();
 				drawMaskedShader.update(kinectFbo, kinect.getDepthSource()->getTexture(), kinect.getBodyIndexSource()->getTexture(), tracked);
 				videoSource = &kinectFbo.getTexture();
 			}
@@ -509,6 +525,42 @@ void ofApp::update() {
 	updateOscMessages();
 
 	updateJumpBetweenStates();
+}
+
+void ofApp::checkIfPersonIdentified() {
+	//Update time of last person identified
+	//Sample every 4 seconds -> TODO now sample from 4.0 4.1 and so on till 5.0 need to sample only once
+	if ((int)ofGetElapsedTimef() % 4 == 0) {
+		int realTrackedPerson = getNumberOfTrackedBodies();
+
+		if (realTrackedPerson > 0) {
+			timeSinceLastTimeAPersonWasInFrame = ofGetElapsedTimef();
+		}
+	}
+
+	float delta = ofGetElapsedTimef() - timeSinceLastTimeAPersonWasInFrame;
+
+	//Only on auto pilot (doJumpBetweenStates) we set those modes
+	if (delta >= TIMEOUT_KINECT_PEOPLE_FILTER && kinectFilterUsers.get() && doJumpBetweenStates) {
+		ofLogWarning("No person found. moving to background mode");
+		kinectFilterUsers.set(false);
+		return;
+	}
+
+	//Only on auto pilot (doJumpBetweenStates) we set those modes
+	if (delta < TIMEIN_KINECT_PEOPLE_FILTER && !kinectFilterUsers.get() && doJumpBetweenStates) {
+		ofLogWarning("Person found. Removing background");
+		kinectFilterUsers.set(true);
+	}
+}
+
+int ofApp::getNumberOfTrackedBodies() {
+	int result = 0;
+	const vector<ofxKinectForWindows2::Data::Body> bodies = kinect.getBodySource()->getBodies();
+	for (int i = 0; i < bodies.size(); i++) {
+		result += (bodies[i].tracked ? 1 : 0);
+	}
+	return result;
 }
 
 void ofApp::updateJumpBetweenStates() {
@@ -641,6 +693,14 @@ void ofApp::updateOscMessages() {
 			if (eye) {
 				eye->setHue(m.getArgAsFloat(0));
 			}
+		}
+
+		if (m.getAddress() == "/1/kinect_filter_users") {
+			kinectFilterUsers.set(m.getArgAsBool(0));
+		}
+
+		if (m.getAddress() == "/1/ps_eye_raw_optical_flow") {
+			psEyeRawOpticalFlow.set(m.getArgAsBool(0));
 		}
 
 		if (m.getAddress() == "/settings/transition_time" &&

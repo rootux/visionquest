@@ -250,6 +250,7 @@ public:
 	int					loadSettingsFileNumber;
 	int                 getNumberOfSettingsFile();
 	void psEyeCameraChanged(int &index);
+	void onUserOnlyKinectFilter(bool &);
 	void				setLoadSettingsName(int& _value);
 	void 				loadNextSettingsFile(string settingsTo);
 	string				oscRemoteServerIpAddress;
@@ -264,13 +265,15 @@ public:
 	float				jumpBetweenStatesStartTime;
 	void				startJumpBetweenStates(bool&);
 	void				updateNumberOfSettingFiles();
+	void				checkIfPersonIdentified();
+	int					getNumberOfTrackedBodies();
 	void				updateJumpBetweenStates();
 	void				updateOscMessages();
 	void				startTransition(string settings1Path, string settings2Path);
 	void				updateTransition();
 	void				updateGuiFromTag(float timeSinceAnimationStart, string tag, string oscMsgPath = "");
-	void sendOscMessage(string oscAddress, int value);
-	void	sendOscMessage(string oscAddress, float value);
+	void				sendOscMessage(string oscAddress, int value);
+	void				sendOscMessage(string oscAddress, float value);
 	float				transitionStartTime;
 	ofxXmlSettings		*settingsFrom;
 	string				settingsFromPath;
@@ -291,4 +294,6 @@ public:
 	ofParameter<int>	psEyeCameraIndex; //Which camera to use from multiple connected pseye camera
 	ofParameter<bool>	kinectFilterUsers; // filter out users only for kinect
 	ofParameter<bool>   psEyeRawOpticalFlow; // optical flow on raw data and not recolored
+
+	float				timeSinceLastTimeAPersonWasInFrame; // When no people is detected we can show the background
 };
