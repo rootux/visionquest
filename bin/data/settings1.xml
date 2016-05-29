@@ -162,4 +162,6 @@
 	</velocity_dots>
 	<settings_transition>
 	</settings_transition>
+	<psEye_raw_flow>1</psEye_raw_flow>
+	<Users-only_kinect_filter>1</Users-only_kinect_filter>
 </settings>
