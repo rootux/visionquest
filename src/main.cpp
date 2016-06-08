@@ -1,6 +1,5 @@
 #include "ofMain.h"
 #include "ofApp.h"
-#include "main.h"
 //#define USE_PROGRAMMABLE_GL
 //========================================================================
 
@@ -25,8 +24,11 @@ BOOL CheckPortUDP(short int dwPort, char *ipAddressStr)
 	return result == SOCKET_ERROR;
 }
 #endif
-
+#ifdef _WIN32
+INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR lpCmdline, int nCmdShow) {
+#else
 int main(int argc, char** argv) {
+#endif
 
 	ofGLFWWindowSettings windowSettings;
 #ifdef USE_PROGRAMMABLE_GL
@@ -40,10 +42,15 @@ int main(int argc, char** argv) {
 	ofCreateWindow(windowSettings);
 
 	ofApp* app = new ofApp();
+#ifdef _WIN32
+	char buffer[MAX_PATH];
+	GetModuleFileNameA(NULL, buffer, MAX_PATH);
+	app->setRelativePath(buffer);
+#else
 	if (argv != NULL && argv[0] != NULL) {
 		app->setRelativePath(argv[0]);
 	}
-
+#endif
 #ifdef _WIN32
 	WSADATA wsaData;
 
