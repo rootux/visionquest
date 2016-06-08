@@ -22,7 +22,7 @@
 		<Active>1</Active>
 		<Noise_Dimension>1</Noise_Dimension>
 		<Use_Noise>0</Use_Noise>
-		<Cutoff>0.017</Cutoff>
+		<Cutoff>0.317</Cutoff>
 		<Offset>0</Offset>
 		<Scale>3.41837</Scale>
 		<Animate_Scale>1</Animate_Scale>
