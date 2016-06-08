@@ -242,7 +242,7 @@ void ofApp::setupGui() {
 	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT, SOURCE_PS3EYE, SOURCE_COUNT - 1));
 	gui.add(psEyeCameraIndex.set("PsEye Camera num (x)", 0, 0, 2));
 	gui.add(psEyeRawOpticalFlow.set("psEye raw flow", true));
-	gui.add(kinectFilterUsers.set("Users-only kinect filter", true));
+	gui.add(kinectFilterUsers.set("Users-only kinect filter", false));
 	kinectFilterUsers.addListener(this, &ofApp::onUserOnlyKinectFilter);
 	psEyeCameraIndex.addListener(this, &ofApp::psEyeCameraChanged);
 	sourceMode.addListener(this, &ofApp::sourceChanged);
