@@ -1,5 +1,6 @@
 #include "ofMain.h"
 #include "ofApp.h"
+#include "main.h"
 //#define USE_PROGRAMMABLE_GL
 //========================================================================
 
@@ -33,8 +34,9 @@ int main(int argc, char** argv) {
 #endif
 	windowSettings.width = 1280;
 	windowSettings.height = 720;
-	windowSettings.windowMode = OF_WINDOW;
 
+	windowSettings.windowMode = OF_WINDOW;
+	
 	ofCreateWindow(windowSettings);
 
 	ofApp* app = new ofApp();
@@ -53,6 +55,7 @@ int main(int argc, char** argv) {
 			availablePort++;
 			dummyPort++;
 			printf("Checking next available port %d...\r\n", availablePort);
+			app->shouldStartPsEyeCam = true;
 		}
 
 		printf("Opened OSC on port %d\r\n", availablePort);

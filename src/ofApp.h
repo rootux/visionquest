@@ -296,4 +296,6 @@ public:
 	ofParameter<bool>   psEyeRawOpticalFlow; // optical flow on raw data and not recolored
 
 	float				timeSinceLastTimeAPersonWasInFrame; // When no people is detected we can show the background
+
+	bool				shouldStartPsEyeCam;
 };

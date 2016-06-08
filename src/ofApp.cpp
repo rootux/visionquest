@@ -98,10 +98,13 @@ void ofApp::setup() {
 
 	lastTime = ofGetElapsedTimef();
 
-	doFullScreen.set(1);
+	doFullScreen.set(0);
 
 	oscReceiver.setup(oscPort);
     lastOscMessageTime = ofGetElapsedTimef();
+	if (shouldStartPsEyeCam) {
+		sourceMode = SOURCE_PS3EYE;
+	}
 }
 
 void ofApp::setupPsEye() {
@@ -746,9 +749,9 @@ void ofApp::updateOscMessages() {
         }
 	}
     
-    //Activate auto pilot to on if no message was received for a given period (5 minutes) and no auto pilot is set yet
+    //Activate auto pilot to on if no message was received for a given period (30 seconds) and no auto pilot is set yet
     float timeSinceLastMessage = ofGetElapsedTimef() - lastOscMessageTime;
-    if(timeSinceLastMessage >= 300 && doJumpBetweenStates.get() != 1) {
+    if(timeSinceLastMessage >= 30 && doJumpBetweenStates.get() != 1) {
         lastOscMessageTime = ofGetElapsedTimef();
         doJumpBetweenStates.set(1);
         ofLogWarning("No osc message received for the last 5 minutes. moving to auto pilot");
