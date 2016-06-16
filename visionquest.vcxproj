@@ -223,6 +223,7 @@
     <ClCompile Include="src\SpoutSDK\SpoutSharedMemory.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ftDrawMasked.h" />
     <ClInclude Include="src\libusb\libusb.h" />
     <ClInclude Include="src\ofApp.h" />
     <ClInclude Include="..\..\..\addons\ofxFlowTools\src\drawforces\ftDrawForce.h" />

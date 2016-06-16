@@ -24,6 +24,7 @@
 
 #include "ofxRecolor.h"
 #include "ftVelocityOffset.h"
+#include "ftDrawMasked.h"
 
 
 
@@ -71,6 +72,7 @@ public:
 	void	setupPsEye();
 	void	update();
 	void	draw();
+	void	exit();
 
 	// Camera
 	ofVideoGrabber		simpleCam;
@@ -134,6 +136,7 @@ public:
 	ftVelocitySpheres	velocityDots;
     
     ftVelocityOffset    velocityOffset;
+	ftDrawMaskedShader  drawMaskedShader;
 
 	ofImage				flowToolsLogoImage;
 	bool				showLogo;
@@ -286,4 +289,6 @@ public:
 	float				timeSinceLastOscMessage; //To prevent sending too much osc messages
 
 	ofParameter<int>	psEyeCameraIndex; //Which camera to use from multiple connected pseye camera
+	ofParameter<bool>	kinectFilterUsers; // filter out users only for kinect
+	ofParameter<bool>   psEyeRawOpticalFlow; // optical flow on raw data and not recolored
 };

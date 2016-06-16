@@ -103,35 +103,41 @@ void ofApp::setup() {
 }
 
 void ofApp::setupPsEye() {
-	if (eye) {
-		eye->stop();
-		eye = NULL;
-		//return;
-	}
-	using namespace ps3eye;
-	std::vector<PS3EYECam::PS3EYERef> devices(PS3EYECam::getDevices());
-	if (devices.size())
-	{
-		psEyeCameraIndex.setMax(devices.size() - 1);
-		int psEyeCameraToUse = 0;
-		if (devices.size() > psEyeCameraIndex) {
-			psEyeCameraToUse = psEyeCameraIndex;
+	try {
+		if (eye) {
+			eye->stop();
+			//eye = NULL;
+			//return;
 		}
-		//TODO: disable the old camera - check if needed
-		eye = devices.at(psEyeCameraToUse);
-		bool res = eye->init(640, 480, 60);
-		if (res) {
-			eye->start();
-			eye->setExposure(125); //TODO: was 255
-			videoFrame = new unsigned char[eye->getWidth()*eye->getHeight() * 4];
-			videoTexture.allocate(eye->getWidth(), eye->getHeight(), GL_RGBA);
+		using namespace ps3eye;
+		std::vector<PS3EYECam::PS3EYERef> devices(PS3EYECam::getDevices());
+		if (devices.size())
+		{
+			psEyeCameraIndex.setMax(devices.size() - 1);
+			int psEyeCameraToUse = 0;
+			if (devices.size() > psEyeCameraIndex) {
+				psEyeCameraToUse = psEyeCameraIndex;
+			}
+			//TODO: disable the old camera - check if needed
+			eye = devices.at(psEyeCameraToUse);
+			bool res = eye->init(640, 480, 60);
+			if (res) {
+				eye->start();
+				eye->setExposure(125); //TODO: was 255
+				videoFrame = new unsigned char[eye->getWidth()*eye->getHeight() * 4];
+				videoTexture.allocate(eye->getWidth(), eye->getHeight(), GL_RGB);
+			}
+			else {
+				eye = NULL;
+			}
 		}
 		else {
-			eye = NULL;
+			ofLogError() << "Failed to open PS eye!";
 		}
 	}
-	else {
-		ofLogError() << "Failed to open PS eye!";
+	catch (...) {
+		ofLogError() << "Failed to open PS eye. Exception.";
+		sourceMode.set((sourceMode.get() + 1) % SOURCE_COUNT);
 	}
 }
 
@@ -224,7 +230,7 @@ void ofApp::setupGui() {
 	gui.add(doFlipCamera.set("flip camera", true));
 	gui.add(doDrawCamBackground.set("draw camera (C)", true));
 #ifdef _WIN32
-	gui.add(sendToSpout.set("Send to Spout", true));
+	gui.add(sendToSpout.set("Send to Spout", false));
 #else
 	sendToSpout.set(false);
 #endif
@@ -232,7 +238,9 @@ void ofApp::setupGui() {
 	drawMode.addListener(this, &ofApp::drawModeSetName);
 	gui.add(drawName.set("MODE", "draw name"));
 	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT, SOURCE_PS3EYE, SOURCE_COUNT - 1));
-	gui.add(psEyeCameraIndex.set("PsEye Camera # (x)", 0, 0, 2));
+	gui.add(psEyeCameraIndex.set("PsEye Camera num (x)", 0, 0, 2));
+	gui.add(psEyeRawOpticalFlow.set("psEye raw flow", false));
+	gui.add(kinectFilterUsers.set("Users-only kinect filter", true));
 	psEyeCameraIndex.addListener(this, &ofApp::psEyeCameraChanged);
 	sourceMode.addListener(this, &ofApp::sourceChanged);
 
@@ -386,10 +394,16 @@ void ofApp::update() {
 
 	if (isPsEyeSource() && eye)
 	{
-		uint8_t* new_pixels = eye->getFrame();
-		yuv422_to_rgba(new_pixels, eye->getRowBytes(), videoFrame, eye->getWidth(), eye->getHeight());
-		videoTexture.loadData(videoFrame, eye->getWidth(), eye->getHeight(), GL_RGBA);
-		free(new_pixels);
+		try {
+			uint8_t* new_pixels = eye->getFrame();
+			yuv422_to_rgba(new_pixels, eye->getRowBytes(), videoFrame, eye->getWidth(), eye->getHeight());
+			videoTexture.loadData(videoFrame, eye->getWidth(), eye->getHeight(), GL_RGBA);
+			free(new_pixels);
+		}
+		catch (...) {
+			ofLogWarning("Can't open ps eye. exception. moving to kinect");
+			sourceMode.set((sourceMode.get() + 1) % SOURCE_COUNT);
+		}
 	}
 #ifdef _KINECT
 	if ((isKinectSource() && (kinect.getDepthSource()->isFrameNew())) ||
@@ -397,99 +411,44 @@ void ofApp::update() {
 #else
 	if ((isPsEyeSource() && eye) || simpleCam.isFrameNew()) {
 #endif
+
+		ofTexture *videoSource;
+		switch (sourceMode) {
+#ifdef _KINECT
+		case SOURCE_KINECT:
+		{
+			if (kinectFilterUsers.get()) {
+				int tracked = kinect.getBodySource()->getBodyCount();
+				drawMaskedShader.update(kinectFbo, kinect.getDepthSource()->getTexture(), kinect.getBodyIndexSource()->getTexture(), tracked);
+				videoSource = &kinectFbo.getTexture();
+			}
+			else {
+				videoSource = &kinect.getDepthSource()->getTexture();
+			}
+		}
+			break;
+#endif
+		case SOURCE_PS3EYE:
+			videoSource = &videoTexture;
+			break;
+		default:
+			videoSource = &simpleCam.getTexture();
+			break;
+		}
+
 		ofPushStyle();
 		ofEnableBlendMode(OF_BLENDMODE_DISABLED);
-#ifdef _KINECT
-		if (sourceMode == SOURCE_KINECT) {
-			kinectFbo.begin();
-		}
-		else
-#endif
-		{
-			cameraFbo.begin();
-		}
-		if (doFlipCamera) {
-			float psEyeXPosition;
-			switch (sourceMode) {
-#ifdef _KINECT
-			case SOURCE_KINECT:
-				//kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				kinect.getDepthSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				break;
-				//case SOURCE_KINECT_PS3EYE:
-				//	kinect.getColorSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				//	psEyeXPosition = (cameraFbo.getWidth() / 3 ) + 20;
-				//	videoTexture.draw(psEyeXPosition, 20, -cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-				//	break;
-				//case SOURCE_KINECT_DEPTH_PS3EYE:
-				//	kinect.getDepthSource()->draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				//	psEyeXPosition = (cameraFbo.getWidth() / 3) + 20;
-				//	videoTexture.draw(psEyeXPosition, 20, -cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-				//	break;
-#endif
-			case SOURCE_PS3EYE:
-				videoTexture.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				break;
-			default:
-				simpleCam.draw(cameraFbo.getWidth(), 0, -cameraFbo.getWidth(), cameraFbo.getHeight());
-				break;
-			};
+
+		recolor.update(cameraFbo, *videoSource, doFlipCamera);
+
+		ofPopStyle();
+		// TODO: figure out how to use kinectFbo for this on kinect and to have it work
+		if ((sourceMode == SOURCE_PS3EYE) && (psEyeRawOpticalFlow.get())) {
+			opticalFlow.setSource(videoTexture);
 		}
 		else {
-			switch (sourceMode) {
-				float psEyeXPosition;
-#ifdef _KINECT
-			case SOURCE_KINECT:
-				kinect.getDepthSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-				break;
-				//         case SOURCE_KINECT_PS3EYE:
-				//             kinect.getColorSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-				//             psEyeXPosition = (cameraFbo.getWidth() / 3 * 2) - 20;
-				//             videoTexture.draw(psEyeXPosition, 20, cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-				//             break;
-				//case SOURCE_KINECT_DEPTH_PS3EYE:
-				//	kinect.getDepthSource()->draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-				//	psEyeXPosition = (cameraFbo.getWidth() / 3 * 2) - 20;
-				//	videoTexture.draw(psEyeXPosition, 20, cameraFbo.getWidth() / 3, cameraFbo.getHeight() / 3);
-				//	break;
-#endif
-			case SOURCE_PS3EYE:
-				videoTexture.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-				break;
-			default:
-				simpleCam.draw(0, 0, cameraFbo.getWidth(), cameraFbo.getHeight());
-				break;
-			};
-		}
-#ifdef _KINECT
-		if (sourceMode == SOURCE_KINECT) {
-			kinectFbo.end();
-
-			ofPopStyle();
-
-			ofPushStyle();
-			ofEnableBlendMode(OF_BLENDMODE_DISABLED);
-
-			recolor.update(cameraFbo, kinectFbo.getTexture(), doFlipCamera);
-
-			ofPopStyle();
-
-			//TODO: debug kinect raw depth source
-			//opticalFlow.setSource(kinectFbo.getTexture());
 			opticalFlow.setSource(cameraFbo.getTexture());
 		}
-		else
-#endif
-		{
-			cameraFbo.end();
-            ofPopStyle();
-			opticalFlow.setSource(cameraFbo.getTexture());
-		}
-
-
-
-
-
 
 		//opticalFlow.update(deltaTime);
 		// use internal deltatime instead
@@ -499,8 +458,6 @@ void ofApp::update() {
 		velocityMask.setDensity(cameraFbo.getTexture());
 		velocityMask.setVelocity(opticalFlow.getOpticalFlow());
 		velocityMask.update();
-
-
 	}
 
 
@@ -641,11 +598,49 @@ void ofApp::updateOscMessages() {
         
         if (m.getAddress() == "/1/animate_scale") {
             recolor.animateScale.set(m.getArgAsBool(0));
+			recolor.animateOffset.set(m.getArgAsBool(0));
         }
+
+		if (m.getAddress() == "/1/gravity_y") {
+			ofVec2f gravity = fluidSimulation.getGravity();
+			fluidSimulation.setGravity(ofVec2f(gravity.x, m.getArgAsFloat(0)));
+		}
+
+		if (m.getAddress() == "/1/dissipation") {
+			fluidSimulation.setDissipation(m.getArgAsFloat(0));
+		}
 
 		if (m.getAddress() == "/1/next_effect" &&
 			m.getArgAsBool(0) == true) {
 			jumpToNextEffect();
+		}
+
+		if (m.getAddress() == "/1/ir_jump" &&
+			m.getArgAsBool(0) == true) {
+			if (sourceMode != SOURCE_PS3EYE) {
+				sourceMode = SOURCE_PS3EYE;
+			}
+			else {
+				psEyeCameraIndex.set((psEyeCameraIndex.get() + 1) % (psEyeCameraIndex.getMax() + 1));
+			}
+		}
+
+		if (m.getAddress() == "/1/ir_exposure") {
+			if (eye) {
+				eye->setExposure(m.getArgAsFloat(0));
+			}
+		}
+
+		if (m.getAddress() == "/1/ir_gain") {
+			if (eye) {
+				eye->setGain(m.getArgAsFloat(0));
+			}
+		}
+
+		if (m.getAddress() == "/1/ir_hue") {
+			if (eye) {
+				eye->setHue(m.getArgAsFloat(0));
+			}
 		}
 
 		if (m.getAddress() == "/settings/transition_time" &&
@@ -903,11 +898,18 @@ void ofApp::keyPressed(int key) {
 		psEyeCameraIndex.set((psEyeCameraIndex.get() + 1) % (psEyeCameraIndex.getMax()+1));
 		break;
 	case 'l':
-	case 'L':
+	case 'L':	
 		transitionTime = 0;
 		jumpToNextEffect();
 		break;
-
+	case 'o':
+	case 'O':
+		increaseParameter(velocityMask.hueOffset, 0.01);
+		break;
+	case 'i':
+	case 'I':
+		decreaseParameter(velocityMask.hueOffset, 0.01);
+		break;
 		//	case 'y':
 		//        {
 		//        ofTexture resultTex = opticalFlow.getOpticalFlow();
@@ -1088,8 +1090,9 @@ void ofApp::draw() {
 		string spoutName = "OF Spout Sender" + to_string(spoutRandom);
 		char *spoutNameCstr = new char[spoutName.length() + 1];
 		strcpy(spoutNameCstr, spoutName.c_str());
+		
 		spoutInitialized = senderSpout.CreateSender(spoutNameCstr, internalWidth, internalHeight);
-
+		
 		if (!spoutInitialized) {
 			ofLogError() << "Failed to initialize sender spout!";
 		}
@@ -1443,4 +1446,10 @@ string ofApp::dirnameOf(const string& fname)
 	return (string::npos == pos)
 		? ""
 		: fname.substr(0, pos);
+}
+
+void ofApp::exit() {
+#ifdef _WIN32
+	senderSpout.ReleaseSender(); // Release the sender
+#endif
 }

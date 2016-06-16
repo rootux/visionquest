@@ -17,7 +17,7 @@
 
 #include <stdint.h>
 
-#if defined(DEBUG)
+#ifdef _DEBUG
 #define debug(...) fprintf(stdout, __VA_ARGS__)
 #else
 #define debug(...) 
@@ -214,6 +214,9 @@ private:
 	bool open_usb();
 	void close_usb();
 
+#ifdef _WIN32
+	HANDLE mutexIpc;
+#endif
 };
 
 } // namespace

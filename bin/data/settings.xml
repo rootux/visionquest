@@ -159,7 +159,7 @@
 	</velocity_dots>
 	<settings_transition>
 		<Transition_mode>0</Transition_mode>
-		<Transition_time>15</Transition_time>
+		<Transition_time>4</Transition_time>
 		<Jump_between_states>1</Jump_between_states>
 		<Jump_between_interval>420</Jump_between_interval>
 	</settings_transition>

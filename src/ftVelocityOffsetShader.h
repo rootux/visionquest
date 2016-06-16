@@ -18,9 +18,6 @@ namespace flowTools {
 		
 	protected:
 		void glTwo() {
-			string geometryShader;
-			
-			
 			vertexShader = GLSL120(
                                    uniform sampler2DRect fieldTexture;
                                    uniform vec2 texResolution;
@@ -46,17 +43,13 @@ namespace flowTools {
 								  }
 								  );
 						
-			ofLogVerbose("Maximum number of output vertices support is: " + ofToString(shader.getGeometryMaxOutputCount()));
 			shader.setupShaderFromSource(GL_VERTEX_SHADER, vertexShader);
 			shader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragmentShader);
 			shader.linkProgram();
 
 		}
 		
-		void glThree() {
-			
-			string geometryShader;
-			
+		void glThree() {			
 			vertexShader = GLSL150(
 								uniform mat4 modelViewProjectionMatrix;
                                 uniform sampler2DRect fieldTexture;
@@ -106,7 +99,6 @@ namespace flowTools {
 								  }
 								  );
 			
-            ofLogVerbose("Maximum number of output vertices support is: " + ofToString(shader.getGeometryMaxOutputCount()));
 			shader.setupShaderFromSource(GL_VERTEX_SHADER, vertexShader);
 			shader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragmentShader);
 			shader.bindDefaults();

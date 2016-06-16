@@ -904,6 +904,11 @@ void PS3EYECam::release()
 	if(handle_ != NULL) 
 		close_usb();
 	if(usb_buf) free(usb_buf);
+//#ifdef _WIN32
+//	if (mutexIpc != NULL) {
+//		CloseHandle(mutexIpc);
+//	}
+//#endif
 }
 
 bool PS3EYECam::init(uint32_t width, uint32_t height, uint8_t desiredFrameRate)
@@ -919,6 +924,20 @@ bool PS3EYECam::init(uint32_t width, uint32_t height, uint8_t desiredFrameRate)
 		}
 	}
 
+//#ifdef _WIN32
+//	// try to aqcuire usb mutex
+//	WCHAR buffer[255] = { 0 };
+//	wsprintf(buffer, L"Global\PSEYE_%d_%d", libusb_get_bus_number(device_), libusb_get_device_address(device_));
+//	debug("attempting to get mutex %S\n", buffer);
+//	mutexIpc = CreateMutex(NULL, TRUE, buffer);
+//	if (mutexIpc == NULL || (GetLastError() == ERROR_ALREADY_EXISTS)) {
+//		debug("failed to get mutex :(\n");
+//		if (mutexIpc) {
+//			CloseHandle(mutexIpc);
+//		}
+//		return false;
+//	}
+//#endif
 	//
 	if(usb_buf == NULL)
 		usb_buf = (uint8_t*)malloc(64);
@@ -1011,6 +1030,7 @@ void PS3EYECam::start()
 
 void PS3EYECam::stop()
 {
+	std::this_thread::sleep_for(std::chrono::milliseconds(450)); //TODO: if we move between usb cameras quickly we crash. need to understand why
     if(!is_streaming) return;
 
 	/* stop streaming data */
