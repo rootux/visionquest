@@ -7,8 +7,9 @@ static const int ITUR_BT_601_CVG = -852492;
 static const int ITUR_BT_601_CVR = 1673527;
 static const int ITUR_BT_601_SHIFT = 20;
 
-#define TIMEOUT_KINECT_PEOPLE_FILTER 30
-#define TIMEIN_KINECT_PEOPLE_FILTER 15
+#define TIMEOUT_KINECT_PEOPLE_FILTER 5
+#define TIMEIN_KINECT_PEOPLE_FILTER 3
+#define AUTO_PILOT_TIMEOUT 10
 
 // a pretty useful tokenization systes. equal to str.split
 // Example: For the given "settings:recolor:Cutoff" will split to 3 items
@@ -109,31 +110,37 @@ void ofApp::setup() {
 
 void ofApp::setupPsEye() {
 	try {
-		if (eye) {
-			eye->stop();
-			//eye = NULL;
-			//return;
-		}
 		using namespace ps3eye;
 		std::vector<PS3EYECam::PS3EYERef> devices(PS3EYECam::getDevices());
 		if (devices.size())
 		{
+			// Only stop eye if eye is working and more then one camera is connected
+			if (eye && devices.size() > 1) {
+				eye->stop();
+				//eye = NULL;
+			}
+
 			psEyeCameraIndex.setMax(devices.size() - 1);
 			int psEyeCameraToUse = 0;
 			if (devices.size() > psEyeCameraIndex) {
 				psEyeCameraToUse = psEyeCameraIndex;
 			}
-			//TODO: disable the old camera - check if needed
-			eye = devices.at(psEyeCameraToUse);
-			bool res = eye->init(640, 480, 60);
-			if (res) {
-				eye->start();
-				eye->setExposure(125); //TODO: was 255
-				videoFrame = new unsigned char[eye->getWidth()*eye->getHeight() * 4];
-				videoTexture.allocate(eye->getWidth(), eye->getHeight(), GL_RGB);
-			}
-			else {
-				eye = NULL;
+			
+			// Init a new eye only if eye is not set or if devices is bigger then 1
+			if (!eye || devices.size() > 1) {
+				eye = devices.at(psEyeCameraToUse);
+				bool res = eye->init(640, 480, 60);
+				if (res) {
+					eye->start();
+					eye->setExposure(125); //TODO: was 255
+					eye->setAutogain(useAgc);
+
+					videoFrame = new unsigned char[eye->getWidth()*eye->getHeight() * 4];
+					videoTexture.allocate(eye->getWidth(), eye->getHeight(), GL_RGB);
+				}
+				else {
+					eye = NULL;
+				}
 			}
 		}
 		else {
@@ -245,6 +252,7 @@ void ofApp::setupGui() {
 	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT, SOURCE_PS3EYE, SOURCE_COUNT - 1));
 	gui.add(psEyeCameraIndex.set("PsEye Camera num (x)", 0, 0, 2));
 	gui.add(psEyeRawOpticalFlow.set("psEye raw flow", true));
+	gui.add(useAgc.set("psEye AGC", false));
 	gui.add(kinectFilterUsers.set("Users-only kinect filter", false));
 	kinectFilterUsers.addListener(this, &ofApp::onUserOnlyKinectFilter);
 	psEyeCameraIndex.addListener(this, &ofApp::psEyeCameraChanged);
@@ -741,6 +749,13 @@ void ofApp::updateOscMessages() {
 			startTransition(relateiveDataPath + "settings" + std::to_string(oldSettingsFileIndex) + ".xml",
 				relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex) + ".xml");
 		}
+
+		if (m.getAddress() == "/settings/ir_autogain") {
+			useAgc.set(m.getArgAsBool(0));
+			if (eye) {
+				eye->setAutogain(useAgc);
+			}
+		}
         
         //If the user send a manual command - auto pilot will turn off
         if(doJumpBetweenStates == 1) {
@@ -751,10 +766,10 @@ void ofApp::updateOscMessages() {
     
     //Activate auto pilot to on if no message was received for a given period (30 seconds) and no auto pilot is set yet
     float timeSinceLastMessage = ofGetElapsedTimef() - lastOscMessageTime;
-    if(timeSinceLastMessage >= 30 && doJumpBetweenStates.get() != 1) {
+    if(timeSinceLastMessage >= AUTO_PILOT_TIMEOUT && doJumpBetweenStates.get() != 1) {
         lastOscMessageTime = ofGetElapsedTimef();
         doJumpBetweenStates.set(1);
-        ofLogWarning("No osc message received for the last 5 minutes. moving to auto pilot");
+        ofLogWarning("No osc message received for the last 15 seconds. moving to auto pilot");
     }
 }
 

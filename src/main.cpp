@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
 #endif
 #ifdef _WIN32
 	WSADATA wsaData;
-
+	app->shouldStartPsEyeCam = true;
 	if (WSAStartup(0x0101, &wsaData) == 0)
 	{
 		int availablePort = PORT;
@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
 			availablePort++;
 			dummyPort++;
 			printf("Checking next available port %d...\r\n", availablePort);
-			app->shouldStartPsEyeCam = true;
+			app->shouldStartPsEyeCam = false;
 		}
 
 		printf("Opened OSC on port %d\r\n", availablePort);

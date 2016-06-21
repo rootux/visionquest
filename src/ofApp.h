@@ -294,8 +294,10 @@ public:
 	ofParameter<int>	psEyeCameraIndex; //Which camera to use from multiple connected pseye camera
 	ofParameter<bool>	kinectFilterUsers; // filter out users only for kinect
 	ofParameter<bool>   psEyeRawOpticalFlow; // optical flow on raw data and not recolored
+	ofParameter<bool>   useAgc; // automatic gain control for ps eye
 
 	float				timeSinceLastTimeAPersonWasInFrame; // When no people is detected we can show the background
 
 	bool				shouldStartPsEyeCam;
+
 };
