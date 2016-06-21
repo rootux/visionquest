@@ -364,6 +364,11 @@ void ofApp::onUserOnlyKinectFilter(bool& isOn) {
 	if (isOn) {
 		//reset last time a person was in frame
 		timeSinceLastTimeAPersonWasInFrame = ofGetElapsedTimef();
+
+		//Only if there is a person set it on otherwise turn it back off
+		if (ofApp::getNumberOfTrackedBodies() <= 0) {
+			kinectFilterUsers.set(false);
+		}
 	}
 	else {
 		//reset last time a person was not in frame
