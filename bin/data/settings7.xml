@@ -9,7 +9,7 @@
 	<draw_mode>0</draw_mode>
 	<MODE>Composite      (1)</MODE>
 	<optical_flow>
-		<strength>73</strength>
+		<strength>45</strength>
 		<offset>3</offset>
 		<lambda>0.01</lambda>
 		<threshold>0.00918367</threshold>
