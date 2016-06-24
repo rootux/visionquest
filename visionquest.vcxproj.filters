@@ -462,6 +462,7 @@
     <ClInclude Include="src\ftDrawMasked.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\ofxMouse.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />

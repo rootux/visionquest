@@ -252,7 +252,7 @@ void ofApp::setupGui() {
 	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT, SOURCE_PS3EYE, SOURCE_COUNT - 1));
 	gui.add(psEyeCameraIndex.set("PsEye Camera num (x)", 0, 0, 2));
 	gui.add(psEyeRawOpticalFlow.set("psEye raw flow", true));
-	gui.add(useAgc.set("psEye AGC", false));
+	gui.add(useAgc.set("psEye AGC", true));
 	gui.add(kinectFilterUsers.set("Users-only kinect filter", false));
 	kinectFilterUsers.addListener(this, &ofApp::onUserOnlyKinectFilter);
 	psEyeCameraIndex.addListener(this, &ofApp::psEyeCameraChanged);
@@ -719,6 +719,33 @@ void ofApp::updateOscMessages() {
 			psEyeRawOpticalFlow.set(m.getArgAsBool(0));
 		}
 
+		if (m.getAddress() == "/1/draw") {
+			float y = m.getArgAsFloat(0);
+			float x = m.getArgAsFloat(1);
+			ofApp::setMousePosition(x, y);
+		}
+
+		if (m.getAddress() == "/1/toggle_draw") {
+			bool isOn = m.getArgAsBool(0);
+			if (isOn) {
+				ofxMouse::MouseEvent(ofxMouse::LeftDown);
+			}
+			else {
+				ofxMouse::MouseEvent(ofxMouse::LeftUp);
+			}
+		}
+
+		if (m.getAddress() == "/1/toggle_sticky") {
+			bool isOn = m.getArgAsBool(0);
+			if (isOn) {
+				ofxMouse::MouseEvent(ofxMouse::RightDown);
+			}
+			else {
+				ofxMouse::MouseEvent(ofxMouse::RightUp);
+			}
+		}
+
+
 		if (m.getAddress() == "/settings/transition_time" &&
             m.getArgAsBool(0) == true) {
 			transitionTime.set(m.getArgAsFloat(0));
@@ -755,6 +782,13 @@ void ofApp::updateOscMessages() {
 				relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex) + ".xml");
 		}
 
+		if (m.getAddress() == "/settings/flip_ir_camera" &&
+			m.getArgAsBool(0) == true) {
+			if (isPsEyeSource()) {
+				doFlipCamera = !doFlipCamera;
+			}
+		}
+
 		if (m.getAddress() == "/settings/ir_autogain") {
 			useAgc.set(m.getArgAsBool(0));
 			if (eye) {
@@ -778,6 +812,17 @@ void ofApp::updateOscMessages() {
     }
 }
 
+void ofApp::setMousePosition(float x, float y) {
+	int windowX = ofGetWindowPositionX();
+	int windowY = ofGetWindowPositionY();
+	int windowMaxX = windowX + ofGetWindowWidth() - 1;
+	int windowMaxY = windowY + ofGetWindowHeight() - 1;
+
+	int xPosition = ofMap(x, 0, 1, windowX, windowMaxX);
+	int yPosition = ofMap(y, 0, 1, windowY, windowMaxY);
+
+	ofxMouse::SetCursorPosition(xPosition, yPosition);
+}
 
 void ofApp::startTransition(string settings1Path, string settings2Path) {
 	transitionStartTime = ofGetElapsedTimef();

@@ -26,7 +26,7 @@
 #include "ftVelocityOffset.h"
 #include "ftDrawMasked.h"
 
-
+#include "ofxMouse.h"
 
 #define USE_PROGRAMMABLE_GL					// Maybe there is a reason you would want to
 
@@ -299,5 +299,8 @@ public:
 	float				timeSinceLastTimeAPersonWasInFrame; // When no people is detected we can show the background
 
 	bool				shouldStartPsEyeCam;
+
+	void				setMousePosition(float x, float y);
+
 
 };

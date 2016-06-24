@@ -12,6 +12,7 @@
 !/bin/data/color2d
 !/bin/data/*.touchosc
 !/bin/data/old_setttings/
+!/bin/data/oscrouter.osc.txt
 
 # User-specific files
 *.suo
