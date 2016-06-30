@@ -10,7 +10,7 @@
 class ofxMouse
 {
 public:
-	static enum MouseEventFlags
+    enum MouseEventFlags
 	{
 		LeftDown = 0x00000002,
 		LeftUp = 0x00000004,
@@ -23,10 +23,15 @@ public:
 	};
 
 	static void SetCursorPosition(int x, int y) {
+#ifdef _WIN32
 		SetCursorPos(x, y);
+#else
+        // TODO
+#endif
 	}
 
 	static void MouseEvent(MouseEventFlags value) {
+#ifdef _WIN32
 		POINT curPos[2];
 		GetCursorPos(&curPos[0]);
 		mouse_event(
@@ -35,5 +40,8 @@ public:
 			curPos->y,
 			0,
 			0);
+#else
+        // TODO
+#endif
 	}
 };
