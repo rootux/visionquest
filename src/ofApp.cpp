@@ -7,9 +7,9 @@ static const int ITUR_BT_601_CVG = -852492;
 static const int ITUR_BT_601_CVR = 1673527;
 static const int ITUR_BT_601_SHIFT = 20;
 
-#define TIMEOUT_KINECT_PEOPLE_FILTER 5
-#define TIMEIN_KINECT_PEOPLE_FILTER 3
-#define AUTO_PILOT_TIMEOUT 10
+#define TIMEOUT_KINECT_PEOPLE_FILTER 700
+#define TIMEIN_KINECT_PEOPLE_FILTER 600
+#define AUTO_PILOT_TIMEOUT 300
 
 // a pretty useful tokenization systes. equal to str.split
 // Example: For the given "settings:recolor:Cutoff" will split to 3 items
@@ -807,11 +807,11 @@ void ofApp::updateOscMessages() {
     
     //Activate auto pilot to on if no message was received for a given period (30 seconds) and no auto pilot is set yet
     float timeSinceLastMessage = ofGetElapsedTimef() - lastOscMessageTime;
-    if(timeSinceLastMessage >= AUTO_PILOT_TIMEOUT && doJumpBetweenStates.get() != 1) {
-        lastOscMessageTime = ofGetElapsedTimef();
-        doJumpBetweenStates.set(1);
-        ofLogWarning("No osc message received for the last 15 seconds. moving to auto pilot");
-    }
+//    if(timeSinceLastMessage >= AUTO_PILOT_TIMEOUT && doJumpBetweenStates.get() != 1) {
+//        lastOscMessageTime = ofGetElapsedTimef();
+//        doJumpBetweenStates.set(1);
+//        ofLogWarning("No osc message received for the last 15 seconds. moving to auto pilot");
+//    }
 }
 
 void ofApp::setMousePosition(float x, float y) {
@@ -997,6 +997,8 @@ void ofApp::reset() {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
+    // Reset the last message received so auto pilot won't start
+    lastOscMessageTime = ofGetElapsedTimef();
 	switch (key) {
 	case OF_KEY_TAB:
 	case 'G':
