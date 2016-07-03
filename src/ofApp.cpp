@@ -1558,6 +1558,14 @@ void ofApp::MultiSavePressed(const void * sender) {
 	loadSettingsFileNumber = lastSaveFileCounter;
 }
 
+void ofApp::setMacRelativePath(const string& filename) {
+    relateiveDataPath = dirnameOf(filename) + "/Resources/data/";
+    ofLogWarning(ofToString(filename));
+    relateiveKinectDataPath = relateiveDataPath;
+    ofLogWarning(ofToString(relateiveKinectDataPath));
+    relateivePsEyeDataPath = relateiveDataPath + "/pseyesettings/";
+}
+    
 void ofApp::setRelativePath(const char *filename) {
 	relateiveDataPath = dirnameOf(filename) + "\\data\\";
 	relateiveKinectDataPath = relateiveDataPath;
@@ -1572,7 +1580,8 @@ bool ofApp::isFileExist(string fileName)
 
 string ofApp::dirnameOf(const string& fname)
 {
-	size_t pos = fname.find_last_of("\\/");
+	
+    size_t pos = fname.find_last_of("\\/");
 	return (string::npos == pos)
 		? ""
 		: fname.substr(0, pos);

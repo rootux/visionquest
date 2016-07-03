@@ -239,8 +239,9 @@ public:
 
     // Settings group
 	bool				isFileExist(string fileName);
-	string				dirnameOf(const string& fname);
+	static string				dirnameOf(const string& fname);
 	void				setRelativePath(const char *filename);
+    void                setMacRelativePath(const string& filename);
 	void				setOscPort(const char *filename);
 	string				relateiveDataPath;
 	string				relateiveKinectDataPath;

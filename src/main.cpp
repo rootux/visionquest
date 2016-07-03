@@ -47,8 +47,10 @@ int main(int argc, char** argv) {
 	GetModuleFileNameA(NULL, buffer, MAX_PATH);
 	app->setRelativePath(buffer);
 #else
+    // Mac - Navigate to Resources path
 	if (argv != NULL && argv[0] != NULL) {
-		app->setRelativePath(argv[0]);
+        string path = app->ofApp::dirnameOf(argv[0]);
+		app->setMacRelativePath(path);
 	}
 #endif
 #ifdef _WIN32
