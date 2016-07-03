@@ -24,8 +24,11 @@ BOOL CheckPortUDP(short int dwPort, char *ipAddressStr)
 	return result == SOCKET_ERROR;
 }
 #endif
-
+#ifdef _WIN32
+INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR lpCmdline, int nCmdShow) {
+#else
 int main(int argc, char** argv) {
+#endif
 
 	ofGLFWWindowSettings windowSettings;
 #ifdef USE_PROGRAMMABLE_GL
@@ -33,18 +36,24 @@ int main(int argc, char** argv) {
 #endif
 	windowSettings.width = 1280;
 	windowSettings.height = 720;
-	windowSettings.windowMode = OF_WINDOW;
 
+	windowSettings.windowMode = OF_WINDOW;
+	
 	ofCreateWindow(windowSettings);
 
 	ofApp* app = new ofApp();
+#ifdef _WIN32
+	char buffer[MAX_PATH];
+	GetModuleFileNameA(NULL, buffer, MAX_PATH);
+	app->setRelativePath(buffer);
+#else
 	if (argv != NULL && argv[0] != NULL) {
 		app->setRelativePath(argv[0]);
 	}
-
+#endif
 #ifdef _WIN32
 	WSADATA wsaData;
-
+	app->shouldStartPsEyeCam = true;
 	if (WSAStartup(0x0101, &wsaData) == 0)
 	{
 		int availablePort = PORT;
@@ -53,6 +62,7 @@ int main(int argc, char** argv) {
 			availablePort++;
 			dummyPort++;
 			printf("Checking next available port %d...\r\n", availablePort);
+			app->shouldStartPsEyeCam = false;
 		}
 
 		printf("Opened OSC on port %d\r\n", availablePort);

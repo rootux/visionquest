@@ -44,7 +44,7 @@
 	<fluid_solver>
 		<reset>0</reset>
 		<speed>3</speed>
-		<cell_size>0.77551</cell_size>
+		<cell_size>1.0</cell_size>
 		<iterations>37</iterations>
 		<viscosity>0.1</viscosity>
 		<vorticity>0.112245</vorticity>
@@ -79,7 +79,7 @@
 		<lifespan_spread>0.270408</lifespan_spread>
 		<mass>1.3</mass>
 		<mass_spread>0.2</mass_spread>
-		<size>2.29014</size>
+		<size>3.3</size>
 		<size_spread>0.75</size_spread>
 		<twinkle_speed>11</twinkle_speed>
 		<spawn_hue>1</spawn_hue>
@@ -163,5 +163,6 @@
 		<min_dot_size>2</min_dot_size>
 		<max_dot_size>10</max_dot_size>
 	</velocity_dots>
-<settings />
+	<psEye_raw_flow>1</psEye_raw_flow>
+	<Users-only_kinect_filter>1</Users-only_kinect_filter>
 	</settings>

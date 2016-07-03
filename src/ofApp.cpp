@@ -7,6 +7,9 @@ static const int ITUR_BT_601_CVG = -852492;
 static const int ITUR_BT_601_CVR = 1673527;
 static const int ITUR_BT_601_SHIFT = 20;
 
+#define TIMEOUT_KINECT_PEOPLE_FILTER 5
+#define TIMEIN_KINECT_PEOPLE_FILTER 3
+#define AUTO_PILOT_TIMEOUT 10
 
 // a pretty useful tokenization systes. equal to str.split
 // Example: For the given "settings:recolor:Cutoff" will split to 3 items
@@ -96,39 +99,48 @@ void ofApp::setup() {
 
 	lastTime = ofGetElapsedTimef();
 
-	doFullScreen.set(1);
+	doFullScreen.set(0);
 
 	oscReceiver.setup(oscPort);
     lastOscMessageTime = ofGetElapsedTimef();
+	if (shouldStartPsEyeCam) {
+		sourceMode = SOURCE_PS3EYE;
+	}
 }
 
 void ofApp::setupPsEye() {
 	try {
-		if (eye) {
-			eye->stop();
-			//eye = NULL;
-			//return;
-		}
 		using namespace ps3eye;
 		std::vector<PS3EYECam::PS3EYERef> devices(PS3EYECam::getDevices());
 		if (devices.size())
 		{
+			// Only stop eye if eye is working and more then one camera is connected
+			if (eye && devices.size() > 1) {
+				eye->stop();
+				//eye = NULL;
+			}
+
 			psEyeCameraIndex.setMax(devices.size() - 1);
 			int psEyeCameraToUse = 0;
 			if (devices.size() > psEyeCameraIndex) {
 				psEyeCameraToUse = psEyeCameraIndex;
 			}
-			//TODO: disable the old camera - check if needed
-			eye = devices.at(psEyeCameraToUse);
-			bool res = eye->init(640, 480, 60);
-			if (res) {
-				eye->start();
-				eye->setExposure(125); //TODO: was 255
-				videoFrame = new unsigned char[eye->getWidth()*eye->getHeight() * 4];
-				videoTexture.allocate(eye->getWidth(), eye->getHeight(), GL_RGB);
-			}
-			else {
-				eye = NULL;
+			
+			// Init a new eye only if eye is not set or if devices is bigger then 1
+			if (!eye || devices.size() > 1) {
+				eye = devices.at(psEyeCameraToUse);
+				bool res = eye->init(640, 480, 60);
+				if (res) {
+					eye->start();
+					eye->setExposure(125); //TODO: was 255
+					eye->setAutogain(useAgc);
+
+					videoFrame = new unsigned char[eye->getWidth()*eye->getHeight() * 4];
+					videoTexture.allocate(eye->getWidth(), eye->getHeight(), GL_RGB);
+				}
+				else {
+					eye = NULL;
+				}
 			}
 		}
 		else {
@@ -239,8 +251,10 @@ void ofApp::setupGui() {
 	gui.add(drawName.set("MODE", "draw name"));
 	gui.add(sourceMode.set("Source mode (z)", SOURCE_KINECT, SOURCE_PS3EYE, SOURCE_COUNT - 1));
 	gui.add(psEyeCameraIndex.set("PsEye Camera num (x)", 0, 0, 2));
-	gui.add(psEyeRawOpticalFlow.set("psEye raw flow", false));
-	gui.add(kinectFilterUsers.set("Users-only kinect filter", true));
+	gui.add(psEyeRawOpticalFlow.set("psEye raw flow", true));
+	gui.add(useAgc.set("psEye AGC", true));
+	gui.add(kinectFilterUsers.set("Users-only kinect filter", false));
+	kinectFilterUsers.addListener(this, &ofApp::onUserOnlyKinectFilter);
 	psEyeCameraIndex.addListener(this, &ofApp::psEyeCameraChanged);
 	sourceMode.addListener(this, &ofApp::sourceChanged);
 
@@ -346,6 +360,22 @@ void ofApp::psEyeCameraChanged(int& index) {
 	}
 }
 
+void ofApp::onUserOnlyKinectFilter(bool& isOn) {
+	if (isOn) {
+		//reset last time a person was in frame
+		timeSinceLastTimeAPersonWasInFrame = ofGetElapsedTimef();
+
+		//Only if there is a person set it on otherwise turn it back off
+		if (ofApp::getNumberOfTrackedBodies() <= 0) {
+			kinectFilterUsers.set(false);
+		}
+	}
+	else {
+		//reset last time a person was not in frame
+		timeSinceLastTimeAPersonWasInFrame = ofGetElapsedTimef() -TIMEOUT_KINECT_PEOPLE_FILTER; 
+	}
+}
+
 /*
 Whenever a source is changed we are loading a different settins file.
 one from bin/data for the kinect
@@ -382,7 +412,7 @@ void ofApp::update() {
 	simpleCam.update();
 #ifdef _KINECT
 	if (isKinectSource()) {
-		kinect.update();
+		kinect.update(); 
 	}
 #endif
 
@@ -417,8 +447,10 @@ void ofApp::update() {
 #ifdef _KINECT
 		case SOURCE_KINECT:
 		{
+			checkIfPersonIdentified();
+
+			int tracked = kinect.getBodySource()->getBodyCount();
 			if (kinectFilterUsers.get()) {
-				int tracked = kinect.getBodySource()->getBodyCount();
 				drawMaskedShader.update(kinectFbo, kinect.getDepthSource()->getTexture(), kinect.getBodyIndexSource()->getTexture(), tracked);
 				videoSource = &kinectFbo.getTexture();
 			}
@@ -509,6 +541,44 @@ void ofApp::update() {
 	updateOscMessages();
 
 	updateJumpBetweenStates();
+}
+
+void ofApp::checkIfPersonIdentified() {
+	//Update time of last person identified
+	//Sample every 4 seconds -> TODO now sample from 4.0 4.1 and so on till 5.0 need to sample only once
+	if ((int)ofGetElapsedTimef() % 4 == 0) {
+		int realTrackedPerson = getNumberOfTrackedBodies();
+
+		if (realTrackedPerson > 0) {
+			timeSinceLastTimeAPersonWasInFrame = ofGetElapsedTimef();
+		}
+	}
+
+	float delta = ofGetElapsedTimef() - timeSinceLastTimeAPersonWasInFrame;
+
+	//Only on auto pilot (doJumpBetweenStates) we set those modes
+	if (delta >= TIMEOUT_KINECT_PEOPLE_FILTER && kinectFilterUsers.get() && doJumpBetweenStates) {
+		ofLogWarning("No person found. moving to background mode");
+		kinectFilterUsers.set(false);
+		return;
+	}
+
+	//Only on auto pilot (doJumpBetweenStates) we set those modes
+	if (delta < TIMEIN_KINECT_PEOPLE_FILTER && !kinectFilterUsers.get() && doJumpBetweenStates) {
+		ofLogWarning("Person found. Removing background");
+		kinectFilterUsers.set(true);
+	}
+}
+
+int ofApp::getNumberOfTrackedBodies() {
+	int result = 0;
+#ifdef _WIN32
+	const vector<ofxKinectForWindows2::Data::Body> bodies = kinect.getBodySource()->getBodies();
+	for (int i = 0; i < bodies.size(); i++) {
+		result += (bodies[i].tracked ? 1 : 0);
+	}
+#endif
+	return result;
 }
 
 void ofApp::updateJumpBetweenStates() {
@@ -643,6 +713,41 @@ void ofApp::updateOscMessages() {
 			}
 		}
 
+		if (m.getAddress() == "/1/kinect_filter_users") {
+			kinectFilterUsers.set(m.getArgAsBool(0));
+		}
+
+		if (m.getAddress() == "/1/ps_eye_raw_optical_flow") {
+			psEyeRawOpticalFlow.set(m.getArgAsBool(0));
+		}
+
+		if (m.getAddress() == "/1/draw") {
+			float y = m.getArgAsFloat(0);
+			float x = m.getArgAsFloat(1);
+			ofApp::setMousePosition(x, y);
+		}
+
+		if (m.getAddress() == "/1/toggle_draw") {
+			bool isOn = m.getArgAsBool(0);
+			if (isOn) {
+				ofxMouse::MouseEvent(ofxMouse::LeftDown);
+			}
+			else {
+				ofxMouse::MouseEvent(ofxMouse::LeftUp);
+			}
+		}
+
+		if (m.getAddress() == "/1/toggle_sticky") {
+			bool isOn = m.getArgAsBool(0);
+			if (isOn) {
+				ofxMouse::MouseEvent(ofxMouse::RightDown);
+			}
+			else {
+				ofxMouse::MouseEvent(ofxMouse::RightUp);
+			}
+		}
+
+
 		if (m.getAddress() == "/settings/transition_time" &&
             m.getArgAsBool(0) == true) {
 			transitionTime.set(m.getArgAsFloat(0));
@@ -678,6 +783,20 @@ void ofApp::updateOscMessages() {
 			startTransition(relateiveDataPath + "settings" + std::to_string(oldSettingsFileIndex) + ".xml",
 				relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex) + ".xml");
 		}
+
+		if (m.getAddress() == "/settings/flip_ir_camera" &&
+			m.getArgAsBool(0) == true) {
+			if (isPsEyeSource()) {
+				doFlipCamera = !doFlipCamera;
+			}
+		}
+
+		if (m.getAddress() == "/settings/ir_autogain") {
+			useAgc.set(m.getArgAsBool(0));
+			if (eye) {
+				eye->setAutogain(useAgc);
+			}
+		}
         
         //If the user send a manual command - auto pilot will turn off
         if(doJumpBetweenStates == 1) {
@@ -686,15 +805,26 @@ void ofApp::updateOscMessages() {
         }
 	}
     
-    //Activate auto pilot to on if no message was received for a given period (5 minutes) and no auto pilot is set yet
+    //Activate auto pilot to on if no message was received for a given period (30 seconds) and no auto pilot is set yet
     float timeSinceLastMessage = ofGetElapsedTimef() - lastOscMessageTime;
-    if(timeSinceLastMessage >= 300 && doJumpBetweenStates.get() != 1) {
+    if(timeSinceLastMessage >= AUTO_PILOT_TIMEOUT && doJumpBetweenStates.get() != 1) {
         lastOscMessageTime = ofGetElapsedTimef();
         doJumpBetweenStates.set(1);
-        ofLogWarning("No osc message received for the last 5 minutes. moving to auto pilot");
+        ofLogWarning("No osc message received for the last 15 seconds. moving to auto pilot");
     }
 }
 
+void ofApp::setMousePosition(float x, float y) {
+	int windowX = ofGetWindowPositionX();
+	int windowY = ofGetWindowPositionY();
+	int windowMaxX = windowX + ofGetWindowWidth() - 1;
+	int windowMaxY = windowY + ofGetWindowHeight() - 1;
+
+	int xPosition = ofMap(x, 0, 1, windowX, windowMaxX);
+	int yPosition = ofMap(y, 0, 1, windowY, windowMaxY);
+
+	ofxMouse::SetCursorPosition(xPosition, yPosition);
+}
 
 void ofApp::startTransition(string settings1Path, string settings2Path) {
 	transitionStartTime = ofGetElapsedTimef();

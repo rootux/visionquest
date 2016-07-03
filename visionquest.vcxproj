@@ -126,7 +126,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <AdditionalDependencies>%(AdditionalDependencies);src\libusb\lib\vs\x64\Release\dll\libusb-1.0.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);src\libusb\lib\vs\x64\Release\dll</AdditionalLibraryDirectories>
@@ -167,7 +167,7 @@
     <Link>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -293,6 +293,7 @@
     <ClInclude Include="src\ofxColorize.h" />
     <ClInclude Include="src\ofxColorize2d.h" />
     <ClInclude Include="src\ofxColorize3d.h" />
+    <ClInclude Include="src\ofxMouse.h" />
     <ClInclude Include="src\ofxRecolor.h" />
     <ClInclude Include="src\ps3eye.h" />
     <ClInclude Include="src\ps3eye_capi.h" />

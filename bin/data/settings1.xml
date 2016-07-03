@@ -6,7 +6,7 @@
 	<draw_mode>0</draw_mode>
 	<MODE>Composite      (1)</MODE>
 	<optical_flow>
-		<strength>48.4082</strength>
+		<strength>40.4082</strength>
 		<offset>3</offset>
 		<lambda>0.01</lambda>
 		<threshold>0.02</threshold>
@@ -162,4 +162,6 @@
 	</velocity_dots>
 	<settings_transition>
 	</settings_transition>
+	<psEye_raw_flow>1</psEye_raw_flow>
+	<Users-only_kinect_filter>1</Users-only_kinect_filter>
 </settings>

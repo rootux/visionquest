@@ -1,6 +1,12 @@
 # visionquest
 Midburn 2016 Kinect Art Installation
 
+Visuals & Info
+---
+https://www.youtube.com/channel/UC-Nq--JUlaVVTsBCXkxONbg
+
+http://www.headstart.co.il/project.aspx?id=18813&lan=en-US
+
 Info
 ---
 Based on openframeworks. Using the kinect sensor we create a depth image into openframeworks

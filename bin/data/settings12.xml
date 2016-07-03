@@ -42,7 +42,7 @@
 	</velocity_mask>
 	<fluid_solver>
 		<reset>0</reset>
-		<speed>19.3878</speed>
+		<speed>1.5</speed>
 		<cell_size>0.387755</cell_size>
 		<iterations>37</iterations>
 		<viscosity>1</viscosity>
@@ -70,7 +70,7 @@
 	</fluid_solver>
 	<particle_flow>
 		<active>1</active>
-		<speed>19.3878</speed>
+		<speed>1.5</speed>
 		<cell_size>0.387755</cell_size>
 		<birth_chance>0.5</birth_chance>
 		<birth_velocity_chance>0.688776</birth_velocity_chance>
@@ -159,4 +159,7 @@
 		<min_dot_size>2</min_dot_size>
 		<max_dot_size>10</max_dot_size>
 	</velocity_dots>
+	<PsEye_Camera_num__x_>0</PsEye_Camera_num__x_>
+	<psEye_raw_flow>1</psEye_raw_flow>
+	<Users-only_kinect_filter>1</Users-only_kinect_filter>
 </settings>

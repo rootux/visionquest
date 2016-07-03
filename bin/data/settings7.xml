@@ -9,7 +9,7 @@
 	<draw_mode>0</draw_mode>
 	<MODE>Composite      (1)</MODE>
 	<optical_flow>
-		<strength>73</strength>
+		<strength>45</strength>
 		<offset>3</offset>
 		<lambda>0.01</lambda>
 		<threshold>0.00918367</threshold>
@@ -48,7 +48,7 @@
 		<iterations>37</iterations>
 		<viscosity>0.1</viscosity>
 		<vorticity>0.112245</vorticity>
-		<dissipation>0.00709184</dissipation>
+		<dissipation>0.002</dissipation>
 		<advanced_dissipation>
 			<velocity_offset>-0.001</velocity_offset>
 			<density_offset>0</density_offset>
@@ -163,4 +163,6 @@
 		<min_dot_size>2</min_dot_size>
 		<max_dot_size>10</max_dot_size>
 	</velocity_dots>
+	<psEye_raw_flow>1</psEye_raw_flow>
+	<Users-only_kinect_filter>1</Users-only_kinect_filter>
 </settings>
