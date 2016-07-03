@@ -161,6 +161,6 @@
 		<Transition_mode>0</Transition_mode>
 		<Transition_time>4</Transition_time>
 		<Jump_between_states>1</Jump_between_states>
-		<Jump_between_interval>30</Jump_between_interval>
+		<Jump_between_interval>300</Jump_between_interval>
 	</settings_transition>
 </settings>
