@@ -15,15 +15,12 @@
 #include "ofxColorize2d.h"
 #include "ofxColorize3d.h"
 
+
 class ofxRecolor {
     std::vector<ofTexture> textures1d;
     std::vector<ofTexture> textures2d;
     
     unsigned int textureIndex1d;
-    unsigned int currentTexture1d;
-    unsigned int nextTexture1d;
-    unsigned int currentTexture2d;
-    unsigned int nextTexture2d;
     // current texture swapping process. We tie the animations for both 2d and 1d in the same way
     float swapStartTime;
     float swapEndTime;
@@ -53,6 +50,27 @@ class ofxRecolor {
             noise1d.setColor(i, 0, color);
         }
         noise1dTexture.loadData(noise1d);
+    }
+    
+    void onNextTemplate1d(int &newTexture1d) {
+        // Only when user manually sets the template
+        if(!animateTextures) {
+            currentTexture1d = nextTexture1d = newTexture1d;
+        }
+    }
+    
+    // Make sure we're animating to the same texture
+    void onAnimateTextureChanged(bool &isOn) {
+        if(!isOn) {
+            currentTexture1d = nextTexture1d;
+        }
+    }
+    
+    void onNextTemplate2d(int &newTexture2d) {
+        // Only when user manually sets the template
+        if(!animateTextures) {
+            currentTexture2d = nextTexture2d = newTexture2d;
+        }
     }
     
     ofTexture& getLastTexture1d() {
@@ -143,6 +161,11 @@ public:
     ofParameter<bool> animateRotation;
     ofParameter<float> externalOffsetScale;
     ofParameter<float> externalOffsetSmooth;
+    ofParameter<int> currentTexture1d;
+    ofParameter<int> currentTexture2d;
+    ofParameter<int> nextTexture1d;
+    ofParameter<int> nextTexture2d;
+    ofParameter<bool> animateTextures;
     
     ofxRecolor() {
         textureIndex1d = 0;
@@ -191,6 +214,12 @@ public:
         
         parameters.setName("recolor");
         parameters.add(active.set("Active", true));
+        parameters.add(nextTexture1d.set("Current Texture 1d", 0, 0, textures1d.size() - 1));
+        nextTexture1d.addListener(this, &ofxRecolor::onNextTemplate1d);
+        parameters.add(currentTexture2d.set("Current Texture 2d", 0, 0, textures2d.size() - 1));
+        currentTexture2d.addListener(this, &ofxRecolor::onNextTemplate2d);
+        parameters.add(animateTextures.set("Animate Textures", true));
+        animateTextures.addListener(this, &ofxRecolor::onAnimateTextureChanged);
         //parameters.add(use2d.set("2D recoloring", false));
         parameters.add(noiseDimension.set("Noise Dimension", 1, 1, 3));
         parameters.add(useNoise.set("Use Noise", false));
@@ -242,10 +271,12 @@ public:
             if (ofGetElapsedTimef() >= swapEndTime) {
                 swapStartTime = ofGetElapsedTimef();
                 swapEndTime = swapStartTime + ofRandom(5,15);
-                currentTexture1d = nextTexture1d;
-                currentTexture2d = nextTexture2d;
-                nextTexture2d = (int)ofRandom(0, textures2d.size() - 0.001);
-                nextTexture1d = (int)ofRandom(0, textures1d.size() - 0.001);
+                if(animateTextures) {
+                    currentTexture1d = nextTexture1d;
+                    currentTexture2d = nextTexture2d;
+                    nextTexture2d = (int)ofRandom(0, textures2d.size() - 0.001);
+                    nextTexture1d = (int)ofRandom(0, textures1d.size() - 0.001);
+                }
             }
             
             updateNoise();

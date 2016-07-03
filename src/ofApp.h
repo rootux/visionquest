@@ -302,6 +302,8 @@ public:
 	bool				shouldStartPsEyeCam;
 
 	void				setMousePosition(float x, float y);
+    void                jumpToNextPattern();
+
 
 
 };

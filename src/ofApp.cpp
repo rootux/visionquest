@@ -606,10 +606,6 @@ void ofApp::updateOscMessages() {
 			oscRemoteServerIpAddress = m.getRemoteIp();
 			//oscSender.setup(oscRemoteServerIpAddress, PORT_SERVER);
 		}
-
-		if (m.getAddress() == "helo") {
-			
-		}
 			
 		if (m.getAddress() == "/1/strength") {
 			opticalFlow.setStrength(m.getArgAsFloat(0));
@@ -746,6 +742,15 @@ void ofApp::updateOscMessages() {
 				ofxMouse::MouseEvent(ofxMouse::RightUp);
 			}
 		}
+        
+        if (m.getAddress() == "/1/next_pattern" &&
+            m.getArgAsBool(0) == true) {
+            jumpToNextPattern();
+        }
+        
+        if (m.getAddress() == "/1/animate_pattern") {
+            recolor.animateTextures.set(m.getArgAsBool(0));
+        }
 
 
 		if (m.getAddress() == "/settings/transition_time" &&
@@ -1089,16 +1094,16 @@ void ofApp::keyPressed(int key) {
 	}
 	break;
 	case 's':
-		increaseParameter(recolor.cutoff, 0.0001);
-		break;
-	case 'S':
 		increaseParameter(recolor.cutoff, 0.001);
 		break;
+	case 'S':
+		increaseParameter(recolor.cutoff, 0.01);
+		break;
 	case 'a':
-		decreaseParameter(recolor.cutoff, 0.0001);
+		decreaseParameter(recolor.cutoff, 0.001);
 		break;
 	case 'A':
-		decreaseParameter(recolor.cutoff, 0.001);
+		decreaseParameter(recolor.cutoff, 0.01);
 		break;
 	case 'K':
 	case 'k':
@@ -1150,6 +1155,11 @@ void ofApp::jumpToNextEffect() {
 	loadSettingsFileIndex = ofApp::getNextSettingsCounter();
 	startTransition(relateiveDataPath + "settings" + std::to_string(oldSettingsFileIndex) + ".xml",
 		relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex) + ".xml");
+}
+    
+void ofApp::jumpToNextPattern() {
+    recolor.nextTexture1d.set((recolor.nextTexture1d.get() + 1) % (recolor.nextTexture1d.getMax() + 1));
+    recolor.nextTexture2d.set((recolor.nextTexture2d.get() + 1) % (recolor.nextTexture2d.getMax() + 1));
 }
 
 //--------------------------------------------------------------
