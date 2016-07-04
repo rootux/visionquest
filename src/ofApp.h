@@ -138,8 +138,7 @@ public:
     ftVelocityOffset    velocityOffset;
 	ftDrawMaskedShader  drawMaskedShader;
 
-	ofImage				flowToolsLogoImage;
-	bool				showLogo;
+	ofImage				logoImage;
 
 	// MouseDraw
 	ftDrawMouseForces	mouseForces;
@@ -186,6 +185,8 @@ public:
 	deque<float>		deltaTimeDeque;
 	ofParameter<bool>	doFullScreen;
 	void				setFullScreen(bool& _value) { ofSetFullscreen(_value); }
+    
+    ofParameter<bool>   showLogo;
 
 	ofParameterGroup	settingsGroup;
 	ofxButton			multiSaveButton;

@@ -51,9 +51,10 @@ void ofApp::setup() {
 	fluidSimulation.setup(flowWidth, flowHeight, internalWidth, internalHeight);
 	particleFlow.setup(flowWidth, flowHeight, internalWidth, internalHeight);
 
-	//flowToolsLogoImage.load("flowtools.png");
-	//fluidSimulation.addObstacle(flowToolsLogoImage.getTexture());
-	showLogo = false;
+	logoImage.load("watermark.png");
+//    if(showLogo) {
+//        fluidSimulation.addObstacle(logoImage.getTexture());
+//    }
 
 	velocityDots.setup(flowWidth / 4, flowHeight / 4);
 
@@ -254,6 +255,7 @@ void ofApp::setupGui() {
 	gui.add(psEyeRawOpticalFlow.set("psEye raw flow", true));
 	gui.add(useAgc.set("psEye AGC", true));
 	gui.add(kinectFilterUsers.set("Users-only kinect filter", false));
+    gui.add(showLogo.set("Show logo", false));
 	kinectFilterUsers.addListener(this, &ofApp::onUserOnlyKinectFilter);
 	psEyeCameraIndex.addListener(this, &ofApp::psEyeCameraChanged);
 	sourceMode.addListener(this, &ofApp::sourceChanged);
@@ -995,7 +997,9 @@ void ofApp::loadNextSettingsFile(string settingsToPathArg) {
 
 void ofApp::reset() {
 	fluidSimulation.reset();
-	//fluidSimulation.addObstacle(flowToolsLogoImage.getTexture());
+//    if(showLogo) {
+//        fluidSimulation.addObstacle(logoImage.getTexture());
+//    }
 	mouseForces.reset();
 }
 
@@ -1274,7 +1278,7 @@ void ofApp::drawComposite(int _x, int _y, int _width, int _height) {
 		particleFlow.draw(_x, _y, _width, _height, fluidSimulation.getVelocity());
 
 	if (showLogo) {
-		flowToolsLogoImage.draw(_x, _y, _width, _height);
+		logoImage.draw(_width - logoImage.getWidth(), _height-logoImage.getHeight(), logoImage.getWidth(), logoImage.getHeight());
 	}
 
 	ofPopStyle();
@@ -1287,6 +1291,10 @@ void ofApp::drawParticles(int _x, int _y, int _width, int _height) {
 	if (particleFlow.isActive())
 		particleFlow.draw(_x, _y, _width, _height, fluidSimulation.getVelocity());
 	ofPopStyle();
+    
+    if (showLogo) {
+        logoImage.draw(_width - logoImage.getWidth(), _height-logoImage.getHeight(), logoImage.getWidth(), logoImage.getHeight());
+    }
 }
 
 //--------------------------------------------------------------
@@ -1311,6 +1319,10 @@ void ofApp::drawFluidDensity(int _x, int _y, int _width, int _height) {
 	fluidSimulation.draw(_x, _y, _width, _height);
 
 	ofPopStyle();
+    
+    if (showLogo) {
+        logoImage.draw(_width - logoImage.getWidth(), _height-logoImage.getHeight(), logoImage.getWidth(), logoImage.getHeight());
+    }
 }
 
 //--------------------------------------------------------------

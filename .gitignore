@@ -13,6 +13,7 @@
 !/bin/data/*.touchosc
 !/bin/data/old_setttings/
 !/bin/data/oscrouter.osc.txt
+!/bin/data/watermark.png
 
 # User-specific files
 *.suo
