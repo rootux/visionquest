@@ -822,8 +822,8 @@ void ofApp::updateOscMessages() {
 void ofApp::setMousePosition(float x, float y) {
 	int windowX = ofGetWindowPositionX();
 	int windowY = ofGetWindowPositionY();
-	int windowMaxX = windowX + ofGetWindowWidth() - 1;
-	int windowMaxY = windowY + ofGetWindowHeight() - 1;
+	int windowMaxX = windowX + ofGetWindowWidth() - 20; //-20 So we won't hit the borders
+	int windowMaxY = windowY + ofGetWindowHeight() - 20;
 
 	int xPosition = ofMap(x, 0, 1, windowX, windowMaxX);
 	int yPosition = ofMap(y, 0, 1, windowY, windowMaxY);

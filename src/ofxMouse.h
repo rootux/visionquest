@@ -26,10 +26,20 @@ public:
 #ifdef _WIN32
 		SetCursorPos(x, y);
 #else
-        // TODO
+        CGPoint pt;
+        pt.x = x;
+        pt.y = y;
+        
+        CGSetLocalEventsSuppressionInterval(0);
+        CGWarpMouseCursorPosition(pt);
+        
+        //In mac we click on set cursor position - lazy alert
+        CGPostMouseEvent( pt, 1, 1, 1 );
+        CGPostMouseEvent( pt, 1, 1, 0 );
 #endif
 	}
-
+    
+    
 	static void MouseEvent(MouseEventFlags value) {
 #ifdef _WIN32
 		POINT curPos[2];
@@ -41,7 +51,7 @@ public:
 			0,
 			0);
 #else
-        // TODO
+        //In mac we use the SetCursorPosition to also click
 #endif
 	}
 };
