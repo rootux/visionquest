@@ -100,15 +100,14 @@ void ofApp::setup() {
 
 	lastTime = ofGetElapsedTimef();
 
-	doFullScreen.set(0);
-
+	doFullScreen.set(1);
+    
 	oscReceiver.setup(oscPort);
     lastOscMessageTime = ofGetElapsedTimef();
 	if (shouldStartPsEyeCam) {
 		sourceMode = SOURCE_PS3EYE;
 	}
 }
-
 void ofApp::setupPsEye() {
 	try {
 		using namespace ps3eye;
@@ -340,7 +339,6 @@ void ofApp::setupGui() {
 
 	gui.minimizeAll();
 	toggleGuiDraw = false;
-
 }
 
 int ofApp::getNumberOfSettingsFile() {
