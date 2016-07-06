@@ -758,8 +758,10 @@ void ofApp::updateOscMessages() {
 			transitionTime.set(m.getArgAsFloat(0));
 		}
 
-		if (m.getAddress() == "/settings/jump_between_states_time") {
-			jumpBetweenStatesInterval.set(m.getArgAsFloat(0));
+		if (m.getAddress() == "/settings/jump_between_states_min") {
+            int seconds = ((int)jumpBetweenStatesInterval.get() % 60);
+            float totalTime = (m.getArgAsInt(0) * 60) + seconds;
+			jumpBetweenStatesInterval.set(totalTime);
 			
 			//TODO: check why after 2 minutes its Crashing the system
 			//float now = ofGetElapsedTimef();
@@ -768,6 +770,12 @@ void ofApp::updateOscMessages() {
 			//	timeSinceLastOscMessage = now;
 			//}
 		}
+        
+        if (m.getAddress() == "/settings/jump_between_states_sec") {
+            int minutes = floor(jumpBetweenStatesInterval / 60);
+            float totalTime = (minutes * 60) + m.getArgAsInt(0);
+            jumpBetweenStatesInterval.set(totalTime);
+        }
 
 		if (m.getAddress() == "/settings/animate") {
 			doJumpBetweenStates.set(m.getArgAsBool(0));
@@ -796,8 +804,9 @@ void ofApp::updateOscMessages() {
 			}
 		}
 
-		if (m.getAddress() == "/settings/ir_autogain") {
-			useAgc.set(m.getArgAsBool(0));
+        if (m.getAddress() == "/settings/ir_autogain" &&
+            m.getArgAsBool(0) == true) {
+			useAgc.set(!useAgc);
 			if (eye) {
 				eye->setAutogain(useAgc);
 			}
@@ -814,10 +823,10 @@ void ofApp::updateOscMessages() {
         }
         
         //If the user send a manual command - auto pilot will turn off
-        if(doJumpBetweenStates == 1) {
-            ofLogWarning("User took control. got osc message. auto pilot turned off");
-            doJumpBetweenStates.set(0);
-        }
+//        if(doJumpBetweenStates == 1) {
+//            ofLogWarning("User took control. got osc message. auto pilot turned off");
+//            doJumpBetweenStates.set(0);
+//        }
 	}
     
 //    Activate auto pilot to on if no message was received for a given period (30 seconds) and no auto pilot is set yet
