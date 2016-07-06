@@ -7,8 +7,8 @@ static const int ITUR_BT_601_CVG = -852492;
 static const int ITUR_BT_601_CVR = 1673527;
 static const int ITUR_BT_601_SHIFT = 20;
 
-#define TIMEOUT_KINECT_PEOPLE_FILTER 20
-#define TIMEIN_KINECT_PEOPLE_FILTER 20
+#define TIMEOUT_KINECT_PEOPLE_FILTER 60
+#define TIMEIN_KINECT_PEOPLE_FILTER 60
 #define AUTO_PILOT_TIMEOUT 300
 
 // a pretty useful tokenization systes. equal to str.split
