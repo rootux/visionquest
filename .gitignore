@@ -14,6 +14,11 @@
 !/bin/data/old_setttings/
 !/bin/data/oscrouter.osc.txt
 !/bin/data/watermark.png
+/bin/data/settings/*
+!/bin/data/settings/*.xml
+/bin/data/settings/pseyesettings/*
+!/bin/data/settings/pseyesettings/
+!/bin/data/settings/pseyesettings/*.xml
 
 # User-specific files
 *.suo
