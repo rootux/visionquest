@@ -11,6 +11,8 @@ Transition_time which is a child of settings_transition
 elementsToRemove =['fullscreen__F_','show_gui__G_',
 'Source_mode__z_',
 'Send_to_Spout',
+'average_FPS',
+'minimum_FPS',
 './/settings_transition/Transition_time',
 './/settings_transition/Settings_file',
 './/settings_transition/Jump_between_interval',
@@ -27,7 +29,7 @@ SETTINGS_FILE_NAME = 'settings.xml'
 def clean(subFolder=''):
     currentDir = os.path.dirname(os.path.realpath(__file__))
     if(subFolder):
-        os.path.join(currentDir, subFolder)
+        currentDir = os.path.join(currentDir, subFolder)
     print(currentDir)
 
     for filename in os.listdir(currentDir):
