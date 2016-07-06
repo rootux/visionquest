@@ -27,16 +27,16 @@ SETTINGS_FILE_NAME = 'settings.xml'
 def clean(subFolder=''):
     currentDir = os.path.dirname(os.path.realpath(__file__))
     if(subFolder):
-        currentDir+='\\'+subFolder
+        os.path.join(currentDir, subFolder)
     print(currentDir)
 
-    for filename in os.listdir(currentDir+'\\'):
+    for filename in os.listdir(currentDir):
         if not filename.endswith('.xml') or filename.endswith(SETTINGS_FILE_NAME):
             continue
         print ('Cleaning {}'.format(filename))
         cleanFile(os.path.join(currentDir,filename), elementsToRemove)
 
-    settingsXmlFile = currentDir+'\\'+SETTINGS_FILE_NAME
+    settingsXmlFile = os.path.join(currentDir, SETTINGS_FILE_NAME)
     if(os.path.isfile(settingsXmlFile)):
         cleanFile(settingsXmlFile , elementsToRemoveSettingsXml)
 
@@ -55,4 +55,3 @@ def cleanFile(filename, elementsToBeRemove):
 if __name__ == '__main__':
     clean()
     clean('pseyesettings')
-    input("Done. Pressed any key to close.")
