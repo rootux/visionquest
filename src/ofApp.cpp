@@ -7,8 +7,8 @@ static const int ITUR_BT_601_CVG = -852492;
 static const int ITUR_BT_601_CVR = 1673527;
 static const int ITUR_BT_601_SHIFT = 20;
 
-#define TIMEOUT_KINECT_PEOPLE_FILTER 700
-#define TIMEIN_KINECT_PEOPLE_FILTER 600
+#define TIMEOUT_KINECT_PEOPLE_FILTER 20
+#define TIMEIN_KINECT_PEOPLE_FILTER 20
 #define AUTO_PILOT_TIMEOUT 300
 
 // a pretty useful tokenization systes. equal to str.split
@@ -810,8 +810,8 @@ void ofApp::updateOscMessages() {
         }
 	}
     
-    //Activate auto pilot to on if no message was received for a given period (30 seconds) and no auto pilot is set yet
-    float timeSinceLastMessage = ofGetElapsedTimef() - lastOscMessageTime;
+//    Activate auto pilot to on if no message was received for a given period (30 seconds) and no auto pilot is set yet
+//    float timeSinceLastMessage = ofGetElapsedTimef() - lastOscMessageTime;
 //    if(timeSinceLastMessage >= AUTO_PILOT_TIMEOUT && doJumpBetweenStates.get() != 1) {
 //        lastOscMessageTime = ofGetElapsedTimef();
 //        doJumpBetweenStates.set(1);
@@ -1581,7 +1581,7 @@ void ofApp::MultiSavePressed(const void * sender) {
 }
 
 void ofApp::setMacRelativePath(const string& filename) {
-    relateiveDataPath = dirnameOf(filename) + "/Resources/data/";
+    relateiveDataPath = dirnameOf(filename) + "/Resources/data/settings/";
     ofLogWarning(ofToString(filename));
     relateiveKinectDataPath = relateiveDataPath;
     ofLogWarning(ofToString(relateiveKinectDataPath));
@@ -1589,7 +1589,7 @@ void ofApp::setMacRelativePath(const string& filename) {
 }
     
 void ofApp::setRelativePath(const char *filename) {
-	relateiveDataPath = dirnameOf(filename) + "\\data\\";
+	relateiveDataPath = dirnameOf(filename) + "\\data\\settings\\";
 	relateiveKinectDataPath = relateiveDataPath;
 	relateivePsEyeDataPath = relateiveDataPath + "\\pseyesettings\\";
 }
