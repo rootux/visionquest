@@ -15,6 +15,10 @@
 !/bin/data/oscrouter.osc.txt
 !/bin/data/watermark.png
 /bin/data/settings/*
+!/bin/data/clean_settings_files.py
+!/bin/data/clean_settings_files.sh
+!/bin/data/settings/clean_settings_files.py
+!/bin/data/settings/clean_settings_files.sh
 !/bin/data/settings/*.xml
 /bin/data/settings/pseyesettings/*
 !/bin/data/settings/pseyesettings/
