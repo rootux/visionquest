@@ -190,7 +190,7 @@ public:
 
 	ofParameterGroup	settingsGroup;
 	ofxButton			multiSaveButton;
-
+    
 	void				MultiSavePressed(const void * sender);
 
 	void				sourceChanged(int& value);
@@ -304,7 +304,8 @@ public:
 
 	void				setMousePosition(float x, float y);
     void                jumpToNextPattern();
-
+    void                updateSettingFile();
+    void                cleanCurrentSettingFile();
 
 
 };

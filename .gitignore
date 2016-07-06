@@ -19,6 +19,7 @@
 !/bin/data/clean_settings_files.sh
 !/bin/data/settings/clean_settings_files.py
 !/bin/data/settings/clean_settings_files.sh
+!/bin/data/settings/clean_settings_files.bat
 !/bin/data/settings/*.xml
 /bin/data/settings/pseyesettings/*
 !/bin/data/settings/pseyesettings/

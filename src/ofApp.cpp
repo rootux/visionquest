@@ -231,7 +231,7 @@ void ofApp::setupGui() {
 	settingsGroup.add(doJumpBetweenStates.set("Jump between states", false));
 	doJumpBetweenStates.addListener(this, &ofApp::startJumpBetweenStates);
 	settingsGroup.add(jumpBetweenStatesInterval.set("Jump between interval", 0, 0, 720));
-
+    
 	gui.add(settingsGroup);
 
 	gui.add(guiFPS.set("average FPS", 0, 0, 60));
@@ -377,7 +377,7 @@ void ofApp::onUserOnlyKinectFilter(bool& isOn) {
 }
 
 /*
-Whenever a source is changed we are loading a different settins file.
+Whenever a source is changed we are loading a different setting file.
 one from bin/data for the kinect
 second from bin/data/pseyesettings for the pseye
 */
@@ -802,6 +802,16 @@ void ofApp::updateOscMessages() {
 				eye->setAutogain(useAgc);
 			}
 		}
+        
+        if (m.getAddress() == "/settings/show_logo") {
+            showLogo.set(m.getArgAsBool(0));
+        }
+
+        
+        if (m.getAddress() == "/settings/update_setting_file" &&
+            m.getArgAsBool(0) == true) {
+            updateSettingFile();
+        }
         
         //If the user send a manual command - auto pilot will turn off
         if(doJumpBetweenStates == 1) {
@@ -1578,6 +1588,43 @@ void ofApp::MultiSavePressed(const void * sender) {
 
 	gui.saveToFile(relateiveDataPath + "settings" + std::to_string(lastSaveFileCounter) + ".xml");
 	loadSettingsFileNumber = lastSaveFileCounter;
+}
+    
+void ofApp::updateSettingFile() {
+    string filePath = relateiveDataPath + "settings" + std::to_string(loadSettingsFileIndex) + ".xml";
+    ofLogWarning("Updating settings file " + ofToString(filePath));
+    gui.saveToFile(filePath);
+    cleanCurrentSettingFile();
+}
+    
+void ofApp::cleanCurrentSettingFile()
+{
+    string shPath;
+#ifdef _WIN32
+    string fileName = "clean_settings_files.sh";
+#else
+    string fileName = "clean_settings_files.bat";
+#endif
+    
+    shPath = relateiveDataPath + fileName;
+    
+    char *shPathChar;
+    shPathChar = new char[ shPath.length() + 1 ];
+    
+    strcpy( shPathChar, shPath.c_str() );
+    int pid = fork();
+
+    switch ( pid )
+    {
+        case -1 :
+            cout << "Uh-Oh! fork() failed. cleaning files failed\n" << endl;
+            
+        case  0 :
+            execl( shPathChar, shPathChar, NULL );
+            
+        default :
+            return;
+    }
 }
 
 void ofApp::setMacRelativePath(const string& filename) {
