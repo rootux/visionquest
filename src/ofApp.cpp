@@ -1601,9 +1601,9 @@ void ofApp::cleanCurrentSettingFile()
 {
     string shPath;
 #ifdef _WIN32
-    string fileName = "clean_settings_files.sh";
-#else
     string fileName = "clean_settings_files.bat";
+#else
+    string fileName = "clean_settings_files.sh";
 #endif
     
     shPath = relateiveDataPath + fileName;
