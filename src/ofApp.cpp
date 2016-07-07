@@ -1608,21 +1608,20 @@ void ofApp::updateSettingFile() {
     
 void ofApp::cleanCurrentSettingFile()
 {
-    string shPath;
 #ifdef _WIN32
     string fileName = "clean_settings_files.bat";
+    string shPath = relateiveDataPath + fileName;
+    WinExec("cmd \""+shPath+\"",SW_SHOW_MINIMIZED);
 #else
     string fileName = "clean_settings_files.sh";
-#endif
-    
-    shPath = relateiveDataPath + fileName;
+    string shPath = relateiveDataPath + fileName;
     
     char *shPathChar;
     shPathChar = new char[ shPath.length() + 1 ];
     
     strcpy( shPathChar, shPath.c_str() );
     int pid = fork();
-
+    
     switch ( pid )
     {
         case -1 :
@@ -1634,6 +1633,7 @@ void ofApp::cleanCurrentSettingFile()
         default :
             return;
     }
+#endif
 }
 
 void ofApp::setMacRelativePath(const string& filename) {
