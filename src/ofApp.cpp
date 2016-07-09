@@ -572,7 +572,7 @@ void ofApp::checkIfPersonIdentified() {
 
 int ofApp::getNumberOfTrackedBodies() {
 	int result = 0;
-#ifdef _WIN32
+#ifdef KINECT
 	const vector<ofxKinectForWindows2::Data::Body> bodies = kinect.getBodySource()->getBodies();
 	for (int i = 0; i < bodies.size(); i++) {
 		result += (bodies[i].tracked ? 1 : 0);
