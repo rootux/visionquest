@@ -38,8 +38,9 @@ def clean(subFolder=''):
         print ('Cleaning {}'.format(filename))
         cleanFile(os.path.join(currentDir,filename), elementsToRemove)
 
-    settingsXmlFile = os.path.join(currentDir, SETTINGS_FILE_NAME)
+    settingsXmlFile = os.path.join(os.path.dirname(currentDir), SETTINGS_FILE_NAME)
     if(os.path.isfile(settingsXmlFile)):
+        print ('Cleaning {}'.format(SETTINGS_FILE_NAME))
         cleanFile(settingsXmlFile , elementsToRemoveSettingsXml)
 
 def cleanFile(filename, elementsToBeRemove):
