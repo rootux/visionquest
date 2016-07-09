@@ -572,7 +572,7 @@ void ofApp::checkIfPersonIdentified() {
 
 int ofApp::getNumberOfTrackedBodies() {
 	int result = 0;
-#ifdef _WIN32
+#ifdef KINECT
 	const vector<ofxKinectForWindows2::Data::Body> bodies = kinect.getBodySource()->getBodies();
 	for (int i = 0; i < bodies.size(); i++) {
 		result += (bodies[i].tracked ? 1 : 0);
@@ -1609,9 +1609,11 @@ void ofApp::updateSettingFile() {
 void ofApp::cleanCurrentSettingFile()
 {
 #ifdef _WIN32
+#define SW_SHOW_MINNOACTIVE 7
     string fileName = "clean_settings_files.bat";
     string shPath = relateiveDataPath + fileName;
-    WinExec("cmd \""+shPath+\"",SW_SHOW_MINIMIZED);
+	string fullCommand = "cmd \"" + shPath + "\"";
+    WinExec(fullCommand.c_str(), SW_SHOW_MINNOACTIVE);
 #else
     string fileName = "clean_settings_files.sh";
     string shPath = relateiveDataPath + fileName;
@@ -1647,7 +1649,7 @@ void ofApp::setMacRelativePath(const string& filename) {
 void ofApp::setRelativePath(const char *filename) {
 	relateiveDataPath = dirnameOf(filename) + "\\data\\settings\\";
 	relateiveKinectDataPath = relateiveDataPath;
-	relateivePsEyeDataPath = relateiveDataPath + "\\pseyesettings\\";
+	relateivePsEyeDataPath = relateiveDataPath + "pseyesettings\\";
 }
 
 bool ofApp::isFileExist(string fileName)
