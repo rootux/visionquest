@@ -69,6 +69,7 @@ class ofxRecolor {
     void onNextTemplate2d(int &newTexture2d) {
         // Only when user manually sets the template
         if(!animateTextures) {
+			if(nextTexture2d)
             currentTexture2d = nextTexture2d = newTexture2d;
         }
     }
@@ -216,8 +217,8 @@ public:
         parameters.add(active.set("Active", true));
         parameters.add(nextTexture1d.set("Current Texture 1d", 0, 0, textures1d.size() - 1));
         nextTexture1d.addListener(this, &ofxRecolor::onNextTemplate1d);
-        parameters.add(currentTexture2d.set("Current Texture 2d", 0, 0, textures2d.size() - 1));
-        currentTexture2d.addListener(this, &ofxRecolor::onNextTemplate2d);
+        parameters.add(nextTexture2d.set("Current Texture 2d", 0, 0, textures2d.size() - 1));
+		nextTexture2d.addListener(this, &ofxRecolor::onNextTemplate2d);
         parameters.add(animateTextures.set("Animate Textures", true));
         animateTextures.addListener(this, &ofxRecolor::onAnimateTextureChanged);
         //parameters.add(use2d.set("2D recoloring", false));
