@@ -1609,9 +1609,11 @@ void ofApp::updateSettingFile() {
 void ofApp::cleanCurrentSettingFile()
 {
 #ifdef _WIN32
+#define SW_SHOW_MINNOACTIVE 7
     string fileName = "clean_settings_files.bat";
     string shPath = relateiveDataPath + fileName;
-    WinExec("cmd \""+shPath+\"",SW_SHOW_MINIMIZED);
+	string fullCommand = "cmd \"" + shPath + "\"";
+    WinExec(fullCommand.c_str(), SW_SHOW_MINNOACTIVE);
 #else
     string fileName = "clean_settings_files.sh";
     string shPath = relateiveDataPath + fileName;

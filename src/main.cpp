@@ -46,7 +46,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR lpCmdline,
 #else
 int main(int argc, char** argv) {
 #endif
-
+	bool isShouldStartPsCam = false;
 	ofGLFWWindowSettings windowSettings;
 #ifdef USE_PROGRAMMABLE_GL
 	windowSettings.setGLVersion(4, 1);
@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
     int oscPort;
 #ifdef _WIN32
     WSADATA wsaData;
-    app->shouldStartPsEyeCam = true;
+	isShouldStartPsCam = true;
     if (WSAStartup(0x0101, &wsaData) == 0)
     {
         int availablePort = PORT;
@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
             availablePort++;
             dummyPort++;
             printf("Checking next available port %d...\r\n", availablePort);
-            app->shouldStartPsEyeCam = false;
+			isShouldStartPsCam = false;
             windowSettings.monitor = 1; // Second instance - Open on second monitor
         }
         
@@ -83,6 +83,7 @@ int main(int argc, char** argv) {
     
 	ofApp* app = new ofApp();
     app->oscPort = oscPort;
+	app->shouldStartPsEyeCam = isShouldStartPsCam;
 #ifdef _WIN32
     setAppPath(app);
 #else
