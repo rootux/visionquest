@@ -1649,7 +1649,7 @@ void ofApp::setMacRelativePath(const string& filename) {
 void ofApp::setRelativePath(const char *filename) {
 	relateiveDataPath = dirnameOf(filename) + "\\data\\settings\\";
 	relateiveKinectDataPath = relateiveDataPath;
-	relateivePsEyeDataPath = relateiveDataPath + "\\pseyesettings\\";
+	relateivePsEyeDataPath = relateiveDataPath + "pseyesettings\\";
 }
 
 bool ofApp::isFileExist(string fileName)
