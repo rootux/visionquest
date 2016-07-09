@@ -2,8 +2,6 @@
 	<settings_transition>
 		<Transition_mode>0</Transition_mode>
 		</settings_transition>
-	<average_FPS>48</average_FPS>
-	<minimum_FPS>35.3103</minimum_FPS>
 	<flip_camera>0</flip_camera>
 	<draw_camera__C_>0</draw_camera__C_>
 	<draw_mode>0</draw_mode>
