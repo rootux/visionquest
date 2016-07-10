@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef _WIN32
-//#define _KINECT
+#define _KINECT
 #endif
 
 #include <string>
