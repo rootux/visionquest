@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef _WIN32
-//#define _KINECT
+#define _KINECT
 #endif
 
 #include <string>
@@ -56,6 +56,7 @@ enum drawModeEnum {
 enum sourceModeEnum {
 	SOURCE_KINECT = 0,
 	SOURCE_PS3EYE,
+	SOURCE_VIDEO,
 	SOURCE_COUNT
 };
 
@@ -70,6 +71,7 @@ class ofApp : public ofBaseApp {
 public:
 	void	setup();
 	void	setupPsEye();
+	void	setupVideoSource();
 	void	update();
 	void	draw();
 	void	exit();
@@ -86,6 +88,7 @@ public:
 
 	bool				isKinectSource();
 	bool				isPsEyeSource();
+	bool				isVideoSource();
 	bool				isKinectAndPsEyeSource();
 
 
@@ -306,6 +309,6 @@ public:
     void                jumpToNextPattern();
     void                updateSettingFile();
     void                cleanCurrentSettingFile();
-
+	ofVideoPlayer		videoPlayer;
 
 };
