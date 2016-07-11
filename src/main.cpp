@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
 		}
     }
 #else
-    oscPort = PORT;
+    oscPort = PS_PORT;
 #endif
     
     ofCreateWindow(windowSettings);
