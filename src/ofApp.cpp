@@ -367,13 +367,14 @@ void ofApp::psEyeCameraChanged(int& index) {
 
 void ofApp::onUserOnlyKinectFilter(bool& isOn) {
 	if (isOn) {
+		//Only if there is a person set it on otherwise turn it back off
+		/*if (ofApp::getNumberOfTrackedBodies() <= 0) {
+			ofLogWarning("No person found in frame. turning off");
+			kinectFilterUsers.set(false);
+			return;
+		}*/
 		//reset last time a person was in frame
 		timeSinceLastTimeAPersonWasInFrame = ofGetElapsedTimef();
-
-		//Only if there is a person set it on otherwise turn it back off
-		if (ofApp::getNumberOfTrackedBodies() <= 0) {
-			kinectFilterUsers.set(false);
-		}
 	}
 	else {
 		//reset last time a person was not in frame
@@ -581,14 +582,14 @@ void ofApp::checkIfPersonIdentified() {
 
 	//Only on auto pilot (doJumpBetweenStates) we set those modes
 	if (delta >= TIMEOUT_KINECT_PEOPLE_FILTER && kinectFilterUsers.get() && doJumpBetweenStates) {
-		ofLogWarning("No person found. moving to background mode");
+		ofLogWarning("No person found. moving to background mode. (Check if auto pilot is on)");
 		kinectFilterUsers.set(false);
 		return;
 	}
 
 	//Only on auto pilot (doJumpBetweenStates) we set those modes
 	if (delta < TIMEIN_KINECT_PEOPLE_FILTER && !kinectFilterUsers.get() && doJumpBetweenStates) {
-		ofLogWarning("Person found. Removing background");
+		ofLogWarning("Person found. Removing background. (Check if auto pilot is on)");
 		kinectFilterUsers.set(true);
 	}
 }
@@ -670,7 +671,9 @@ void ofApp::updateOscMessages() {
 
 		if (m.getAddress() == "/1/source" &&
 			m.getArgAsBool(0) == true) {
-			sourceMode.set((sourceMode.get() + 1) % SOURCE_COUNT);
+			if (sourceMode != SOURCE_KINECT) {
+				sourceMode = SOURCE_KINECT;
+			}
 		}
 
 		if ((m.getAddress().find("/1/effects") != std::string::npos) &&
