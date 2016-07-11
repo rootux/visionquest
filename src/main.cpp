@@ -3,6 +3,12 @@
 //#define USE_PROGRAMMABLE_GL
 //========================================================================
 
+//Disable the following (and choose subsystem Console) to show logging
+#ifdef _WIN32
+//#define WIN_APP
+#endif
+
+
 #define PS_PORT 10001
 #define KINECT_PORT 10002
 #define DUMMY_PS_PORT 10101
@@ -40,10 +46,10 @@ BOOL CheckPortUDP(short int dwPort, char *ipAddressStr)
 	sock = (int)socket(AF_INET, SOCK_DGRAM, 0);
 
 	int result = ::bind(sock, (SOCKADDR FAR *) &client, sizeof(SOCKADDR_IN));
-	return result != SOCKET_ERROR;
+	return result == SOCKET_ERROR || result == INVALID_SOCKET;
 }
 #endif
-#ifdef _WIN32
+#ifdef WIN_APP
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR lpCmdline, int nCmdShow) {
 #else
 int main(int argc, char** argv) {
@@ -80,15 +86,16 @@ int main(int argc, char** argv) {
 			// 2 instances are running starting 3+
 			int availablePort = KINECT_PORT + 1;
 			int dummyPort = DUMMY_KINECT_PORT + 1;
+
 			while (CheckPortUDP(dummyPort, "127.0.0.1")) {
 				availablePort++;
 				dummyPort++;
 				printf("Checking next available port %d...\r\n", availablePort);
 				isShouldStartPsCam = false;
 				windowSettings.monitor = 1; // Second instance - Open on second monitor
-				printf("Opened OSC on port %d\r\n", availablePort);
-				oscPort = availablePort;
 			}
+			printf("Opened OSC on port %d\r\n", availablePort);
+			oscPort = availablePort;
 		}
     }
 #else
