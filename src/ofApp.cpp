@@ -153,6 +153,11 @@ void ofApp::setupPsEye() {
 	}
 }
 
+void ofApp::setupVideoSource() {
+	videoPlayer.loadMovie("video.mov");
+	videoPlayer.play();
+}
+
 //for settings:recolor:cutoff will  return settings
 static string getNextTagNode(string tag, string &firstTagName) {
 	vector<string> tokens = tokenize(tag, ":");
@@ -403,12 +408,15 @@ bool ofApp::isPsEyeSource() {
 	return (sourceMode.get() == SOURCE_PS3EYE);
 }
 
+bool ofApp::isVideoSource() {
+	return (sourceMode.get() == SOURCE_VIDEO);
+}
+
 //--------------------------------------------------------------
 void ofApp::update() {
 
 	deltaTime = ofGetElapsedTimef() - lastTime;
 	lastTime = ofGetElapsedTimef();
-
 	simpleCam.update();
 #ifdef _KINECT
 	if (isKinectSource()) {
@@ -419,6 +427,12 @@ void ofApp::update() {
 	if(isPsEyeSource()) {
 		if (!eye) {
 			setupPsEye();
+		}
+	}
+
+	if (isVideoSource()) {
+		if (!videoPlayer.isInitialized()) {
+			setupVideoSource();
 		}
 	}
 
@@ -435,11 +449,17 @@ void ofApp::update() {
 			sourceMode.set((sourceMode.get() + 1) % SOURCE_COUNT);
 		}
 	}
+
+	if (isVideoSource()) {
+		videoPlayer.update();
+	}
+
+
 #ifdef _KINECT
 	if ((isKinectSource() && (kinect.getDepthSource()->isFrameNew())) ||
-		(isPsEyeSource() && eye)) {
+		(isPsEyeSource() && eye) || (isVideoSource() && videoPlayer.isFrameNew() )) {
 #else
-	if ((isPsEyeSource() && eye) || simpleCam.isFrameNew()) {
+	if ((isPsEyeSource() && eye) || simpleCam.isFrameNew() || (isVideoSource() && videoPlayer.isFrameNew()) {
 #endif
 
 		ofTexture *videoSource;
@@ -462,6 +482,9 @@ void ofApp::update() {
 #endif
 		case SOURCE_PS3EYE:
 			videoSource = &videoTexture;
+			break;
+		case SOURCE_VIDEO:
+			videoSource = &videoPlayer.getTexture();
 			break;
 		default:
 			videoSource = &simpleCam.getTexture();
@@ -535,7 +558,7 @@ void ofApp::update() {
 		particleFlow.setObstacle(fluidSimulation.getObstacle());
 	}
 	particleFlow.update();
-
+	
 	updateTransition();
 
 	updateOscMessages();
@@ -1280,6 +1303,7 @@ void ofApp::draw() {
 	else {
 		ofHideCursor();
 	}
+
 
 }
 
