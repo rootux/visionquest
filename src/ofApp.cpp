@@ -154,7 +154,7 @@ void ofApp::setupPsEye() {
 }
 
 void ofApp::setupVideoSource() {
-	videoPlayer.loadMovie("video.mov");
+	videoPlayer.loadAsync("video.mov");
 	videoPlayer.play();
 }
 
