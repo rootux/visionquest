@@ -154,7 +154,7 @@ void ofApp::setupPsEye() {
 }
 
 void ofApp::setupVideoSource() {
-	videoPlayer.loadMovie("video.mov");
+	videoPlayer.loadAsync("video.mov");
 	videoPlayer.play();
 }
 
@@ -460,7 +460,7 @@ void ofApp::update() {
 	if ((isKinectSource() && (kinect.getDepthSource()->isFrameNew())) ||
 		(isPsEyeSource() && eye) || (isVideoSource() && videoPlayer.isFrameNew() )) {
 #else
-	if ((isPsEyeSource() && eye) || simpleCam.isFrameNew() || (isVideoSource() && videoPlayer.isFrameNew()) {
+	if ((isPsEyeSource() && eye) || simpleCam.isFrameNew() || (isVideoSource() && videoPlayer.isFrameNew())) {
 #endif
 
 		ofTexture *videoSource;
