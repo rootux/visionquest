@@ -41,3 +41,8 @@ If you're graphic card is having issues. you can try the following fix. replace 
 ```
 
 If the app is frozen when starting or when moving to PSEye source perhpas the USB port is not compatible with the PsEye camera. Plug it off and try a different port. install the libusb-win driver using zadiag (Instructions above) - if still doesn't work try again with a different port - this will save you time and frustrations.
+
+Credits & Acknowledgements
+---
+This is a derivative work of https://github.com/moostrik/ofxFlowTools by Matthias Oostrik
+Based on ofxFX and ofxFluid - The work of ofxFluid (https://github.com/patriciogonzalezvivo/ofxFluid) - Fluid simulation with colitions based on this article of Mark Harris (http://http.developer.nvidia.com/GPUGems/gpugems_ch38.html). We use techniques describes in Stable Fluids by Jos Stem (http://www.dgp.toronto.edu/people/stam/reality/Research/pdf/ns.pdf)
