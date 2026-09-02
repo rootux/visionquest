@@ -28,6 +28,12 @@
 
 #include "ofxMouse.h"
 
+#ifdef __APPLE__
+// src/macCameraAccess.mm
+extern "C" bool vqEnsureCameraAccess();
+extern "C" const char * vqCameraAccessStatus();
+#endif
+
 #define USE_PROGRAMMABLE_GL					// Maybe there is a reason you would want to
 
 using namespace flowTools;

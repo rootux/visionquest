@@ -55,12 +55,23 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR lpCmdline,
 int main(int argc, char** argv) {
 #endif
 	bool isShouldStartPsCam = false;
+
+#ifdef __APPLE__
+	// Ask for the camera before the window exists - the app goes straight to
+	// full screen and would cover the system prompt. See src/macCameraAccess.mm.
+	if (!vqEnsureCameraAccess()) {
+		printf("No camera access (%s). The visuals will only react to the mouse. "
+			"Allow it in System Settings > Privacy & Security > Camera.\n",
+			vqCameraAccessStatus());
+	}
+#endif
+
 	ofGLFWWindowSettings windowSettings;
 #ifdef USE_PROGRAMMABLE_GL
 	windowSettings.setGLVersion(4, 1);
 #endif
-	windowSettings.width = 1280;
-	windowSettings.height = 720;
+	// width/height are protected in ofWindowSettings since OF 0.10
+	windowSettings.setSize(1280, 720);
 	windowSettings.windowMode = OF_FULLSCREEN;
     windowSettings.monitor = 0;
     

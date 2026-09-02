@@ -7,7 +7,9 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIdentifier</key>
-	<string>cc.openFrameworks.ofapp</string>
+	<string>cc.openFrameworks.visionquest</string>
+	<key>CFBundleName</key>
+	<string>visionquest</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
@@ -18,5 +20,13 @@
 	<string>1.0</string>
 	<key>CFBundleIconFile</key>
 	<string>${ICON}</string>
+	<!-- macOS refuses camera access (and kills the process) unless the bundle
+	     declares why it wants it. Needed for the webcam / PS3 Eye source. -->
+	<key>NSCameraUsageDescription</key>
+	<string>visionquest uses a camera as the motion source that drives the fluid visuals.</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>LSMinimumSystemVersion</key>
+	<string>11.0</string>
 </dict>
 </plist>

@@ -140,3 +140,31 @@
 ################################################################################
 # PROJECT_CXX = 
 # PROJECT_CC = 
+
+################################################################################
+# LOCAL (macOS) BUILD SETTINGS
+#   Added so the project builds with the openFrameworks makefiles on an
+#   Apple Silicon Mac (OpenGL 4.1 core profile on the Apple GPU).
+################################################################################
+
+# Where openFrameworks lives. Override on the command line or via the
+# environment if your copy of OF is somewhere else:
+#     make OF_ROOT=/path/to/openFrameworks
+ifndef OF_ROOT
+    OF_ROOT = $(HOME)/openFrameworks
+endif
+
+ifeq ($(shell uname),Darwin)
+    # Spout is a Windows-only texture-sharing SDK - never build it here.
+    PROJECT_EXCLUSIONS = $(PROJECT_ROOT)/src/SpoutSDK%
+    PROJECT_EXCLUSIONS += $(PROJECT_ROOT)/src/libusb%
+
+    # PS3 Eye support needs libusb. The copy bundled in src/libusb is an
+    # x86_64/i386 fat binary, so use the Homebrew arm64 build instead:
+    #     brew install libusb
+    LIBUSB_PREFIX = $(shell brew --prefix libusb 2>/dev/null)
+    ifneq ($(LIBUSB_PREFIX),)
+        PROJECT_CFLAGS = -I$(LIBUSB_PREFIX)/include
+        PROJECT_LDFLAGS = -L$(LIBUSB_PREFIX)/lib -lusb-1.0
+    endif
+endif

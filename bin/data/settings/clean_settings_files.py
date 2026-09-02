@@ -46,7 +46,8 @@ def clean(subFolder=''):
 def cleanFile(filename, elementsToBeRemove):
     tree = ElementTree()
     tree.parse(filename)
-    parent_map = dict((c,p) for p in tree.getiterator() for c in p)
+    # ElementTree.getiterator() was removed in Python 3.9
+    parent_map = dict((c,p) for p in tree.iter() for c in p)
     
     root = tree.getroot()
     for element in elementsToBeRemove:

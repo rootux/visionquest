@@ -9,7 +9,13 @@
 #include <memory>
 
 
+#ifdef _WIN32
 #include "libusb/libusb.h"
+#else
+// The libusb bundled in src/libusb is an x86_64/i386 binary, so on macOS/Linux
+// use the system (Homebrew) libusb instead - see config.make.
+#include <libusb-1.0/libusb.h>
+#endif
 
 #ifndef __STDC_CONSTANT_MACROS
 #  define __STDC_CONSTANT_MACROS

@@ -5,6 +5,8 @@
 	#endif
 	#include "Winuser.h"
 	#include "windef.h"
+#elif defined(__APPLE__)
+	#include <ApplicationServices/ApplicationServices.h>
 #endif
 
 class ofxMouse
@@ -25,17 +27,15 @@ public:
 	static void SetCursorPosition(int x, int y) {
 #ifdef _WIN32
 		SetCursorPos(x, y);
-#else
-        CGPoint pt;
-        pt.x = x;
-        pt.y = y;
-        
-        CGSetLocalEventsSuppressionInterval(0);
+#elif defined(__APPLE__)
+        CGPoint pt = CGPointMake(x, y);
+
         CGWarpMouseCursorPosition(pt);
-        
+        CGAssociateMouseAndMouseCursorPosition(true);
+
         //In mac we click on set cursor position - lazy alert
-        CGPostMouseEvent( pt, 1, 1, 1 );
-        CGPostMouseEvent( pt, 1, 1, 0 );
+        postMouseEvent(kCGEventLeftMouseDown, pt);
+        postMouseEvent(kCGEventLeftMouseUp, pt);
 #endif
 	}
     
@@ -54,4 +54,19 @@ public:
         //In mac we use the SetCursorPosition to also click
 #endif
 	}
+
+#if defined(__APPLE__)
+private:
+	// CGPostMouseEvent has been deprecated since 10.6; the CGEvent API is the
+	// supported way to synthesize mouse input. macOS only lets this through
+	// once the app has Accessibility permission
+	// (System Settings > Privacy & Security > Accessibility).
+	static void postMouseEvent(CGEventType type, CGPoint pt) {
+		CGEventRef event = CGEventCreateMouseEvent(NULL, type, pt, kCGMouseButtonLeft);
+		if (event) {
+			CGEventPost(kCGHIDEventTap, event);
+			CFRelease(event);
+		}
+	}
+#endif
 };

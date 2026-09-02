@@ -1,11 +1,23 @@
 #include "ofApp.h"
 
+#ifndef _WIN32
+#include <unistd.h>	// fork() / execl() used by cleanCurrentSettingFile()
+#endif
+
 static const int ITUR_BT_601_CY = 1220542;
 static const int ITUR_BT_601_CUB = 2116026;
 static const int ITUR_BT_601_CUG = -409993;
 static const int ITUR_BT_601_CVG = -852492;
 static const int ITUR_BT_601_CVR = 1673527;
 static const int ITUR_BT_601_SHIFT = 20;
+
+// PS3 Eye capture mode. The driver's rate tables (see ps3eye.cpp) allow
+//   640x480: 15, 30, 40, 50, 60 fps
+//   320x240: 30, 37, 50, 60, 75, 100, 125, 137, 150, 187 fps (205 is corrupt)
+// so anything above 60 fps means dropping to 320x240.
+#define PS_EYE_WIDTH  640
+#define PS_EYE_HEIGHT 480
+#define PS_EYE_FPS    60
 
 #define TIMEOUT_KINECT_PEOPLE_FILTER 60
 #define TIMEIN_KINECT_PEOPLE_FILTER 60
@@ -69,8 +81,15 @@ void ofApp::setup() {
 	// MOUSE DRAW
 	mouseForces.setup(flowWidth, flowHeight, internalWidth, internalHeight);
 
+	ofLogNotice() << "renderer: " << (ofIsGLProgrammableRenderer() ? "programmable" : "fixed function")
+		<< ", GL " << glGetString(GL_VERSION) << ", " << glGetString(GL_RENDERER);
+
 	// CAMERA
 	simpleCam.setup(640, 480, true);
+	if (!simpleCam.isInitialized()) {
+		ofLogError() << "Camera did not start - the visuals will only react to the mouse. "
+			"On macOS, allow camera access in System Settings > Privacy & Security > Camera.";
+	}
     
     
 
@@ -111,7 +130,7 @@ void ofApp::setup() {
 void ofApp::setupPsEye() {
 	try {
 		using namespace ps3eye;
-		std::vector<PS3EYECam::PS3EYERef> devices(PS3EYECam::getDevices());
+		std::vector<PS3EYECam::PS3EYERef> devices(PS3EYECam::getDevices(!eye));
 		if (devices.size())
 		{
 			// Only stop eye if eye is working and more then one camera is connected
@@ -129,7 +148,9 @@ void ofApp::setupPsEye() {
 			// Init a new eye only if eye is not set or if devices is bigger then 1
 			if (!eye || devices.size() > 1) {
 				eye = devices.at(psEyeCameraToUse);
-				bool res = eye->init(640, 480, 60);
+				bool res = eye->init(PS_EYE_WIDTH, PS_EYE_HEIGHT, PS_EYE_FPS);
+				ofLogNotice() << "PS Eye requested " << PS_EYE_WIDTH << "x" << PS_EYE_HEIGHT
+					<< " @ " << (int)PS_EYE_FPS << ", got " << (int)eye->getFrameRate() << " fps";
 				if (res) {
 					eye->start();
 					eye->setExposure(125); //TODO: was 255
@@ -419,6 +440,17 @@ void ofApp::update() {
 	deltaTime = ofGetElapsedTimef() - lastTime;
 	lastTime = ofGetElapsedTimef();
 	simpleCam.update();
+	// A camera with no privacy grant produces no frames and no error, which
+	// looks exactly like a dark room - so say so once, the first time one
+	// actually arrives.
+	{
+		static bool loggedFirstCamFrame = false;
+		if (!loggedFirstCamFrame && simpleCam.isFrameNew()) {
+			loggedFirstCamFrame = true;
+			ofLogNotice() << "camera delivering frames: "
+				<< simpleCam.getWidth() << "x" << simpleCam.getHeight();
+		}
+	}
 #ifdef _KINECT
 	if (isKinectSource()) {
 		kinect.update(); 
@@ -427,7 +459,16 @@ void ofApp::update() {
 
 	if(isPsEyeSource()) {
 		if (!eye) {
-			setupPsEye();
+			// PS3EYECam caches its device list, so a camera plugged in after
+			// launch is only seen if we re-enumerate. Retry once a second
+			// rather than every frame - enumerating USB is not free, and the
+			// failure used to be logged at frame rate.
+			static float lastPsEyeAttempt = -1;
+			float now = ofGetElapsedTimef();
+			if (lastPsEyeAttempt < 0 || now - lastPsEyeAttempt >= 1.0f) {
+				lastPsEyeAttempt = now;
+				setupPsEye();
+			}
 		}
 	}
 
@@ -953,7 +994,9 @@ void ofApp::updateGuiFromTag(float timeSinceAnimationStart, string tag, string o
 	string firstTagName = string();
 	subTag = getNextTagNode(tag, firstTagName); //Remove first node "settings:"
 	std::replace(subTag.begin(), subTag.end(), '_',' '); //TODO: wont work for all settings since also '(' translates to ' '
-	ofxGuiGroup group = gui;
+	// ofxGuiGroup holds a vector<unique_ptr<ofxBaseGui>> and is therefore
+	// non-copyable, so walk the tree by reference.
+	ofxGuiGroup* group = &gui;
 	string lastTagName;
 	//Start from gui and drill down till we get to the last node
 	do {
@@ -962,11 +1005,11 @@ void ofApp::updateGuiFromTag(float timeSinceAnimationStart, string tag, string o
 		if (subTag == "")
 			continue;
 
-		group = group.getGroup(firstTagName);
+		group = &group->getGroup(firstTagName);
 	} while (subTag != "");
 
 	//no more nodes - extract control
-	ofxBaseGui* control = group.getControl(firstTagName);
+	ofxBaseGui* control = group->getControl(firstTagName);
 	ofAbstractParameter* parameter = &control->getParameter();
 
 	// Find what type of parameter it is
@@ -1666,11 +1709,13 @@ void ofApp::cleanCurrentSettingFile()
 }
 
 void ofApp::setMacRelativePath(const string& filename) {
-    relateiveDataPath = dirnameOf(filename) + "/Resources/data/settings/";
-    ofLogWarning(ofToString(filename));
+    // The makefile build puts the executable in bin/visionquest.app and keeps
+    // the data folder next to the bundle, which is exactly what ofToDataPath
+    // resolves to - so ask openFrameworks instead of guessing from argv[0].
+    relateiveDataPath = ofToDataPath("settings/", true);
     relateiveKinectDataPath = relateiveDataPath;
-    ofLogWarning(ofToString(relateiveKinectDataPath));
-    relateivePsEyeDataPath = relateiveDataPath + "/pseyesettings/";
+    relateivePsEyeDataPath = relateiveDataPath + "pseyesettings/";
+    ofLogNotice() << "settings path: " << relateiveDataPath;
 }
     
 void ofApp::setRelativePath(const char *filename) {
