@@ -68,18 +68,27 @@ There is no Kinect on macOS, so the fallback source (`z` cycles sources) is a
 plain `ofVideoGrabber` on the built-in camera. A PS3 Eye, when one is plugged
 in, is picked automatically at startup - see below.
 
-Building for both architectures
+Running it without building
 ---
-`./run_mac.sh` builds and runs the bundle for the machine you are on. To build
-for an Intel Mac as well - useful when the machine that runs the installation is
-not the one you develop on - run `./build_both.sh` on an Apple Silicon Mac:
+Both bundles are committed, so the machine that runs the installation needs no
+toolchain, no openFrameworks and no libusb - clone the repo and open the one that
+matches it:
 
-    bin/visionquest.app          native (arm64)
+    bin/visionquest.app          Apple Silicon
     bin/visionquest-x86_64.app   Intel
 
-Copy a bundle together with `bin/data`; it will not start without it. The Intel
-one can be smoke-tested on an Apple Silicon Mac by just opening it, since Rosetta
-runs it - that checks the build, not how fast the Intel GPU will be.
+They only run from inside a checkout, because they load `bin/data` next to
+themselves; if you copy one elsewhere, take `bin/data` with it.
+
+Building for both architectures
+---
+`./run_mac.sh` builds and runs the bundle for the machine you are on. `./build_both.sh`,
+on an Apple Silicon Mac, rebuilds *both* of the bundles above - run it after
+changing anything under `src/`, and commit the results.
+
+The Intel one can be smoke-tested on an Apple Silicon Mac by just opening it,
+since Rosetta runs it - that checks the build, not how fast the Intel GPU is
+going to be.
 
 There is no universal binary, because Homebrew's libusb only ever carries the
 host architecture. The Intel build links the x86_64 libusb bundled in
