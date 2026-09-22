@@ -458,12 +458,16 @@ void USBMgr::transferThreadFunc()
 
 	while (!exit_signaled)
 	{
-#ifdef _WIN32
-		libusb_handle_events_timeout_completed(usb_context, &tv, NULL);
-#else
-        //TODO:shenberg update libusb version on mac?
-        libusb_handle_events(usb_context);
-#endif
+		// Has to be a timed call on every platform. The untimed
+		// libusb_handle_events() blocks until an event arrives, and once the
+		// last transfer has been cancelled no event ever does - so the loop
+		// never looks at exit_signaled again and stopTransferThread() sits in
+		// join() until some unrelated USB activity happens to wake it. That
+		// was a minute of apparent hang on the way out.
+		//
+		// _timeout rather than _timeout_completed because the libusb bundled
+		// in src/libusb, which the Intel build links, predates the latter.
+		libusb_handle_events_timeout(usb_context, &tv);
 	}
 }
 
