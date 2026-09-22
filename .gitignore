@@ -265,3 +265,6 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+
+# Scratch worktrees hold a full duplicate of the checkout, binaries included.
+.claude/worktrees/
