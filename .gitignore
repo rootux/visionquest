@@ -4,6 +4,13 @@
 # Ignore generated files but not the data folder settings xml files
 /bin/*
 !/bin/
+
+# ...and not the shipped bundles. Both architectures are committed so the Mac
+# that runs the installation can just clone and go, without a toolchain. Rebuild
+# them with ./build_both.sh. Both patterns are needed: git will not look inside
+# a directory that an earlier rule already excluded.
+!/bin/*.app
+!/bin/*.app/**
 /bin/data/*
 !/bin/data/
 !/bin/data/*.xml
