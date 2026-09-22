@@ -147,6 +147,11 @@
 #   Apple Silicon Mac (OpenGL 4.1 core profile on the Apple GPU).
 ################################################################################
 
+# Name the bundle after the project rather than after whatever the checkout
+# directory happens to be called, which is what openFrameworks does by default.
+# A git worktree or a renamed clone must not change what the app is called.
+APPNAME = visionquest
+
 # Where openFrameworks lives. Override on the command line or via the
 # environment if your copy of OF is somewhere else:
 #     make OF_ROOT=/path/to/openFrameworks

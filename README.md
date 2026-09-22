@@ -68,11 +68,26 @@ There is no Kinect on macOS, so the fallback source (`z` cycles sources) is a
 plain `ofVideoGrabber` on the built-in camera. A PS3 Eye, when one is plugged
 in, is picked automatically at startup - see below.
 
-The build is per-machine, not per-repo: it uses `brew --prefix libusb` and
-openFrameworks' universal libraries, so the same checkout builds on both Apple
-Silicon and Intel. It does *not* produce a universal binary - Homebrew's libusb
-only carries the host architecture - so build on the machine that will run the
-piece rather than copying `bin/` between machines.
+Building for both architectures
+---
+`./run_mac.sh` builds and runs the bundle for the machine you are on. To build
+for an Intel Mac as well - useful when the machine that runs the installation is
+not the one you develop on - run `./build_both.sh` on an Apple Silicon Mac:
+
+    bin/visionquest.app          native (arm64)
+    bin/visionquest-x86_64.app   Intel
+
+Copy a bundle together with `bin/data`; it will not start without it. The Intel
+one can be smoke-tested on an Apple Silicon Mac by just opening it, since Rosetta
+runs it - that checks the build, not how fast the Intel GPU will be.
+
+There is no universal binary, because Homebrew's libusb only ever carries the
+host architecture. The Intel build links the x86_64 libusb bundled in
+`src/libusb` instead, and builds the openFrameworks core for x86_64 against an
+APFS clone of it under `/tmp`, so your own openFrameworks tree is left alone.
+
+The bundle is named by `APPNAME` in `config.make` rather than by the checkout
+directory, so a git worktree or a renamed clone still produces `visionquest.app`.
 
 PS3 Eye on macOS
 ---

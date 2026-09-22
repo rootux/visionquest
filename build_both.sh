@@ -1,34 +1,40 @@
 #!/bin/bash
-# Cross-build an Intel (x86_64) bundle from an Apple Silicon Mac, so the machine
-# that runs the installation does not have to build anything itself.
+# Build both macOS bundles from one Apple Silicon Mac, so the machine that runs
+# the installation does not have to build anything itself:
 #
-# Two things make this necessary rather than a one-line -arch flag:
+#     bin/<name>.app          native (arm64)
+#     bin/<name>-x86_64.app   Intel, for a pre-Apple-Silicon Mac
+#
+# Two things make the Intel half more than an -arch flag:
 #   * the openFrameworks core has to be compiled for x86_64 as well, and its
 #     object files live inside the openFrameworks tree - so we build against an
-#     APFS clone of it and leave your arm64 copy completely untouched;
+#     APFS clone of it and leave your own copy completely untouched;
 #   * Homebrew's libusb only ever carries the host architecture, so the x86_64
 #     build links the copy bundled in src/libusb instead (see config.make).
 #
-# The result is bin/<name>-x86_64.app. Verify it here with:
-#     arch -x86_64 bin/<name>-x86_64.app/Contents/MacOS/<name>
+# The Intel bundle can be smoke-tested here, under Rosetta:
+#     open bin/<name>-x86_64.app
 #
-#     OF_ROOT=/path/to/openFrameworks ./build_intel.sh
+#     OF_ROOT=/path/to/openFrameworks ./build_both.sh
 
 set -e
 cd "$(dirname "$0")"
 
 OF_SRC="${OF_ROOT:-$HOME/openFrameworks}"
 OF_X86="${OF_X86:-/tmp/openFrameworks-x86_64}"
-APP_NAME="$(basename "$PWD")"
 JOBS="$(sysctl -n hw.ncpu)"
 
+# config.make pins APPNAME so the bundle keeps its name in a worktree or a
+# renamed clone; read it from there rather than repeating it.
+APP_NAME="$(sed -n 's/^[[:space:]]*APPNAME[[:space:]]*=[[:space:]]*\([^[:space:]#]*\).*/\1/p' config.make | tail -1)"
+: "${APP_NAME:=$(basename "$PWD")}"
+
 if [ "$(uname -m)" != "arm64" ]; then
-	echo "Already on Intel - just run ./run_mac.sh" >&2
+	echo "This cross-builds Intel from Apple Silicon. On an Intel Mac ./run_mac.sh" >&2
+	echo "already produces the only bundle that machine needs." >&2
 	exit 1
 fi
 
-# An APFS clone is near-instant and shares storage until written to, so this
-# costs neither minutes nor a second copy of openFrameworks on disk.
 if [ ! -d "$OF_X86" ]; then
 	echo "==> Cloning $OF_SRC -> $OF_X86"
 	cp -c -R "$OF_SRC" "$OF_X86"
@@ -54,26 +60,29 @@ else
 	make -C "$OF_X86/libs/openFrameworksCompiled/project" -j"$JOBS" Release "${CROSS[@]}"
 fi
 
-# The project's own object directory is per-arch too, and is shared with the
-# native build, so start from clean and leave it clean for the next arm64 build.
+# The project's object directory is per-architecture too and is shared between
+# the two builds, so each one starts from clean.
 echo "==> Building $APP_NAME for x86_64"
 make -s clean >/dev/null
 make -j"$JOBS" Release OF_ROOT="$OF_X86" MAC_ARCH=x86_64 "${CROSS[@]}"
 
 rm -rf "bin/$APP_NAME-x86_64.app"
 mv "bin/$APP_NAME.app" "bin/$APP_NAME-x86_64.app"
-codesign --force --sign - --identifier cc.openFrameworks.visionquest "bin/$APP_NAME-x86_64.app"
 
-# Leave the tree as we found it: object files back to native, native app rebuilt.
-echo "==> Restoring the native arm64 build"
+echo "==> Building $APP_NAME for arm64"
 make -s clean >/dev/null
 make -j"$JOBS" Release >/dev/null
-codesign --force --sign - --identifier cc.openFrameworks.visionquest "bin/$APP_NAME.app"
+
+# Ad-hoc signatures, for the same reason run_mac.sh signs: the linker-signed
+# binary has no stable identity for the macOS privacy controls. Both bundles
+# share one identifier so they share one camera permission.
+for app in "bin/$APP_NAME.app" "bin/$APP_NAME-x86_64.app"; do
+	codesign --force --sign - --identifier cc.openFrameworks.visionquest "$app"
+done
 
 echo
-echo "Intel bundle:  bin/$APP_NAME-x86_64.app"
-lipo -archs "bin/$APP_NAME-x86_64.app/Contents/MacOS/$APP_NAME"
-echo "Native bundle: bin/$APP_NAME.app"
-lipo -archs "bin/$APP_NAME.app/Contents/MacOS/$APP_NAME"
+for app in "bin/$APP_NAME.app" "bin/$APP_NAME-x86_64.app"; do
+	printf '%-40s %s\n' "$app" "$(lipo -archs "$app/Contents/MacOS/$APP_NAME")"
+done
 echo
-echo "Copy the Intel bundle to the Intel Mac along with bin/data."
+echo "Ship a bundle together with bin/data - it will not run without it."

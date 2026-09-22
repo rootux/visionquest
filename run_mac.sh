@@ -15,11 +15,12 @@ set -e
 cd "$(dirname "$0")"
 
 TARGET="${TARGET:-Release}"
-# The openFrameworks makefile names the bundle after the project directory, so
-# derive it the same way instead of hardcoding - this checkout may be a git
-# worktree or a clone under any name. The signing identifier stays fixed so the
-# camera permission granted to it survives that.
-APP="bin/$(basename "$PWD").app"
+# config.make pins APPNAME so the bundle is called the same thing whatever the
+# checkout directory is named; read it from there rather than keeping a second
+# copy of the name here.
+APP_NAME="$(sed -n 's/^[[:space:]]*APPNAME[[:space:]]*=[[:space:]]*\([^[:space:]#]*\).*/\1/p' config.make | tail -1)"
+: "${APP_NAME:=$(basename "$PWD")}"
+APP="bin/$APP_NAME.app"
 
 make -j"$(sysctl -n hw.ncpu)" "$TARGET"
 
