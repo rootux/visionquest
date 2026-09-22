@@ -15,7 +15,11 @@ set -e
 cd "$(dirname "$0")"
 
 TARGET="${TARGET:-Release}"
-APP="bin/visionquest.app"
+# The openFrameworks makefile names the bundle after the project directory, so
+# derive it the same way instead of hardcoding - this checkout may be a git
+# worktree or a clone under any name. The signing identifier stays fixed so the
+# camera permission granted to it survives that.
+APP="bin/$(basename "$PWD").app"
 
 make -j"$(sysctl -n hw.ncpu)" "$TARGET"
 

@@ -19,6 +19,20 @@ static const int ITUR_BT_601_SHIFT = 20;
 #define PS_EYE_HEIGHT 480
 #define PS_EYE_FPS    60
 
+// How long update() is willing to wait for the next PS3 Eye frame. Long enough
+// that the camera still paces the visuals at PS_EYE_FPS, short enough that a
+// camera which has gone away cannot stall the render thread.
+#define PS_EYE_FRAME_TIMEOUT_MS 100
+// ... and how long it may deliver nothing before we give up on it and fall
+// back to the default camera.
+#define PS_EYE_STALL_SECONDS 3.0f
+// How often to look for a preferred PS3 Eye that is not currently in use.
+#define PS_EYE_PROBE_SECONDS 5.0f
+
+// The source used when there is no PS3 Eye: the Kinect where one exists, and a
+// plain ofVideoGrabber on the built-in camera everywhere else (see update()).
+#define SOURCE_FALLBACK SOURCE_KINECT
+
 #define TIMEOUT_KINECT_PEOPLE_FILTER 60
 #define TIMEIN_KINECT_PEOPLE_FILTER 60
 #define AUTO_PILOT_TIMEOUT 300
@@ -124,9 +138,48 @@ void ofApp::setup() {
 	oscReceiver.setup(oscPort);
     lastOscMessageTime = ofGetElapsedTimef();
 	if (shouldStartPsEyeCam) {
+		psEyeIsPreferred = true;
+	}
+#ifndef _KINECT
+	// Nothing else to compete with on this build, so a plugged-in PS3 Eye is
+	// always the camera that was meant - don't make the operator press 'z'.
+	else if (isPsEyeConnected()) {
+		ofLogNotice() << "PS3 Eye found - using it as the source";
+		psEyeIsPreferred = true;
+	}
+	else {
+		ofLogNotice() << "No PS3 Eye found - falling back to the default camera";
+	}
+#endif
+
+	if (psEyeIsPreferred) {
 		sourceMode = SOURCE_PS3EYE;
 	}
 }
+
+bool ofApp::isPsEyeConnected() {
+	try {
+		return !ps3eye::PS3EYECam::getDevices(true).empty();
+	}
+	catch (...) {
+		ofLogError() << "Failed to enumerate PS3 Eye cameras";
+		return false;
+	}
+}
+
+// Hand the camera back without tearing down the source it belongs to, so the
+// retry path in update() can pick it up again.
+void ofApp::releasePsEye() {
+	if (!eye) return;
+	try {
+		eye->stop();
+	}
+	catch (...) {
+		ofLogWarning() << "PS3 Eye did not stop cleanly";
+	}
+	eye = NULL;
+}
+
 void ofApp::setupPsEye() {
 	try {
 		using namespace ps3eye;
@@ -156,6 +209,10 @@ void ofApp::setupPsEye() {
 					eye->setExposure(125); //TODO: was 255
 					eye->setAutogain(useAgc);
 
+					// Give it a full stall window before the first frame is due.
+					lastPsEyeFrameTime = ofGetElapsedTimef();
+
+					delete[] videoFrame;
 					videoFrame = new unsigned char[eye->getWidth()*eye->getHeight() * 4];
 					videoTexture.allocate(eye->getWidth(), eye->getHeight(), GL_RGB);
 				}
@@ -478,13 +535,41 @@ void ofApp::update() {
 		}
 	}
 
+	// Look for a PS3 Eye we want but are not currently using - an eye that was
+	// unplugged mid-show comes back on its own without anyone touching a key.
+	if (psEyeIsPreferred && !isPsEyeSource() && !eye) {
+		float now = ofGetElapsedTimef();
+		if (now - lastPsEyeProbeTime >= PS_EYE_PROBE_SECONDS) {
+			lastPsEyeProbeTime = now;
+			if (isPsEyeConnected()) {
+				ofLogNotice() << "PS3 Eye is back - switching to it";
+				sourceMode.set(SOURCE_PS3EYE);
+			}
+		}
+	}
+
+	psEyeFrameIsNew = false;
 	if (isPsEyeSource() && eye)
 	{
 		try {
-			uint8_t* new_pixels = eye->getFrame();
-			yuv422_to_rgba(new_pixels, eye->getRowBytes(), videoFrame, eye->getWidth(), eye->getHeight());
-			videoTexture.loadData(videoFrame, eye->getWidth(), eye->getHeight(), GL_RGBA);
-			free(new_pixels);
+			// Bounded wait, not the blocking getFrame(): the camera still paces
+			// the visuals, but one that stops delivering can no longer park the
+			// render thread on a condition variable for good.
+			uint8_t* new_pixels = eye->getFrame(PS_EYE_FRAME_TIMEOUT_MS);
+			if (new_pixels) {
+				yuv422_to_rgba(new_pixels, eye->getRowBytes(), videoFrame, eye->getWidth(), eye->getHeight());
+				videoTexture.loadData(videoFrame, eye->getWidth(), eye->getHeight(), GL_RGBA);
+				free(new_pixels);
+				psEyeFrameIsNew = true;
+				lastPsEyeFrameTime = ofGetElapsedTimef();
+			}
+			else if (eye->hasTransferError() ||
+					 ofGetElapsedTimef() - lastPsEyeFrameTime > PS_EYE_STALL_SECONDS) {
+				ofLogError() << "PS3 Eye stopped delivering frames - falling back to the default camera";
+				releasePsEye();
+				sourceMode.set(SOURCE_FALLBACK);
+				lastPsEyeProbeTime = ofGetElapsedTimef();
+			}
 		}
 		catch (...) {
 			ofLogWarning("Can't open ps eye. exception. moving to kinect");
@@ -497,11 +582,13 @@ void ofApp::update() {
 	}
 
 
+	// psEyeFrameIsNew rather than just "the eye exists": a timed-out wait means
+	// the picture has not changed, so there is nothing for optical flow to read.
 #ifdef _KINECT
 	if ((isKinectSource() && (kinect.getDepthSource()->isFrameNew())) ||
-		(isPsEyeSource() && eye) || (isVideoSource() && videoPlayer.isFrameNew() )) {
+		(isPsEyeSource() && psEyeFrameIsNew) || (isVideoSource() && videoPlayer.isFrameNew() )) {
 #else
-	if ((isPsEyeSource() && eye) || simpleCam.isFrameNew() || (isVideoSource() && videoPlayer.isFrameNew())) {
+	if ((isPsEyeSource() && psEyeFrameIsNew) || simpleCam.isFrameNew() || (isVideoSource() && videoPlayer.isFrameNew())) {
 #endif
 
 		ofTexture *videoSource;
@@ -1743,4 +1830,8 @@ void ofApp::exit() {
 #ifdef _WIN32
 	senderSpout.ReleaseSender(); // Release the sender
 #endif
+	// The app object is never deleted, so this reference has to go by hand.
+	// Without it the camera keeps its USB handle and its transfer thread all
+	// the way into static destruction, and libusb_exit() aborts on them.
+	releasePsEye();
 }

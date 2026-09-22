@@ -159,12 +159,26 @@ ifeq ($(shell uname),Darwin)
     PROJECT_EXCLUSIONS = $(PROJECT_ROOT)/src/SpoutSDK%
     PROJECT_EXCLUSIONS += $(PROJECT_ROOT)/src/libusb%
 
-    # PS3 Eye support needs libusb. The copy bundled in src/libusb is an
-    # x86_64/i386 fat binary, so use the Homebrew arm64 build instead:
-    #     brew install libusb
-    LIBUSB_PREFIX = $(shell brew --prefix libusb 2>/dev/null)
-    ifneq ($(LIBUSB_PREFIX),)
-        PROJECT_CFLAGS = -I$(LIBUSB_PREFIX)/include
-        PROJECT_LDFLAGS = -L$(LIBUSB_PREFIX)/lib -lusb-1.0
+    ifeq ($(MAC_ARCH),x86_64)
+        # Cross-building an Intel bundle from Apple Silicon - see build_intel.sh,
+        # which also builds the openFrameworks core for x86_64. Homebrew's libusb
+        # only ever carries the host architecture, so link the x86_64 copy that
+        # ships in src/libusb. It predates libusb_error_name, which is why the
+        # driver does not use it.
+        # The architecture itself rides on CC/CXX, which build_intel.sh sets, so
+        # that an implicit rebuild of the openFrameworks core picks it up too.
+        PROJECT_CFLAGS = -DPS3EYE_BUNDLED_LIBUSB
+        PROJECT_LDFLAGS = $(PROJECT_ROOT)/src/libusb/libusb-1.0.a
+    else
+        # PS3 Eye support needs libusb. The copy bundled in src/libusb is an
+        # x86_64/i386 fat binary, so use the Homebrew build instead:
+        #     brew install libusb
+        # brew --prefix resolves per machine (/opt/homebrew on Apple Silicon,
+        # /usr/local on Intel), so this works on both without editing.
+        LIBUSB_PREFIX = $(shell brew --prefix libusb 2>/dev/null)
+        ifneq ($(LIBUSB_PREFIX),)
+            PROJECT_CFLAGS = -I$(LIBUSB_PREFIX)/include
+            PROJECT_LDFLAGS = -L$(LIBUSB_PREFIX)/lib -lusb-1.0
+        endif
     endif
 endif

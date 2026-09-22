@@ -64,8 +64,15 @@ camera request without ever showing a prompt. The first launch asks for camera
 access - allow it (System Settings > Privacy & Security > Camera) and relaunch,
 otherwise the visuals only react to the mouse.
 
-There is no Kinect on macOS, so the default source (`z` cycles sources) is a
-plain `ofVideoGrabber` on the built-in camera.
+There is no Kinect on macOS, so the fallback source (`z` cycles sources) is a
+plain `ofVideoGrabber` on the built-in camera. A PS3 Eye, when one is plugged
+in, is picked automatically at startup - see below.
+
+The build is per-machine, not per-repo: it uses `brew --prefix libusb` and
+openFrameworks' universal libraries, so the same checkout builds on both Apple
+Silicon and Intel. It does *not* produce a universal binary - Homebrew's libusb
+only carries the host architecture - so build on the machine that will run the
+piece rather than copying `bin/` between machines.
 
 PS3 Eye on macOS
 ---
@@ -81,8 +88,16 @@ code, and libusb has a native macOS backend. Two consequences worth knowing:
   640x480, and up to 187 fps at 320x240 (205 exists but is marked corrupt).
   Note `opticalFlow` runs at 320x180, so a 320x240 feed loses very little.
 
-Press `z` to select the PS3 Eye source; macOS never auto-selects it. If macOS
-asks whether to allow a newly connected accessory, allow it.
+On a build without Kinect support the PS3 Eye is the camera the piece is for, so
+it is selected automatically at startup whenever one is plugged in, and the
+built-in camera is used only when there is none. `z` still cycles sources by
+hand. If macOS asks whether to allow a newly connected accessory, allow it.
+
+A camera that stops delivering - unplugged, or a USB hiccup - no longer hangs
+the app. `update()` waits at most `PS_EYE_FRAME_TIMEOUT_MS` for a frame; after
+`PS_EYE_STALL_SECONDS` of silence, or immediately on a failed USB transfer, it
+drops the camera and falls back to the built-in one, then re-checks every
+`PS_EYE_PROBE_SECONDS` and switches back when the PS3 Eye returns.
 
 Credits & Acknowledgements
 ---

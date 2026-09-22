@@ -9,11 +9,13 @@
 #include <memory>
 
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(PS3EYE_BUNDLED_LIBUSB)
 #include "libusb/libusb.h"
 #else
 // The libusb bundled in src/libusb is an x86_64/i386 binary, so on macOS/Linux
-// use the system (Homebrew) libusb instead - see config.make.
+// use the system (Homebrew) libusb instead - see config.make. Cross-building an
+// Intel bundle defines PS3EYE_BUNDLED_LIBUSB to pick the bundled copy back up,
+// because Homebrew only ever carries the host architecture.
 #include <libusb-1.0/libusb.h>
 #endif
 
@@ -155,6 +157,16 @@ public:
 	// - If there is no frame available, this function will block until one is
 	// - The returned frame is a malloc'd copy; you must free() it yourself when done with it
 	uint8_t* getFrame();
+
+	// Same, but gives up and returns NULL if no frame arrives within timeout_ms.
+	// A render loop wants this one: the blocking version waits on a condition
+	// variable with no timeout, so a camera that stops delivering - unplugged,
+	// USB hiccup - hangs the calling thread for good.
+	uint8_t* getFrame(uint32_t timeout_ms);
+
+	// True once a USB transfer has failed outright - the camera was unplugged
+	// or the bus dropped it. It delivers nothing more until stop()/start().
+	bool hasTransferError();
 
 	uint32_t getWidth() const { return frame_width; }
 	uint32_t getHeight() const { return frame_height; }

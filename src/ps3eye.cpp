@@ -4,6 +4,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <atomic>
+#include <chrono>
 
 #if defined WIN32 || defined _WIN32 || defined WINCE
 	#include <windows.h>
@@ -579,6 +580,31 @@ public:
 		return new_frame;
 	}
 
+	// As Dequeue(), but returns NULL instead of waiting forever when the
+	// producer has stopped. Allocates only once a frame is actually there.
+	uint8_t* Dequeue(uint32_t timeout_ms)
+	{
+		std::unique_lock<std::mutex> lock(mutex);
+
+		if (!empty_condition.wait_for(lock, std::chrono::milliseconds(timeout_ms),
+									  [this] () { return available != 0; }))
+		{
+			return NULL;
+		}
+
+		uint8_t* new_frame = (uint8_t*)malloc(frame_size);
+
+		// Copy from internal buffer
+		uint8_t* source = frame_buffer + frame_size * tail;
+		memcpy(new_frame, source, frame_size);
+
+		// Update tail and available count
+		tail = (tail + 1) % num_frames;
+		available--;
+
+		return new_frame;
+	}
+
 private:
 	uint32_t				frame_size;
 	uint32_t				num_frames;
@@ -597,17 +623,20 @@ private:
 class URBDesc
 {
 public:
-	URBDesc() : 
+	URBDesc() :
 		num_active_transfers			(0),
-		last_packet_type		(DISCARD_PACKET), 
-		last_pts				(0), 
-		last_fid				(0), 
+		transfer_error			(false),
+		last_packet_type		(DISCARD_PACKET),
+		last_pts				(0),
+		last_fid				(0),
 		transfer_buffer			(NULL),
 		cur_frame_start			(NULL),
 		cur_frame_data_len		(0),
 		frame_size				(0),
 		frame_queue				(NULL)
 	{
+		for (int index = 0; index < NUM_TRANSFERS; ++index)
+			xfr[index] = NULL;
 	}
 
 	~URBDesc()
@@ -660,10 +689,12 @@ public:
 		if (num_active_transfers == 0)
 			return;
 
-		// Cancel any pending transfers
+		// Cancel any pending transfers. Slots that already came back are NULL -
+		// cancelling those would be a use-after-free.
 		for (int index = 0; index < NUM_TRANSFERS; ++index)
 		{
-			libusb_cancel_transfer(xfr[index]);
+			if (xfr[index] != NULL)
+				libusb_cancel_transfer(xfr[index]);
 		}
 
 		// Wait for cancelation to finish
@@ -684,6 +715,24 @@ public:
 		--num_active_transfers;
 		num_active_transfers_condition.notify_one();
 	}
+
+	// A transfer libusb will never hand back again: forget the slot so
+	// close_transfers() does not cancel freed memory, then free and account it.
+	void transfer_retired(struct libusb_transfer *finished)
+	{
+		{
+			std::lock_guard<std::mutex> lock(num_active_transfers_mutex);
+			for (int index = 0; index < NUM_TRANSFERS; ++index)
+			{
+				if (xfr[index] == finished) { xfr[index] = NULL; break; }
+			}
+		}
+		libusb_free_transfer(finished);
+		transfer_canceled();
+	}
+
+	void transfer_failed() { transfer_error = true; }
+	bool hasError() const { return transfer_error; }
 
 	void frame_add(enum gspca_packet_type packet_type, const uint8_t *data, int len)
 	{
@@ -804,6 +853,7 @@ public:
 	}
 
 	uint8_t					num_active_transfers;
+	std::atomic_bool		transfer_error;
 	std::mutex				num_active_transfers_mutex;
 	std::condition_variable	num_active_transfers_condition;
 
@@ -828,12 +878,17 @@ static void LIBUSB_CALL transfer_completed_callback(struct libusb_transfer *xfr)
     {
         debug("transfer status %d\n", status);
 
-        libusb_free_transfer(xfr);
-		urb->transfer_canceled();
-        
+        urb->transfer_retired(xfr);
+
         if(status != LIBUSB_TRANSFER_CANCELLED)
         {
-            urb->close_transfers();
+            // Never tear down from here. This is the libusb event thread, and
+            // close_transfers() waits for the remaining transfers to come back
+            // - which only this thread can deliver - and then joins this thread
+            // via cameraStopped(). Both hang. The other transfers fail the same
+            // way and retire themselves; just raise the flag and let the owner
+            // stop the camera.
+            urb->transfer_failed();
         }
         return;
     }
@@ -844,7 +899,10 @@ static void LIBUSB_CALL transfer_completed_callback(struct libusb_transfer *xfr)
 
     if (libusb_submit_transfer(xfr) < 0) {
         debug("error re-submitting URB\n");
-        urb->close_transfers();
+        // libusb never calls back for a transfer it refused to submit, so
+        // retire it here or close_transfers() would wait on it for ever.
+        urb->transfer_retired(xfr);
+        urb->transfer_failed();
     }
 }
 
@@ -1046,6 +1104,19 @@ void PS3EYECam::stop()
 uint8_t* PS3EYECam::getFrame()
 {
 	return urb->frame_queue->Dequeue();
+}
+
+uint8_t* PS3EYECam::getFrame(uint32_t timeout_ms)
+{
+	// frame_queue only exists between start() and stop(), and is_streaming is
+	// the flag that brackets exactly that.
+	if (!is_streaming) return NULL;
+	return urb->frame_queue->Dequeue(timeout_ms);
+}
+
+bool PS3EYECam::hasTransferError()
+{
+	return is_streaming && urb->hasError();
 }
 
 bool PS3EYECam::open_usb()

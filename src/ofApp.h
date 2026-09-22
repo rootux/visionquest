@@ -77,6 +77,8 @@ class ofApp : public ofBaseApp {
 public:
 	void	setup();
 	void	setupPsEye();
+	void	releasePsEye();
+	bool	isPsEyeConnected();
 	void	setupVideoSource();
 	void	update();
 	void	draw();
@@ -89,8 +91,15 @@ public:
 	ftFbo				kinectFbo;
 #endif
 	ps3eye::PS3EYECam::PS3EYERef eye = NULL;
-	unsigned char *		videoFrame;
+	unsigned char *		videoFrame = NULL;
 	ofTexture			videoTexture;
+
+	// PS3 Eye liveness. The eye is the camera this piece is built around, so
+	// when one is plugged in we select it and keep wanting it back if it drops.
+	bool				psEyeIsPreferred = false;
+	bool				psEyeFrameIsNew = false;
+	float				lastPsEyeFrameTime = 0;
+	float				lastPsEyeProbeTime = 0;
 
 	bool				isKinectSource();
 	bool				isPsEyeSource();
