@@ -124,6 +124,9 @@ void ofApp::setup() {
 	cameraFbo.allocate(internalWidth, internalHeight);
 	cameraFbo.black();
 
+	flippedFlowFbo.allocate(internalWidth, internalHeight);
+	flippedFlowFbo.black();
+
 	globalFbo.allocate(internalWidth, internalHeight);
 
 	recolor.setup();
@@ -628,7 +631,25 @@ void ofApp::update() {
 		ofPopStyle();
 		// TODO: figure out how to use kinectFbo for this on kinect and to have it work
 		if ((sourceMode == SOURCE_PS3EYE) && (psEyeRawOpticalFlow.get())) {
-			opticalFlow.setSource(videoTexture);
+			if (doFlipCamera) {
+				// The density comes from cameraFbo, which recolor has already
+				// mirrored, so the flow has to be measured on a mirrored image
+				// too. Reading the raw frame here instead left the velocities
+				// at un-mirrored positions, and the fluid reacted in the
+				// opposite half of the screen from the picture.
+				ofPushStyle();
+				ofEnableBlendMode(OF_BLENDMODE_DISABLED);
+				ofSetColor(255);
+				flippedFlowFbo.begin();
+				videoTexture.draw(flippedFlowFbo.getWidth(), 0,
+					-flippedFlowFbo.getWidth(), flippedFlowFbo.getHeight()); // Flip Horizontal
+				flippedFlowFbo.end();
+				ofPopStyle();
+				opticalFlow.setSource(flippedFlowFbo.getTexture());
+			}
+			else {
+				opticalFlow.setSource(videoTexture);
+			}
 		}
 		else {
 			opticalFlow.setSource(cameraFbo.getTexture());

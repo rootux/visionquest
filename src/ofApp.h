@@ -109,6 +109,9 @@ public:
 
 	bool				didCamUpdate;
 	ftFbo				cameraFbo;
+	// Raw camera frame, mirrored, for optical flow when the camera is flipped.
+	// Kept separate from cameraFbo so the flow stays free of the recolour pass.
+	ftFbo				flippedFlowFbo;
 	ofParameter<bool>	doFlipCamera;
 	ofFbo				globalFbo;
 	bool				spoutInitialized;
