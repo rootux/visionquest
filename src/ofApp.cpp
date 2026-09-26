@@ -893,29 +893,23 @@ void ofApp::updateOscMessages() {
 		}
 
 		if (m.getAddress() == "/1/draw") {
-			float y = m.getArgAsFloat(0);
-			float x = m.getArgAsFloat(1);
-			ofApp::setMousePosition(x, y);
+			oscDrawY = m.getArgAsFloat(0);
+			oscDrawX = m.getArgAsFloat(1);
+			if (oscRightDown)     notifyDrawAt(oscDrawX, oscDrawY, true, 2);
+			else if (oscLeftDown) notifyDrawAt(oscDrawX, oscDrawY, true, 0);
+			else                  notifyDrawAt(oscDrawX, oscDrawY, false, 0);
 		}
 
 		if (m.getAddress() == "/1/toggle_draw") {
-			bool isOn = m.getArgAsBool(0);
-			if (isOn) {
-				ofxMouse::MouseEvent(ofxMouse::LeftDown);
-			}
-			else {
-				ofxMouse::MouseEvent(ofxMouse::LeftUp);
-			}
+			oscLeftDown = m.getArgAsBool(0);
+			// Seed the previous position on press, or the first drag reports a
+			// velocity measured all the way from wherever the pointer was last.
+			if (oscLeftDown) notifyDrawAt(oscDrawX, oscDrawY, false, 0);
 		}
 
 		if (m.getAddress() == "/1/toggle_sticky") {
-			bool isOn = m.getArgAsBool(0);
-			if (isOn) {
-				ofxMouse::MouseEvent(ofxMouse::RightDown);
-			}
-			else {
-				ofxMouse::MouseEvent(ofxMouse::RightUp);
-			}
+			oscRightDown = m.getArgAsBool(0);
+			if (oscRightDown) notifyDrawAt(oscDrawX, oscDrawY, false, 2);
 		}
         
         if (m.getAddress() == "/1/next_pattern" &&
@@ -1011,6 +1005,31 @@ void ofApp::updateOscMessages() {
 //        doJumpBetweenStates.set(1);
 //        ofLogWarning("No osc message received for the last 15 seconds. moving to auto pilot");
 //    }
+}
+
+// Drive the fluid straight from OSC instead of synthesising system mouse input.
+// The old path warped the real cursor and posted CGEvents, which macOS only
+// delivers once the app holds Accessibility permission - and an ad-hoc signature
+// loses that permission on every rebuild. It also moved the operator's pointer,
+// and ofxMouse::MouseEvent() was a no-op on macOS, so a press/release never
+// happened and every point was an isolated click rather than a stroke.
+// ftDrawMouseForces listens on openFrameworks' own mouse events, so notifying
+// those reaches it exactly as a real drag does - no permission, no cursor
+// hijacking, and it works whether or not the window has focus.
+void ofApp::notifyDrawAt(float normalizedX, float normalizedY, bool dragging, int button) {
+	ofMouseEventArgs args;
+	args.x = ofClamp(normalizedX, 0.0f, 1.0f) * ofGetWindowWidth();
+	args.y = ofClamp(normalizedY, 0.0f, 1.0f) * ofGetWindowHeight();
+	args.button = button;
+
+	if (dragging) {
+		args.type = ofMouseEventArgs::Dragged;
+		ofNotifyEvent(ofEvents().mouseDragged, args);
+	}
+	else {
+		args.type = ofMouseEventArgs::Moved;
+		ofNotifyEvent(ofEvents().mouseMoved, args);
+	}
 }
 
 void ofApp::setMousePosition(float x, float y) {

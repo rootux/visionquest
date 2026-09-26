@@ -324,6 +324,14 @@ public:
 	bool				shouldStartPsEyeCam;
 
 	void				setMousePosition(float x, float y);
+	void				notifyDrawAt(float normalizedX, float normalizedY, bool dragging, int button);
+
+	// OSC drawing state. Held here because a drag is a press, a series of
+	// moves and a release, which arrive as separate OSC messages.
+	bool				oscLeftDown = false;
+	bool				oscRightDown = false;
+	float				oscDrawX = 0.5f;
+	float				oscDrawY = 0.5f;
     void                jumpToNextPattern();
     void                updateSettingFile();
     void                cleanCurrentSettingFile();
