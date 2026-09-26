@@ -1,11 +1,11 @@
 <settings>
 	<average_FPS>60</average_FPS>
 	<minimum_FPS>49.109</minimum_FPS>
-	<flip_camera>0</flip_camera>
+	<flip_camera>1</flip_camera>
 	<draw_camera__C_>1</draw_camera__C_>
 	<draw_mode>1</draw_mode>
 	<MODE>Fluid Density  </MODE>
-	<PsEye_Camera_num__x_>1</PsEye_Camera_num__x_>
+	<PsEye_Camera_num__x_>0</PsEye_Camera_num__x_>
 	<psEye_raw_flow>1</psEye_raw_flow>
 	<psEye_AGC>1</psEye_AGC>
 	<Users-only_kinect_filter>0</Users-only_kinect_filter>

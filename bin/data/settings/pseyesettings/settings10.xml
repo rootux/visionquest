@@ -2,7 +2,7 @@
 	<settings_transition>
 	<Transition_mode>0</Transition_mode>
 		</settings_transition>
-	<flip_camera>0</flip_camera>
+	<flip_camera>1</flip_camera>
 	<draw_camera__C_>1</draw_camera__C_>
 	<draw_mode>2</draw_mode>
 	<MODE>Particles      </MODE>
